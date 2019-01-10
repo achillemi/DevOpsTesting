@@ -44,7 +44,7 @@ public class APIRequest {
 		this.paramValues = HashMultimap.create();
 		
 		//Popolo la HashMap delle classi di equivalenza dei parametri dal testFrameBean
-		for(int i = 1; i<=testFrameBean.getParamsNumber(); i++){
+		for(int i = 1; i<=testFrameBean.getParamNumber(); i++){
 			try {
 				Method getKeyParamMethod = FrameBean.class.getMethod("getKeyParam"+i, null);
 				Method getClassParamMethod = FrameBean.class.getMethod("getClassParam"+i, null);

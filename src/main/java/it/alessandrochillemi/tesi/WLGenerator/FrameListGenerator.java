@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeMap;
@@ -21,7 +20,7 @@ import java.util.TreeMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-//Classe che serve a generare la lista con tutti i TestFrame
+//Classe che serve a generare la lista con tutti i Frame
 public class FrameListGenerator {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
@@ -60,65 +59,67 @@ public class FrameListGenerator {
 		//Leggo le variabili d'ambiente
 		String frameMapPath = environment.getProperty("frame_map_path");
 		
-		HTTPMethod method = HTTPMethod.POST;
-		String endpoint = "categories.json";
-		Integer paramsNumber = 3;
-		List<List<String>> classesCombinations = cartesianProduct(TypeParam.STRING,TypeParam.COLOR,TypeParam.COLOR,null,null,null);
+		HTTPMethod method = HTTPMethod.DELETE;
+		String endpoint = "/categories/{id}";
+		Integer paramNumber = 1;
+		List<List<String>> classesCombinations = cartesianProduct(TypeParam.NUMBER,null,null,null,null,null);
 		ArrayList<String> keysParam = new ArrayList<String>();
-		keysParam.add("name");
-		keysParam.add("color");
-		keysParam.add("text_color");
+		keysParam.add("{id}");
+//		keysParam.add("name");
+//		keysParam.add("color");
 //		keysParam.add("text_color");
 		Double probSelection = 1.0/17348;
 		Double probFailure = 0.0 + new Random().nextDouble() * (1.0 - 0.0);
 		
-		List<FrameBean> frameBeansList = generateFrameBeans(method,endpoint,paramsNumber,keysParam,classesCombinations,probSelection,probFailure);
+		List<FrameBean> frameBeansList = generateFrameBeans(method,endpoint,paramNumber,keysParam,classesCombinations,probSelection,probFailure);
 		
 		System.out.println("ok");
 		
-		//PROSSIMA API: GET /c/{id}.json
+		//PROSSIMA API: GET /posts.json
 		
-//		appendToFramesMap(frameBeansList,frameMapPath);	
+		appendToFramesMap(frameBeansList,frameMapPath);
+		
+		TreeMap<Integer, FrameBean> oldMap = null;
+		if(Files.exists(Paths.get(frameMapPath))) { 
+			FileInputStream fis;
+			try {
+				fis = new FileInputStream(frameMapPath);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				oldMap = (TreeMap<Integer, FrameBean>) ois.readObject();
+				ois.close();
+			} catch (IOException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		for(Entry<Integer, FrameBean> entry : oldMap.entrySet()){
+			System.out.print(entry.getKey() + " ");
+			entry.getValue().print();
+			System.out.print("\n");
+		}
+		
+		System.out.println("ok");
 		
 	}
 	
-	private static List<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer paramsNumber, List<String> keysParam, List<List<String>> classesCombinations, Double probSelection, Double probFailure){
+	private static List<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer paramNumber, List<String> keysParam, List<List<String>> classesCombinations, Double probSelection, Double probFailure){
 		List<FrameBean> frameBeansList = new ArrayList<FrameBean>();
 		
-		for(List<String> list : classesCombinations){
+		for(int i = 0; i<classesCombinations.size(); i++){
 			FrameBean frameBean = new FrameBean();
 			frameBean.setMethod(method);
 			frameBean.setEndpoint(endpoint);
-			frameBean.setParamsNumber(paramsNumber);
-
-			for(int j = 0; j<list.size(); j++){
-				int index = j+1;
-				for(Method m : frameBean.getClass().getMethods()){
-					if(m.getName().startsWith("setClassParam"+index)){
-						try {
-							m.invoke(frameBean, EquivalenceClass.valueOf(list.get(j)));
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					if(m.getName().startsWith("setKeyParam"+index)){
-						try {
-							m.invoke(frameBean, keysParam.get(j));
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					
-				}
-			}
-
+			frameBean.setParamNumber(paramNumber);
 			frameBean.setProbSelection(probSelection);
 			frameBean.setProbFailure(probFailure);
-
+			for(int j = 0; j<classesCombinations.get(i).size(); j++){
+				Param param = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
+				frameBean.addParam(param);
+			}
 			frameBeansList.add(frameBean);
 		}
+
 		return frameBeansList;
 		
 	}
