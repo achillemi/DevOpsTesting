@@ -10,8 +10,10 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
@@ -60,44 +62,42 @@ public class FrameListGenerator {
 		String frameMapPath = environment.getProperty("frame_map_path");
 		
 		HTTPMethod method = HTTPMethod.DELETE;
-		String endpoint = "/categories/{id}";
-		Integer paramNumber = 1;
-		List<List<String>> classesCombinations = cartesianProduct(TypeParam.NUMBER,null,null,null,null,null);
+		String endpoint = "/groups/{group_id}/members.json";
+		Integer paramNumber = 2;
+		List<List<String>> classesCombinations = cartesianProduct(TypeParam.NUMBER,TypeParam.NUMBER,null,null,null,null);
 		ArrayList<String> keysParam = new ArrayList<String>();
-		keysParam.add("{id}");
-//		keysParam.add("name");
-//		keysParam.add("color");
-//		keysParam.add("text_color");
+		keysParam.add("{group_id}");
+		keysParam.add("user_id");
+//		keysParam.add("filter");
+//		keysParam.add("page");
+//		keysParam.add("show_emails");
+//		keysParam.add("approved");
 		Double probSelection = 1.0/17348;
 		Double probFailure = 0.0 + new Random().nextDouble() * (1.0 - 0.0);
 		
 		List<FrameBean> frameBeansList = generateFrameBeans(method,endpoint,paramNumber,keysParam,classesCombinations,probSelection,probFailure);
 		
 		System.out.println("ok");
+				
+		//TODO: modificare GET /posts.json con path parameter?
+		//TODO: nella generazione dei valori, ricorda di mettere un: if(key=="slug") then value="-"
+		//TODO: il parametro "status" in PUT /t/{id}/status ammette un insieme finito di valori. Come gestirlo?
+		//TODO: il parametro "order" in GET /latest.json ammette un insieme finito di valori. Come gestirlo?
+		//TODO: il parametro "flag" in GET /top/{flag}.json ammette un insieme finito di valori. Come gestirlo?
+		//TODO: il parametro "status_type" in POST /t/{id}/status_update ammette un insieme finito di valori (non specificato)? Come gestirlo?
+		//TODO: il parametro "notification_level" in POST /t/{id}/notifications ammette un insieme finito di valori. Come gestirlo?
+		//TODO: l'API POST /posts.json (per la creazione di un messaggio privato) richiede l'attributo archetype="private_message"
+		//TODO: il parametro "type" in PUT /users/{username}/preferences/avatar/pick ammette un insieme finito di valori (non specificato)? Come gestirlo?
+		//TODO: il parametro "period" e il parametro "order" in GET /directory_items.json?period={period}&order={order} ammettono un insieme finito di valori (non specificato)? Come gestirlo?
+		//TODO: il parametro "{flag}" e il parametro "order" in GET /admin/users/list/{flag}.json ammettono un insieme finito di valori (non specificato)? Come gestirlo?
+
 		
-		//PROSSIMA API: GET /posts.json
+		//TODO: riassegnare le probSelection
+
 		
 		appendToFramesMap(frameBeansList,frameMapPath);
 		
-		TreeMap<Integer, FrameBean> oldMap = null;
-		if(Files.exists(Paths.get(frameMapPath))) { 
-			FileInputStream fis;
-			try {
-				fis = new FileInputStream(frameMapPath);
-				ObjectInputStream ois = new ObjectInputStream(fis);
-				oldMap = (TreeMap<Integer, FrameBean>) ois.readObject();
-				ois.close();
-			} catch (IOException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		for(Entry<Integer, FrameBean> entry : oldMap.entrySet()){
-			System.out.print(entry.getKey() + " ");
-			entry.getValue().print();
-			System.out.print("\n");
-		}
+		printFramesMap(frameMapPath);
 		
 		System.out.println("ok");
 		
@@ -310,6 +310,66 @@ public class FrameListGenerator {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private static void deleteAPIFromFramesMap(String path, String endpoint){
+		TreeMap<Integer, FrameBean> oldMap = null;
+		if(Files.exists(Paths.get(path))) { 
+			FileInputStream fis;
+			try {
+				fis = new FileInputStream(path);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				oldMap = (TreeMap<Integer, FrameBean>) ois.readObject();
+				ois.close();
+			} catch (IOException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		Iterator<Map.Entry<Integer, FrameBean>> iter = oldMap.entrySet().iterator();
+		while (iter.hasNext()) {
+		    Entry<Integer, FrameBean> entry = iter.next();
+		    if(entry.getValue().getEndpoint().equals(endpoint)){
+		        iter.remove();
+		    }
+		}
+		
+		FileOutputStream fos;
+		try {
+			fos = new FileOutputStream(path);
+	        ObjectOutputStream oos = new ObjectOutputStream(fos);
+	        oos.writeObject(oldMap);
+	        oos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void printFramesMap(String path){
+		TreeMap<Integer, FrameBean> oldMap = null;
+		if(Files.exists(Paths.get(path))) { 
+			FileInputStream fis;
+			try {
+				fis = new FileInputStream(path);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				oldMap = (TreeMap<Integer, FrameBean>) ois.readObject();
+				ois.close();
+			} catch (IOException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if(oldMap != null){
+			for(Entry<Integer, FrameBean> entry : oldMap.entrySet()){
+				System.out.print(entry.getKey() + " ");
+				entry.getValue().print();
+				System.out.print("\n");
+			}
+		}
 	}
 	
 }

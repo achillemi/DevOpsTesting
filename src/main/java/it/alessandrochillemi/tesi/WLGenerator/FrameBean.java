@@ -84,7 +84,7 @@ public class FrameBean implements Serializable{
 	public void print(){
 		System.out.print(method + " " + endpoint + " ");
 		for(Param param : paramList){
-			System.out.print(param.getKeyParam() + " ");
+			System.out.print(param.getKeyParam() + " [" + param.getClassParam() + "] ");
 		}
 	}
 	
