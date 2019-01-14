@@ -1,15 +1,9 @@
 package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
@@ -25,51 +19,22 @@ public class APIRequest {
 	private String apiKey;											//API Key relativa all'username di chi vuole usare l'API
 	
 	private HTTPMethod method;										//Metodo della richiesta HTTP per usare l'API
-	private String endpoint;											//Endpoint dell'API
+	private String endpoint;										//Endpoint dell'API
 	
-	private Map<String,EquivalenceClass> paramClasses;				//Coppie (chiave,classe di equivalenza) dei parametri
-	private Multimap<String,String> paramValues;						/*Coppie (chiave,valore) dei parametri; è una "Multimap"
-																	  per permettere chiavi ripetute, come si verifica nel
-																	  caso delle liste, che sono scomposte in più parametri
-																	  con lo stesso nome*/
+	private ArrayList<Param> bodyParamList;							//Lista di parametri nel body della richiesta
+	private ArrayList<Param> pathParamList;							//Lista di parametri nel path dell'API
+	private ArrayList<Param> queryParamList;						//Lista di parametri nella query
 		
 	public APIRequest(){
 		
 	}
 	
-	public APIRequest(FrameBean testFrameBean){
-		this.setMethod(testFrameBean.getMethod());
-		this.setEndpoint(testFrameBean.getEndpoint());
-		this.paramClasses = new HashMap<String,EquivalenceClass>();
-		this.paramValues = HashMultimap.create();
-		
-		//Popolo la HashMap delle classi di equivalenza dei parametri dal testFrameBean
-		for(int i = 1; i<=testFrameBean.getParamNumber(); i++){
-			try {
-				Method getKeyParamMethod = FrameBean.class.getMethod("getKeyParam"+i, null);
-				Method getClassParamMethod = FrameBean.class.getMethod("getClassParam"+i, null);
-				
-				String key = (String) getKeyParamMethod.invoke(testFrameBean, null);
-				EquivalenceClass eqClass = (EquivalenceClass) getClassParamMethod.invoke(testFrameBean, null);
-				
-				paramClasses.put(key, eqClass);
-			} catch (NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		//Popolo la HashMap dei valori di ogni parametro, generando i valori corrispondenti alle loro classi di equivalenza
-		generateParamValues();
+	public APIRequest(FrameBean frameBean){
+		this.method = frameBean.getMethod();
+		this.endpoint = frameBean.getEndpoint();
+		this.bodyParamList = frameBean.getBodyParamList();
+		this.pathParamList = frameBean.getPathParamList();
+		this.queryParamList = frameBean.getQueryParamList();
 	}
 	
 	public String getBaseURL() {
@@ -108,117 +73,110 @@ public class APIRequest {
 		this.endpoint = endpoint;
 	}
 
-	public Map<String, EquivalenceClass> getParamClasses() {
-		return paramClasses;
+	public ArrayList<Param> getBodyParamList() {
+		return bodyParamList;
 	}
 
-	public void setParamClasses(Map<String, EquivalenceClass> params) {
-		this.paramClasses = params;
-	}
-	
-	private void generateParamValues(){
-		for(Map.Entry<String, EquivalenceClass> entry : paramClasses.entrySet()){
-			switch(entry.getValue()){
-				case BOOLEAN_EMPTY:
-					paramValues.put(entry.getKey(), "");
-					break;
-				case BOOLEAN_NULL:
-					paramValues.put(entry.getKey(), "NULL");
-					break;
-				case BOOLEAN_VALID:
-					//Boolean casuale?
-					paramValues.put(entry.getKey(), "true");
-					break;
-				case LIST_EMPTY:
-					paramValues.put(entry.getKey(), "");
-					break;
-				case LIST_NULL:
-					paramValues.put(entry.getKey(), "NULL");
-					break;
-				case LIST_VALID:
-					//Come generare un parametro di tipo lista?
-					paramValues.put(entry.getKey(), "apple");
-					break;
-				case NUM_ABSOLUTE_MINUS_ONE:
-					paramValues.put(entry.getKey(), "-1");
-					break;
-				case NUM_ABSOLUTE_ZERO:
-					paramValues.put(entry.getKey(), "0");
-					break;
-				case NUM_EMPTY:
-					paramValues.put(entry.getKey(), "");
-					break;
-				case NUM_NULL:
-					paramValues.put(entry.getKey(), "NULL");
-					break;
-				case NUM_VALID:
-					//Number casuale?
-					paramValues.put(entry.getKey(), "2345");
-					break;
-				case NUM_VERY_BIG:
-					//Number very big casuale?
-					paramValues.put(entry.getKey(), "2147483648");
-					break;
-				case STR_EMPTY:
-					paramValues.put(entry.getKey(), "");
-					break;
-				case STR_INVALID:
-					//Come generare stringhe non valide per colori o date?
-					paramValues.put(entry.getKey(), "\n\n\n");
-					break;
-				case STR_NULL:
-					paramValues.put(entry.getKey(), "NULL");
-					break;
-				case STR_VALID:
-					//Stringa casuale?
-					paramValues.put(entry.getKey(), "this_is_a_valid_string_!");
-					break;
-				case STR_VERY_LONG:
-					//Stringa very long casuale? Quanto lunga?
-					paramValues.put(entry.getKey(), "veryveryveryveryveryverylongstring");
-					break;
-				default:
-					break;
-			
-			}
-		}
+	public void setBodyParamList(ArrayList<Param> bodyParamList) {
+		this.bodyParamList = bodyParamList;
 	}
 
-	public int sendRequest(){
-		//Valore che dovrà essere calcolato in base alla classe di equivalenza
-		String trueValue = "5";
+	public ArrayList<Param> getPathParamList() {
+		return pathParamList;
+	}
+
+	public void setPathParamList(ArrayList<Param> pathParamList) {
+		this.pathParamList = pathParamList;
+	}
+
+	public ArrayList<Param> getQueryParamList() {
+		return queryParamList;
+	}
+
+	public void setQueryParamList(ArrayList<Param> queryParamList) {
+		this.queryParamList = queryParamList;
+	}
+
+	public Response sendRequest(){
 		
-		//Cerco nell'endpoint eventuali "path parameters" (che saranno racchiusi da parentesi {}) e li sostituisco
-		//con i valori calcolati secondo le classi di equivalenza
+		//Pattern che identifica i parametri racchiusi da parentesi {}, ovvero i path parameters
 		Pattern p = Pattern.compile("\\{([\\w ]*)\\}");
-		Matcher m = p.matcher(endpoint);
-		while(m.find()) {
-//		    System.out.println(m.group(1));
-			endpoint = m.replaceAll(trueValue);
-		}
-//		System.out.println(endpoint);
 		
-		//Costruisco l'URL completa
-		HttpUrl completeURL = HttpUrl.parse(baseURL).newBuilder()
-				.addPathSegments(endpoint)
-				.build();
+		//Sostituisco eventuali path parameters nell'endpoint con i valori reali
+		Matcher m = p.matcher(endpoint);
+		StringBuffer sb = new StringBuffer();
+		int i = 0;
+		while (m.find()) {
+			m.appendReplacement(sb, pathParamList.get(i).getValue());
+			i++;
+		}
+		m.appendTail(sb);
+		
+		endpoint = sb.toString();
+		
+		//Costruisco l'URL completa, aggiungendo eventuali query parameters oltre a api_key e api_username
+		HttpUrl.Builder completeURLBuilder = HttpUrl.parse(baseURL+endpoint).newBuilder()
+				.addQueryParameter("api_key", apiKey)
+				.addQueryParameter("api_username", apiUsername);
+		for(int j=0; j<queryParamList.size(); j++){
+			completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), queryParamList.get(j).getValue());
+		}
+		HttpUrl completeURL = completeURLBuilder.build();
 		
 		System.out.println(completeURL);
 		
+
 		OkHttpClient client = new OkHttpClient();
 		
-		RequestBody requestBody = new MultipartBody.Builder()
-				.setType(MultipartBody.FORM)
-				.addFormDataPart("api_key", apiKey)
-				.addFormDataPart("api_username", apiUsername)
-				.addFormDataPart("name", "categoria_di_prova2")
-				.addFormDataPart("color", "49d9e9")
-				.addFormDataPart("text_color", "f0fcfd")	
-				.build();
+		//Costruisco il body della richiesta HTTP, se necessario
+		RequestBody requestBody = null;
+		if(bodyParamList.size()>0){
+			MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
+					.setType(MultipartBody.FORM);
+
+			for(int j=0; j<bodyParamList.size(); j++){
+				requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), bodyParamList.get(j).getValue());
+			}
+
+			requestBody = requestBodyBuilder.build();
+		}
 		
-		Request request = new Request.Builder()
-				.url("http://localhost:3000/categories/5")
-				.put(requestBody)
+//		RequestBody requestBody = new MultipartBody.Builder()
+//				.setType(MultipartBody.FORM)
+//				.addFormDataPart("api_key", apiKey)
+//				.addFormDataPart("api_username", apiUsername)
+//				.addFormDataPart("name", "categoria_di_prova2")
+//				.addFormDataPart("color", "49d9e9")
+//				.addFormDataPart("text_color", "f0fcfd")	
+//				.build();
+		
+		//Costruisco la richiesta HTTP
+		Request.Builder requestBuilder = new Request.Builder()
+				.url(completeURL);
+		
+		switch(method){
+			case DELETE:
+				if(requestBody != null){
+					requestBuilder = requestBuilder.delete(requestBody);
+				}
+				else{
+					requestBuilder = requestBuilder.delete();
+				}
+				break;
+			case GET:
+				requestBuilder = requestBuilder.get();
+				break;
+			case POST:
+				requestBuilder = requestBuilder.post(requestBody);
+				break;
+			case PUT:
+				requestBuilder = requestBuilder.put(requestBody);
+				break;
+			default:
+				break;
+		}
+		
+		Request request = requestBuilder
 				.addHeader("cache-control", "no-cache")
 				.build();
 		
@@ -231,7 +189,7 @@ public class APIRequest {
 			e.printStackTrace();
 		}
 		
-		return response.code();
+		return response;
 		
 	}
 

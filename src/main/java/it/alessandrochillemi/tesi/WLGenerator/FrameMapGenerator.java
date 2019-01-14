@@ -23,14 +23,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 //Classe che serve a generare la lista con tutti i Frame
-public class FrameListGenerator {
+public class FrameMapGenerator {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
 	private static final String ENVIRONMENT_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
-	
-	private enum TypeParam {
-		STRING,COLOR,DATE,NUMBER,LIST,BOOLEAN
-	}
 	
 	private static String[] stringEquivalenceClasses = new String[] {"STR_NULL","STR_EMPTY","STR_VERY_LONG","STR_INVALID","STR_VALID"};
 	private static String[] colorEquivalenceClasses = new String[] {"COL_NULL","COL_EMPTY","COL_VERY_LONG","COL_INVALID","COL_VALID"};
@@ -64,7 +60,7 @@ public class FrameListGenerator {
 		HTTPMethod method = HTTPMethod.DELETE;
 		String endpoint = "/groups/{group_id}/members.json";
 		Integer paramNumber = 2;
-		List<List<String>> classesCombinations = cartesianProduct(TypeParam.NUMBER,TypeParam.NUMBER,null,null,null,null);
+		List<List<String>> classesCombinations = EquivalenceClass.cartesianProduct(TypeParam.NUMBER,TypeParam.NUMBER,null,null,null,null);
 		ArrayList<String> keysParam = new ArrayList<String>();
 		keysParam.add("{group_id}");
 		keysParam.add("user_id");
@@ -72,10 +68,10 @@ public class FrameListGenerator {
 //		keysParam.add("page");
 //		keysParam.add("show_emails");
 //		keysParam.add("approved");
-		Double probSelection = 1.0/17348;
+		Double probSelection = 1.0/17648;
 		Double probFailure = 0.0 + new Random().nextDouble() * (1.0 - 0.0);
 		
-		List<FrameBean> frameBeansList = generateFrameBeans(method,endpoint,paramNumber,keysParam,classesCombinations,probSelection,probFailure);
+//		List<FrameBean> frameBeansList = FrameBean.generateFrameBeans(method,endpoint,paramNumber,keysParam,classesCombinations,probSelection,probFailure);
 		
 		System.out.println("ok");
 				
@@ -90,12 +86,8 @@ public class FrameListGenerator {
 		//TODO: il parametro "type" in PUT /users/{username}/preferences/avatar/pick ammette un insieme finito di valori (non specificato)? Come gestirlo?
 		//TODO: il parametro "period" e il parametro "order" in GET /directory_items.json?period={period}&order={order} ammettono un insieme finito di valori (non specificato)? Come gestirlo?
 		//TODO: il parametro "{flag}" e il parametro "order" in GET /admin/users/list/{flag}.json ammettono un insieme finito di valori (non specificato)? Come gestirlo?
-
-		
-		//TODO: riassegnare le probSelection
-
-		
-		appendToFramesMap(frameBeansList,frameMapPath);
+	
+//		appendToFramesMap(frameBeansList,frameMapPath);
 		
 		printFramesMap(frameMapPath);
 		
@@ -103,29 +95,8 @@ public class FrameListGenerator {
 		
 	}
 	
-	private static List<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer paramNumber, List<String> keysParam, List<List<String>> classesCombinations, Double probSelection, Double probFailure){
-		List<FrameBean> frameBeansList = new ArrayList<FrameBean>();
-		
-		for(int i = 0; i<classesCombinations.size(); i++){
-			FrameBean frameBean = new FrameBean();
-			frameBean.setMethod(method);
-			frameBean.setEndpoint(endpoint);
-			frameBean.setParamNumber(paramNumber);
-			frameBean.setProbSelection(probSelection);
-			frameBean.setProbFailure(probFailure);
-			for(int j = 0; j<classesCombinations.get(i).size(); j++){
-				Param param = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
-				frameBean.addParam(param);
-			}
-			frameBeansList.add(frameBean);
-		}
-
-		return frameBeansList;
-		
-	}
-	
-	//Genera la lista di tutte le possibili combinazioni tra gruppi di stringhe (ovvero, in questo caso,
-	//le classi di equivalenza per ogni tipo); seleziona automaticamente i gruppi in base al tipo specificato in ingresso
+	//Genera la lista di tutte le possibili combinazioni di classi di equivalenza tra i gruppi selezionati;
+	//i gruppi di classi di equivalenza sono selezionati automaticamente in base al tipo specificato in ingresso
 	//per ogni parametro; viene usata la libreria Google Guava in combinazione con Java 8, prendendo spunto dalla risposta
 	//seguente indirizzo: https://stackoverflow.com/a/37490796/5863657
 	private static List<List<String>> cartesianProduct(TypeParam typeParam1, TypeParam typeParam2, TypeParam typeParam3, TypeParam typeParam4, TypeParam typeParam5, TypeParam typeParam6){

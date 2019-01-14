@@ -9,15 +9,21 @@ public class FrameBean implements Serializable{
 	
 	private HTTPMethod method;										//Metodo della richiesta HTTP per usare l'API
 	private String endpoint;										//Endpoint dell'API
-	private Integer paramNumber;									//Numero di parametri
-	private ArrayList<Param> paramList;
-	private Double probSelection;									//Probabilità di selezione del TestFrame
-	private Double probFailure;										//Probabilità di fallimento del TestFrame
+	private Integer bodyParamsNumber;								//Numero di parametri nel body della richiesta
+	private ArrayList<Param> bodyParamList;							//Lista di parametri nel body della richiesta
+	private Integer pathParamsNumber;								//Numero di parametri nel path dell'API
+	private ArrayList<Param> pathParamList;							//Lista di parametri nel path dell'API
+	private Integer queryParamsNumber;								//Numero di parametri nella query
+	private ArrayList<Param> queryParamList;						//Lista di parametri nella query
+	private Double probSelection;									//Probabilità di selezione del Frame
+	private Double probFailure;										//Probabilità di fallimento del Frame
 		
 	private static final long serialVersionUID = 5259280897255194440L;
 	
 	public FrameBean(){
-		this.paramList = new ArrayList<Param>();
+		this.bodyParamList = new ArrayList<Param>();
+		this.pathParamList = new ArrayList<Param>();
+		this.queryParamList = new ArrayList<Param>();
 	}
 
 	public HTTPMethod getMethod() {
@@ -36,33 +42,64 @@ public class FrameBean implements Serializable{
 		this.endpoint = endpoint;
 	}
 	
-	public Integer getParamNumber() {
-		return paramNumber;
+	public Integer getBodyParamsNumber() {
+		return bodyParamsNumber;
 	}
 
-	public void setParamNumber(Integer paramNumber) {
-		this.paramNumber = paramNumber;
+	public void setBodyParamsNumber(Integer bodyParamsNumber) {
+		this.bodyParamsNumber = bodyParamsNumber;
 	}
 
-	public List<Param> getParamList() {
-		return paramList;
+	public ArrayList<Param> getBodyParamList() {
+		return bodyParamList;
 	}
 
-	public void setParamList(ArrayList<Param> paramList) {
-		this.paramList = paramList;
+	public void setBodyParamList(ArrayList<Param> bodyParamList) {
+		this.bodyParamList = bodyParamList;
 	}
 	
-	public Param getParam(int index) {
-		return this.paramList.get(index);
+	public Integer getPathParamsNumber() {
+		return pathParamsNumber;
+	}
+
+	public void setPathParamsNumber(Integer pathParamsNumber) {
+		this.pathParamsNumber = pathParamsNumber;
+	}
+
+	public ArrayList<Param> getPathParamList() {
+		return pathParamList;
+	}
+
+	public void setPathParamList(ArrayList<Param> pathParamList) {
+		this.pathParamList = pathParamList;
 	}
 	
-	public void addParam(Param param){
-		if(this.paramList.size() < this.paramNumber){
-			this.paramList.add(param);
-		}
-		else{
-			System.out.println("Param list already full!");
-		}
+	public Integer getQueryParamsNumber() {
+		return queryParamsNumber;
+	}
+
+	public void setQueryParamsNumber(Integer queryParamsNumber) {
+		this.queryParamsNumber = queryParamsNumber;
+	}
+
+	public ArrayList<Param> getQueryParamList() {
+		return queryParamList;
+	}
+
+	public void setQueryParamList(ArrayList<Param> queryParamList) {
+		this.queryParamList = queryParamList;
+	}
+
+	public void addBodyParam(Param bodyParam){
+		this.bodyParamList.add(bodyParam);
+	}
+	
+	public void addPathParam(Param pathParam){
+		this.pathParamList.add(pathParam);
+	}
+	
+	public void addQueryParam(Param queryParam){
+		this.queryParamList.add(queryParam);
 	}
 
 	public Double getProbSelection() {
@@ -81,11 +118,52 @@ public class FrameBean implements Serializable{
 		this.probFailure = probFailure;
 	}
 	
+	//Generate a list of FrameBeans from a list of class combinations (useful when creating a FrameMap);
+	//IMPORTANT: keys of parameters (keysParams) and their classes (each List<String> in classesCombinations) must be in order:
+	//bodyParams, pathParams and then queryParams.
+	public static ArrayList<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer bodyParamsNumber, Integer pathParamsNumber, Integer queryParamsNumber, List<String> keysParam, List<List<String>> classesCombinations, Double probSelection, Double probFailure){
+		ArrayList<FrameBean> frameBeansList = new ArrayList<FrameBean>();
+		
+		for(int i = 0; i<classesCombinations.size(); i++){
+			FrameBean frameBean = new FrameBean();
+			frameBean.setMethod(method);
+			frameBean.setEndpoint(endpoint);
+			frameBean.setBodyParamsNumber(bodyParamsNumber);
+			frameBean.setPathParamsNumber(pathParamsNumber);
+			frameBean.setQueryParamsNumber(queryParamsNumber);
+			frameBean.setProbSelection(probSelection);
+			frameBean.setProbFailure(probFailure);
+			for(int j = 0; j<bodyParamsNumber; j++){
+				Param param = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
+				frameBean.addBodyParam(param);
+			}
+			for(int j = bodyParamsNumber; j<(bodyParamsNumber+pathParamsNumber); j++){
+				Param param = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
+				frameBean.addPathParam(param);
+			}
+			for(int j = (bodyParamsNumber+pathParamsNumber); j<(bodyParamsNumber+pathParamsNumber+queryParamsNumber); j++){
+				Param param = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
+				frameBean.addQueryParam(param);
+			}
+			frameBeansList.add(frameBean);
+		}
+
+		return frameBeansList;
+		
+	}
+	
 	public void print(){
 		System.out.print(method + " " + endpoint + " ");
-		for(Param param : paramList){
+		for(Param param : bodyParamList){
 			System.out.print(param.getKeyParam() + " [" + param.getClassParam() + "] ");
 		}
+		for(Param param : pathParamList){
+			System.out.print(param.getKeyParam() + " [" + param.getClassParam() + "] ");
+		}
+		for(Param param : queryParamList){
+			System.out.print(param.getKeyParam() + " [" + param.getClassParam() + "] ");
+		}
+		System.out.print("probSel: " + probSelection);
 	}
 	
 }

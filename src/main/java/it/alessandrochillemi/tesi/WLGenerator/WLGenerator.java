@@ -5,7 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.concurrent.ThreadLocalRandom;
+
+import okhttp3.Response;
 
 public class WLGenerator{
 	
@@ -29,26 +30,73 @@ public class WLGenerator{
 	    	}
 	    	
 	    	//Leggo le variabili d'ambiente
-	    	String testFrameListPath = environment.getProperty("testframe_list_path");
+	    	String frameMapPath = environment.getProperty("frame_map_path");
 	    	String baseURL = environment.getProperty("base_url");
 	    	String apiUsername = environment.getProperty("api_username");
 	    	String apiKey = environment.getProperty("api_key");
-	    
-	    	//Scelgo un numero casuale tra gli indici della lista di TestFrame
-	    	int randomTestFrameIndex = ThreadLocalRandom.current().nextInt(1, (TestFrameCSVListIO.getCSVLength(testFrameListPath) + 1));
 	    	
-	    	//Leggo il TestFrame con l'indice scelto
-	    	FrameBean testFrameBean = TestFrameCSVListIO.readRowFromCSV(testFrameListPath, randomTestFrameIndex);
+	    	FrameMap frameMap = new FrameMap(frameMapPath);
 	    	
-	    	//Creo una APIRequest con i campi del TestFrame estratto
-	    	APIRequest apiRequest = new APIRequest(testFrameBean);
+	    	//Scelgo il frame secondo la probabilità di selezione impostata con l'ausilio di un vettore che memorizza la probabilità cumulata
+//	    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
+//	    	ArrayList<Double> cumulativePVector = new ArrayList<Double>();
+//	    	
+//	    	cumulativePVector.add(probSelectionDistribution.get(0));
+//	    	
+//	    	for(int i = 1; i<probSelectionDistribution.size(); i++){
+//	    		Double d = cumulativePVector.get(i-1)+probSelectionDistribution.get(i);
+//	    		cumulativePVector.add(d);
+//	    	}
+//	    	
+//	    	double rand = RandomUtils.nextDouble(0, 1);
+//	    	
+//	    	int selectedFrame=-1;		
+//			for(int index =0; index<probSelectionDistribution.size(); index++){
+//				if (rand <= cumulativePVector.get(index)) {
+//					selectedFrame = index;
+//					break;
+//				}
+//			}
+	    	
+	    	//Leggo il frame con l'indice scelto
+//			System.out.println("Selected frame: " + selectedFrame);
+//	    	FrameBean frameBean = frameMap.readByKey(selectedFrame);
+			FrameBean frameBean = frameMap.readByKey(1);
+	    	
+	    	//Stampo il frame scelto
+	    	frameBean.print();
+	    	
+	    	System.out.println("");
+	    	
+	    	//Creo una APIRequest con i campi del Frame estratto
+	    	APIRequest apiRequest = new APIRequest(frameBean);
 	    	apiRequest.setBaseURL(baseURL);
 	    	apiRequest.setApiUsername(apiUsername);
 	    	apiRequest.setApiKey(apiKey);
 	    	
-	    	System.out.println(Integer.MAX_VALUE);
+//			forza pre-condizioni	
 	    	
-//	    	apiRequest.sendRequest();
+	    	Response response = apiRequest.sendRequest();
+	    	System.out.println(response.code());
+	    	
+//	    	OkHttpClient client = new OkHttpClient();
+//	    	
+//	    	Request request = new Request.Builder()
+//	    			.url("http://localhost:3000/categories.json?api_key=54e68ac4a0a4ba01a4dac7cc2abc28e06562516bf30d241158e2e50a2b081c8f&api_username=a.chillemi")
+//	    			.get()
+//	    			.addHeader("cache-control", "no-cache")
+//	    			.addHeader("Postman-Token", "1043d253-1aa1-465a-bbc1-f80874037980")
+//	    			.build();
+//
+//	    	Response response = null;
+//	    	try {
+//				response = client.newCall(request).execute();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//	    	
+//	    	System.out.println(response.code());
 	    	
 	    	
     }
