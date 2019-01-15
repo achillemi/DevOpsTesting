@@ -79,25 +79,5 @@ public class WLGenerator{
 	    	Response response = apiRequest.sendRequest();
 	    	System.out.println(response.code());
 	    	
-//	    	OkHttpClient client = new OkHttpClient();
-//	    	
-//	    	Request request = new Request.Builder()
-//	    			.url("http://localhost:3000/categories.json?api_key=54e68ac4a0a4ba01a4dac7cc2abc28e06562516bf30d241158e2e50a2b081c8f&api_username=a.chillemi")
-//	    			.get()
-//	    			.addHeader("cache-control", "no-cache")
-//	    			.addHeader("Postman-Token", "1043d253-1aa1-465a-bbc1-f80874037980")
-//	    			.build();
-//
-//	    	Response response = null;
-//	    	try {
-//				response = client.newCall(request).execute();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//	    	
-//	    	System.out.println(response.code());
-	    	
-	    	
     }
 }

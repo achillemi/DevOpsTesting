@@ -24,6 +24,7 @@ public class APIRequest {
 	private ArrayList<Param> bodyParamList;							//Lista di parametri nel body della richiesta
 	private ArrayList<Param> pathParamList;							//Lista di parametri nel path dell'API
 	private ArrayList<Param> queryParamList;						//Lista di parametri nella query
+	private ArrayList<PreCondition> preConditionList;				//Lista di precondizioni
 		
 	public APIRequest(){
 		
@@ -97,7 +98,27 @@ public class APIRequest {
 		this.queryParamList = queryParamList;
 	}
 
+	public ArrayList<PreCondition> getPreConditionList() {
+		return preConditionList;
+	}
+
+	public void setPreConditionList(ArrayList<PreCondition> preConditionList) {
+		this.preConditionList = preConditionList;
+	}
+
 	public Response sendRequest(){
+		//Applico le precondizioni a tutti i parametri
+		for(Param param : bodyParamList){
+			param.generateValue(preConditionList);
+		}
+		
+		for(Param param : pathParamList){
+			param.generateValue(preConditionList);
+		}
+		
+		for(Param param : queryParamList){
+			param.generateValue(preConditionList);
+		}
 		
 		//Pattern che identifica i parametri racchiusi da parentesi {}, ovvero i path parameters
 		Pattern p = Pattern.compile("\\{([\\w ]*)\\}");

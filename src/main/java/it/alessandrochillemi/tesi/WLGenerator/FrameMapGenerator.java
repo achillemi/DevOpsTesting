@@ -75,7 +75,6 @@ public class FrameMapGenerator {
 		
 		System.out.println("ok");
 				
-		//TODO: modificare GET /posts.json con path parameter?
 		//TODO: nella generazione dei valori, ricorda di mettere un: if(key=="slug") then value="-"
 		//TODO: il parametro "status" in PUT /t/{id}/status ammette un insieme finito di valori. Come gestirlo?
 		//TODO: il parametro "order" in GET /latest.json ammette un insieme finito di valori. Come gestirlo?

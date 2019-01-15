@@ -3,14 +3,15 @@ package it.alessandrochillemi.tesi.WLGenerator;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
-public class Param implements Serializable{
-	private String keyParam;												//Nome del parametro
-	private EquivalenceClass classParam;									//Classe di equivalenza del parametro
-	private String value;													//Valore del parametro
+public abstract class Param<T extends PreCondition> implements Serializable{
+	private String keyParam;													//Nome del parametro
+	private EquivalenceClass classParam;										//Classe di equivalenza del parametro
+	private String value;														//Valore del parametro
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -43,7 +44,11 @@ public class Param implements Serializable{
 	public String getValue() {
 		return value;
 	}
-	
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 	public void generateValue(){
 		int nextInt = 0;
 		long nextLong = 0L;
@@ -183,5 +188,7 @@ public class Param implements Serializable{
 			}
 		}
 	}
+	
+	public abstract void generateValue(List<T> preConditionList);
 	
 }
