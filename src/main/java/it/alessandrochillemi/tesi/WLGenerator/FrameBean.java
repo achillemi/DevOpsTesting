@@ -121,7 +121,7 @@ public class FrameBean implements Serializable{
 	//Generate a list of FrameBeans from a list of class combinations (useful when creating a FrameMap);
 	//IMPORTANT: keys of parameters (keysParams) and their classes (each List<String> in classesCombinations) must be in order:
 	//bodyParams, pathParams and then queryParams.
-	public static ArrayList<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer bodyParamsNumber, Integer pathParamsNumber, Integer queryParamsNumber, List<String> keysParam, List<DiscourseResourceType> discourseResourceTypes, List<List<String>> classesCombinations, Double probSelection, Double probFailure){
+	public static ArrayList<FrameBean> generateFrameBeans(HTTPMethod method, String endpoint, Integer bodyParamsNumber, Integer pathParamsNumber, Integer queryParamsNumber, List<String> keysParam, List<String> resourceTypesList,List<List<String>> classesCombinations, Double probSelection, Double probFailure){
 		ArrayList<FrameBean> frameBeansList = new ArrayList<FrameBean>();
 		
 		for(int i = 0; i<classesCombinations.size(); i++){
@@ -134,16 +134,16 @@ public class FrameBean implements Serializable{
 			frameBean.setProbSelection(probSelection);
 			frameBean.setProbFailure(probFailure);
 			for(int j = 0; j<bodyParamsNumber; j++){
-				Param<DiscoursePreCondition> param = new DiscourseParam(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),discourseResourceTypes.get(j));
-				frameBean.addBodyParam(param);
+				Param p = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),resourceTypesList.get(j));
+				frameBean.addBodyParam(p);
 			}
 			for(int j = bodyParamsNumber; j<(bodyParamsNumber+pathParamsNumber); j++){
-				Param<DiscoursePreCondition> param = new DiscourseParam(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),discourseResourceTypes.get(j));
-				frameBean.addPathParam(param);
+				Param p = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),resourceTypesList.get(j));
+				frameBean.addBodyParam(p);
 			}
 			for(int j = (bodyParamsNumber+pathParamsNumber); j<(bodyParamsNumber+pathParamsNumber+queryParamsNumber); j++){
-				Param<DiscoursePreCondition> param = new DiscourseParam(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),discourseResourceTypes.get(j));
-				frameBean.addQueryParam(param);
+				Param p = new Param(keysParam.get(j),EquivalenceClass.valueOf(classesCombinations.get(i).get(j)),resourceTypesList.get(j));
+				frameBean.addBodyParam(p);
 			}
 			frameBeansList.add(frameBean);
 		}

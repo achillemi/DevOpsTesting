@@ -2,16 +2,19 @@ package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
-public abstract class Param<T extends PreCondition> implements Serializable{
+public class Param implements Serializable{
 	private String keyParam;													//Nome del parametro
 	private EquivalenceClass classParam;										//Classe di equivalenza del parametro
+	private ArrayList<String> validValues;										//Eventuale elenco di valori validi per un enumerativo
 	private String value;														//Valore del parametro
+	private String resourceType;												//Tipo della risorsa
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -19,9 +22,19 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 		
 	}
 	
-	public Param(String keyParam, EquivalenceClass classParam){
+	public Param(String keyParam, EquivalenceClass classParam, String resourceType){
 		this.keyParam = keyParam;
 		this.classParam = classParam;
+		this.validValues = new ArrayList<String>();
+		this.resourceType = resourceType;
+		generateValue();
+	}
+	
+	public Param(String keyParam, EquivalenceClass classParam, String resourceType, ArrayList<String> validValues){
+		this.keyParam = keyParam;
+		this.classParam = classParam;
+		this.validValues = validValues;
+		this.resourceType = resourceType;
 		generateValue();
 	}
 
@@ -40,6 +53,14 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 	public void setClassParam(EquivalenceClass classParam) {
 		this.classParam = classParam;
 	}
+	
+	public ArrayList<String> getValidValues() {
+		return validValues;
+	}
+
+	public void setValidValues(ArrayList<String> validValues) {
+		this.validValues = validValues;
+	}
 
 	public String getValue() {
 		return value;
@@ -47,6 +68,14 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public String getResourceType() {
+		return resourceType;
+	}
+
+	public void setResourceType(String resourceType) {
+		this.resourceType = resourceType;
 	}
 
 	public void generateValue(){
@@ -189,6 +218,13 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 		}
 	}
 	
-	public abstract void generateValue(List<T> preConditionList);
+	public void generateValue(List<PreCondition> discoursePreConditionList) {
+		for(PreCondition discoursePreCondition : discoursePreConditionList){
+			if(discoursePreCondition.getResourceType().equals(this.getResourceType())){
+				this.setValue(discoursePreCondition.getValue());
+				break;
+			}
+		}
+	}
 	
 }
