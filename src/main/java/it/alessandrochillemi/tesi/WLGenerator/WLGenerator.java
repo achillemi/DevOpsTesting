@@ -7,10 +7,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.apache.commons.lang3.RandomUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import okhttp3.Response;
 
 public class WLGenerator{
