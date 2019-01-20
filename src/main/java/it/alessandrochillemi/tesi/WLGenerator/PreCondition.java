@@ -31,5 +31,9 @@ public class PreCondition{
 	public void setResourceType(String resourceType) {
 		this.resourceType = resourceType;
 	}
+	
+	public void print(){
+		System.out.println(resourceType + ": " + value);
+	}
 
 }

@@ -2,6 +2,8 @@ package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,21 +23,39 @@ public class APIRequest {
 	private HTTPMethod method;										//Metodo della richiesta HTTP per usare l'API
 	private String endpoint;										//Endpoint dell'API
 	
-	private ArrayList<Param> bodyParamList;							//Lista di parametri nel body della richiesta
-	private ArrayList<Param> pathParamList;							//Lista di parametri nel path dell'API
-	private ArrayList<Param> queryParamList;						//Lista di parametri nella query
+	private ArrayList<? extends Param> paramList;					//Lista di parametri della richiesta
 	private ArrayList<PreCondition> preConditionList;				//Lista di precondizioni
 		
 	public APIRequest(){
 		
 	}
 	
+	public APIRequest(FrameBean frameBean, ArrayList<PreCondition> preConditionList){
+		this.method = frameBean.getMethod();
+		this.endpoint = frameBean.getEndpoint();
+		this.paramList = frameBean.getParamList();
+		this.preConditionList = preConditionList;
+	}
+	
 	public APIRequest(FrameBean frameBean){
 		this.method = frameBean.getMethod();
 		this.endpoint = frameBean.getEndpoint();
-		this.bodyParamList = frameBean.getBodyParamList();
-		this.pathParamList = frameBean.getPathParamList();
-		this.queryParamList = frameBean.getQueryParamList();
+		this.paramList = frameBean.getParamList();
+		this.preConditionList = new ArrayList<PreCondition>();
+	}
+	
+	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param> paramList){
+		this.method = method;
+		this.endpoint = endpoint;
+		this.paramList = paramList;
+		this.preConditionList = new ArrayList<PreCondition>();
+	}
+	
+	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param> paramList, ArrayList<PreCondition> preConditionList){
+		this.method = method;
+		this.endpoint = endpoint;
+		this.paramList = paramList;
+		this.preConditionList = preConditionList;
 	}
 	
 	public String getBaseURL() {
@@ -74,28 +94,12 @@ public class APIRequest {
 		this.endpoint = endpoint;
 	}
 
-	public ArrayList<Param> getBodyParamList() {
-		return bodyParamList;
+	public ArrayList<? extends Param> getParamList() {
+		return paramList;
 	}
 
-	public void setBodyParamList(ArrayList<Param> bodyParamList) {
-		this.bodyParamList = bodyParamList;
-	}
-
-	public ArrayList<Param> getPathParamList() {
-		return pathParamList;
-	}
-
-	public void setPathParamList(ArrayList<Param> pathParamList) {
-		this.pathParamList = pathParamList;
-	}
-
-	public ArrayList<Param> getQueryParamList() {
-		return queryParamList;
-	}
-
-	public void setQueryParamList(ArrayList<Param> queryParamList) {
-		this.queryParamList = queryParamList;
+	public void setParamList(ArrayList<? extends Param> paramList) {
+		this.paramList = paramList;
 	}
 
 	public ArrayList<PreCondition> getPreConditionList() {
@@ -105,25 +109,36 @@ public class APIRequest {
 	public void setPreConditionList(ArrayList<PreCondition> preConditionList) {
 		this.preConditionList = preConditionList;
 	}
+	
+	public void generateValue(){
+		for(Param param : paramList){
+			param.generateValue(preConditionList);
+		}
+	}
 
+	//I parametri devono avere già un valore prima di inviare la richiesta; è possibile assegnare un valore a tutti i parametri con generateValue();
 	public Response sendRequest(){
-		//Applico le precondizioni a tutti i parametri
-		for(Param param : bodyParamList){
-			param.generateValue(preConditionList);
+		ArrayList<Param> pathParamList = new ArrayList<Param>();
+		ArrayList<Param> queryParamList = new ArrayList<Param>();
+		ArrayList<Param> bodyParamList = new ArrayList<Param>();
+		
+		//Suddivido tutti i parametri in body, path e query parameters
+		for(Param param : paramList){
+			if(param.getPosition().equals(Param.Position.PATH)){
+				pathParamList.add(param);
+			}
+			if(param.getPosition().equals(Param.Position.QUERY)){
+				queryParamList.add(param);
+			}
+			if(param.getPosition().equals(Param.Position.BODY)){
+				bodyParamList.add(param);
+			}
 		}
 		
-		for(Param param : pathParamList){
-			param.generateValue(preConditionList);
-		}
-		
-		for(Param param : queryParamList){
-			param.generateValue(preConditionList);
-		}
-		
-		//Pattern che identifica i parametri racchiusi da parentesi {}, ovvero i path parameters
+		//Pattern che identifica i parametri racchiusi da parentesi {}, ovvero i path parameters nell'endpoint
 		Pattern p = Pattern.compile("\\{([\\w ]*)\\}");
 		
-		//Sostituisco eventuali path parameters nell'endpoint con i valori reali
+		//Sostituisco eventuali path parameters nell'endpoint con i valori reali; assumo che non possono esistere path parameter di tipo "array"
 		Matcher m = p.matcher(endpoint);
 		StringBuffer sb = new StringBuffer();
 		int i = 0;
@@ -140,12 +155,23 @@ public class APIRequest {
 				.addQueryParameter("api_key", apiKey)
 				.addQueryParameter("api_username", apiUsername);
 		for(int j=0; j<queryParamList.size(); j++){
-			completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), queryParamList.get(j).getValue());
+			//Se il parametro termina con [], si tratta di un array e va quindi diviso in più parametri
+			if(queryParamList.get(j).getKeyParam().endsWith("[]")){
+				//Divido l'array nei suoi elementi (sono separati da virgole)
+				List<String> queryParamArrayElements = Arrays.asList(queryParamList.get(j).getValue().split(","));
+				
+				//Aggiungo un query parameter per ogni valore
+				for(String value : queryParamArrayElements){
+					completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), value);
+				}
+			}
+			else{
+				completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), queryParamList.get(j).getValue());
+			}
 		}
 		HttpUrl completeURL = completeURLBuilder.build();
 		
-		System.out.println(completeURL);
-		
+//		System.out.println(completeURL);	
 
 		OkHttpClient client = new OkHttpClient();
 		
@@ -156,20 +182,25 @@ public class APIRequest {
 					.setType(MultipartBody.FORM);
 
 			for(int j=0; j<bodyParamList.size(); j++){
-				requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), bodyParamList.get(j).getValue());
+				//Se il parametro termina con [], si tratta di un array e va quindi diviso in più parametri
+				if(bodyParamList.get(j).getKeyParam().endsWith("[]")){
+					//Divido l'array nei suoi elementi (sono separati da virgole)
+					List<String> bodyParamArrayElements = Arrays.asList(bodyParamList.get(j).getValue().split(","));
+					
+					//Aggiungo un body parameter per ogni valore
+					for(String value : bodyParamArrayElements){
+						requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), value);
+					}
+				}
+				else{
+					requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), bodyParamList.get(j).getValue());
+				}
+//				System.out.println(bodyParamList.get(j).getKeyParam() + ":");
+//				System.out.println(bodyParamList.get(j).getValue());
 			}
 
 			requestBody = requestBodyBuilder.build();
 		}
-		
-//		RequestBody requestBody = new MultipartBody.Builder()
-//				.setType(MultipartBody.FORM)
-//				.addFormDataPart("api_key", apiKey)
-//				.addFormDataPart("api_username", apiUsername)
-//				.addFormDataPart("name", "categoria_di_prova2")
-//				.addFormDataPart("color", "49d9e9")
-//				.addFormDataPart("text_color", "f0fcfd")	
-//				.build();
 		
 		//Costruisco la richiesta HTTP
 		Request.Builder requestBuilder = new Request.Builder()

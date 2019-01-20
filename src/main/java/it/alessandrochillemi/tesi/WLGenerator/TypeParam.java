@@ -1,5 +1,5 @@
 package it.alessandrochillemi.tesi.WLGenerator;
 
 public enum TypeParam {
-	STRING,COLOR,DATE,NUMBER,LIST,BOOLEAN,CONSTANT;
+	STRING,COLOR,DATE,NUMBER,LIST,BOOLEAN,ENUM;
 }
