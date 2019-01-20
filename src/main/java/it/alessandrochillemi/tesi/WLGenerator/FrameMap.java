@@ -82,11 +82,11 @@ public class FrameMap {
 	}
 	
 	//Get all the frames that have the specified endpoint
-	public ArrayList<FrameBean> getFrameBeansByEndpoint(String endpoint){
+	public ArrayList<FrameBean> getFrameBeansByEndpoint(HTTPMethod method, String endpoint){
 		ArrayList<FrameBean> ret = new ArrayList<FrameBean>();
 		
 		for(Map.Entry<Integer, FrameBean> entry : map.entrySet()){
-			if(entry.getValue().getEndpoint().equals(endpoint)){
+			if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 				ret.add(entry.getValue());
 			}
 		}
@@ -95,8 +95,8 @@ public class FrameMap {
 	
 	//Update all the frames that have the specified endpoint to the specified frame list;
 	//if the specified list has a different number of elements than the ones already present, a message is shown and the operation is not performed.
-	public void updateFrameBeansByEndpoint(String endpoint, ArrayList<FrameBean> frameBeansList){
-		ArrayList<FrameBean> oldFrameList = getFrameBeansByEndpoint(endpoint);
+	public void updateFrameBeansByEndpoint(HTTPMethod method, String endpoint, List<FrameBean> frameBeansList){
+		ArrayList<FrameBean> oldFrameList = getFrameBeansByEndpoint(method,endpoint);
 		
 		if(frameBeansList.size() != oldFrameList.size()){
 			System.out.println("The specified frame list has a different number of elements than the existing one!");
@@ -106,13 +106,41 @@ public class FrameMap {
 			int i = 0;
 			while (iter.hasNext()) {
 			    Entry<Integer, FrameBean> entry = iter.next();
-			    if(entry.getValue().getEndpoint().equals(endpoint)){
+			    if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 			    	entry.setValue(frameBeansList.get(i));
 			    	i++;
 			    }
 			}
 		}
 
+	}
+	
+//	public void changeClass(){
+//		Iterator<Map.Entry<Integer, FrameBean>> iter = map.entrySet().iterator();
+//		FrameBean newFrameBean = null;
+//		FrameBean oldFrameBean = null;
+//		while (iter.hasNext()) {
+//		    Entry<Integer, FrameBean> entry = iter.next();
+//		    oldFrameBean = entry.getValue();
+//		    newFrameBean = new FrameBean(oldFrameBean);
+//		    ArrayList<DiscourseParam> discourseParamList = new ArrayList<DiscourseParam>();
+//		    for(Param p : oldFrameBean.getParamList()){
+//		    	DiscourseParam discourseParam = new DiscourseParam(p);
+//		    	discourseParamList.add(discourseParam);
+//		    }
+//		    newFrameBean.setParamList(discourseParamList);
+//		    entry.setValue(newFrameBean);
+//		}
+//	}
+	
+	public void deleteFrames(HTTPMethod method, String endpoint){
+		Iterator<Map.Entry<Integer, FrameBean>> iter = map.entrySet().iterator();
+		while (iter.hasNext()) {
+		    Entry<Integer, FrameBean> entry = iter.next();
+		    if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
+		        iter.remove();
+		    }
+		}
 	}
 	
 	public void saveToFile(String path){
@@ -139,10 +167,10 @@ public class FrameMap {
 	}
 	
 	//Print the entries with the specified endpoint only
-	public void print(String endpoint){
+	public void print(HTTPMethod method, String endpoint){
 		if(map != null){
 			for(Entry<Integer, FrameBean> entry : map.entrySet()){
-				if(entry.getValue().getEndpoint().equals(endpoint)){
+				if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 					System.out.print(entry.getKey() + " ");
 					entry.getValue().print();
 					System.out.print("\n");
