@@ -2,9 +2,10 @@ package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-public class Param implements Serializable{
+import org.apache.commons.lang3.Validate;
+
+public class Param<T extends PreCondition> implements Serializable{
 	
 	public enum Position{BODY,PATH,QUERY};
 	
@@ -12,8 +13,8 @@ public class Param implements Serializable{
 	protected TypeParam typeParam;												//Tipo del parametro
 	protected Position position;												//Posizione del parametro nella richiesta HTTP
 	protected EquivalenceClass classParam;										//Classe di equivalenza del parametro
-	protected String resourceType;												//Tipo della risorsa
-	protected ArrayList<String> validValues;									//Eventuale elenco di valori validi
+	protected ResourceType resourceType;										//Tipo della risorsa
+	protected ArrayList<String> validValues;									//Eventuale elenco di valori validi per enumerativi
 	protected String value;														//Valore del parametro
 	
 	private static final long serialVersionUID = 1L;
@@ -22,53 +23,33 @@ public class Param implements Serializable{
 		
 	}
 	
-	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, String resourceType, ArrayList<String> validValues){
+	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType, ArrayList<String> validValues){
+		//Check that classParam is not null
+		Validate.notNull(classParam, "classParam can't be null!");
+		
 		this.keyParam = keyParam;
 		this.typeParam = typeParam;
 		this.position = position;
 		this.classParam = classParam;
 		this.resourceType = resourceType;
 		this.validValues = validValues;
-		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
-		}
+		this.value = classParam.generateValue(validValues);
 	}
 	
-	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, String resourceType){
+	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType){
+		//Check that classParam is not null
+		Validate.notNull(classParam, "classParam can't be null!");
+		
 		this.keyParam = keyParam;
 		this.typeParam = typeParam;
 		this.position = position;
 		this.classParam = classParam;
 		this.resourceType = resourceType;
 		this.validValues = new ArrayList<String>();
-		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
-		}
+		this.value = classParam.generateValue(validValues);
 	}
 	
-	public Param(String keyParam, TypeParam typeParam, Position position, String resourceType, ArrayList<String> validValues){
-		this.keyParam = keyParam;
-		this.typeParam = typeParam;
-		this.position = position;
-		this.resourceType = resourceType;
-		this.validValues = validValues;
-		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
-		}
-	}
-	
-	public Param(String keyParam, TypeParam typeParam, Position position, String resourceType){
-		this.keyParam = keyParam;
-		this.typeParam = typeParam;
-		this.position = position;
-		this.resourceType = resourceType;
-		this.validValues = new ArrayList<String>();
-		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
-		}
-	}
-	
-	public Param(Param param){
+	public Param(Param<T> param){
 		this.keyParam = param.getKeyParam();
 		this.typeParam = param.getTypeParam();
 		this.position = param.getPosition();
@@ -126,27 +107,33 @@ public class Param implements Serializable{
 		this.value = value;
 	}
 
-	public String getResourceType() {
+	public ResourceType getResourceType() {
 		return resourceType;
 	}
 
-	public void setResourceType(String resourceType) {
+	public void setResourceType(ResourceType resourceType) {
 		this.resourceType = resourceType;
 	}
 	
-	public void generateValue(List<PreCondition> discoursePreConditionList) {
+	public void generateValue(){
+		if(this.classParam != null){
+			this.value = this.classParam.generateValue(validValues);
+		}
+	}
+	
+	public void generateValue(ArrayList<T> preConditionList) {
 		if(classParam != null){
 			this.value = classParam.generateValue(validValues);
 		}
-		for(PreCondition discoursePreCondition : discoursePreConditionList){
-			if(discoursePreCondition.getResourceType().equals(this.getResourceType())){
-				this.setValue(discoursePreCondition.getValue());
+		for(PreCondition preCondition : preConditionList){
+			if(preCondition.getResourceType().equals(this.getResourceType())){
+				this.setValue(preCondition.getValue());
 			}
 		}
 	}
 	
 	public void print(){
-		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType);
+		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType + " " + value);
 	}
 	
 }

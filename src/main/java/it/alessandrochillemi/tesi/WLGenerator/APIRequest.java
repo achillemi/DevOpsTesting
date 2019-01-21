@@ -14,7 +14,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class APIRequest {
+public class APIRequest<T extends PreCondition> {
 	
 	private String baseURL;											//Indirizzo del dominio che ospita l'applicazione
 	private String apiUsername;										//Username di chi vuole usare l'API
@@ -23,35 +23,35 @@ public class APIRequest {
 	private HTTPMethod method;										//Metodo della richiesta HTTP per usare l'API
 	private String endpoint;										//Endpoint dell'API
 	
-	private ArrayList<? extends Param> paramList;					//Lista di parametri della richiesta
-	private ArrayList<PreCondition> preConditionList;				//Lista di precondizioni
+	private ArrayList<? extends Param<T>> paramList;					//Lista di parametri della richiesta
+	private ArrayList<T> preConditionList;				//Lista di precondizioni
 		
 	public APIRequest(){
 		
 	}
 	
-	public APIRequest(FrameBean frameBean, ArrayList<PreCondition> preConditionList){
+	public APIRequest(FrameBean<T> frameBean, ArrayList<T> preConditionList){
 		this.method = frameBean.getMethod();
 		this.endpoint = frameBean.getEndpoint();
 		this.paramList = frameBean.getParamList();
 		this.preConditionList = preConditionList;
 	}
 	
-	public APIRequest(FrameBean frameBean){
+	public APIRequest(FrameBean<T> frameBean){
 		this.method = frameBean.getMethod();
 		this.endpoint = frameBean.getEndpoint();
 		this.paramList = frameBean.getParamList();
-		this.preConditionList = new ArrayList<PreCondition>();
+		this.preConditionList = new ArrayList<T>();
 	}
 	
-	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param> paramList){
+	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param<T>> paramList){
 		this.method = method;
 		this.endpoint = endpoint;
 		this.paramList = paramList;
-		this.preConditionList = new ArrayList<PreCondition>();
+		this.preConditionList = new ArrayList<T>();
 	}
 	
-	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param> paramList, ArrayList<PreCondition> preConditionList){
+	public APIRequest(HTTPMethod method, String endpoint, ArrayList<? extends Param<T>> paramList, ArrayList<T> preConditionList){
 		this.method = method;
 		this.endpoint = endpoint;
 		this.paramList = paramList;
@@ -94,36 +94,36 @@ public class APIRequest {
 		this.endpoint = endpoint;
 	}
 
-	public ArrayList<? extends Param> getParamList() {
+	public ArrayList<? extends Param<T>> getParamList() {
 		return paramList;
 	}
 
-	public void setParamList(ArrayList<? extends Param> paramList) {
+	public void setParamList(ArrayList<? extends Param<T>> paramList) {
 		this.paramList = paramList;
 	}
 
-	public ArrayList<PreCondition> getPreConditionList() {
+	public ArrayList<T> getPreConditionList() {
 		return preConditionList;
 	}
 
-	public void setPreConditionList(ArrayList<PreCondition> preConditionList) {
+	public void setPreConditionList(ArrayList<T> preConditionList) {
 		this.preConditionList = preConditionList;
 	}
 	
-	public void generateValue(){
-		for(Param param : paramList){
+	public void generateParamValues(){
+		for(Param<T> param : paramList){
 			param.generateValue(preConditionList);
 		}
 	}
 
 	//I parametri devono avere già un valore prima di inviare la richiesta; è possibile assegnare un valore a tutti i parametri con generateValue();
 	public Response sendRequest(){
-		ArrayList<Param> pathParamList = new ArrayList<Param>();
-		ArrayList<Param> queryParamList = new ArrayList<Param>();
-		ArrayList<Param> bodyParamList = new ArrayList<Param>();
+		ArrayList<Param<T>> pathParamList = new ArrayList<Param<T>>();
+		ArrayList<Param<T>> queryParamList = new ArrayList<Param<T>>();
+		ArrayList<Param<T>> bodyParamList = new ArrayList<Param<T>>();
 		
 		//Suddivido tutti i parametri in body, path e query parameters
-		for(Param param : paramList){
+		for(Param<T> param : paramList){
 			if(param.getPosition().equals(Param.Position.PATH)){
 				pathParamList.add(param);
 			}
