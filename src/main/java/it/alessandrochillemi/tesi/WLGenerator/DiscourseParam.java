@@ -1,44 +1,111 @@
 package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class DiscourseParam extends Param{
+import org.apache.commons.lang3.Validate;
+
+public class DiscourseParam extends Param<DiscoursePreCondition>{
+	
+	private DiscourseTypeParam typeParam;					//Tipo del parametro
+	private DiscourseEquivalenceClass classParam;			//Classe di equivalenza del parametro
+	
+	private static final long serialVersionUID = 284320922843475342L;
 	
 	public DiscourseParam(){
 		
 	}
 	
-	public DiscourseParam(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, String resourceType, ArrayList<String> validValues){
-		super(keyParam,typeParam,position,classParam,resourceType,validValues);
+	public DiscourseParam(String keyParam, DiscourseTypeParam typeParam, Position position, DiscourseEquivalenceClass classParam, DiscourseResourceType resourceType, ArrayList<String> validValues){
+		//Check that classParam is not null
+		Validate.notNull(classParam, "classParam can't be null!");
+		
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.classParam = classParam;
+		this.resourceType = resourceType;
+		this.validValues = validValues;
 		generateValue();
 	}
 	
-	public DiscourseParam(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, String resourceType){
-		super(keyParam,typeParam,position,classParam,resourceType);
+	public DiscourseParam(String keyParam, DiscourseTypeParam typeParam, Position position, DiscourseEquivalenceClass classParam, DiscourseResourceType resourceType){
+		//Check that classParam is not null
+		Validate.notNull(classParam, "classParam can't be null!");
+
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.classParam = classParam;
+		this.resourceType = resourceType;
+		this.validValues = new ArrayList<String>();
 		generateValue();
 	}
 	
-	public DiscourseParam(String keyParam, TypeParam typeParam, Position position, String resourceType, ArrayList<String> validValues){
-		super(keyParam,typeParam,position,resourceType,validValues);
+	public DiscourseParam(String keyParam, DiscourseTypeParam typeParam, Position position, DiscourseResourceType resourceType, ArrayList<String> validValues){
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.resourceType = resourceType;
+		this.validValues = validValues;
 		generateValue();
 	}
 	
-	public DiscourseParam(String keyParam, TypeParam typeParam, Position position, String resourceType){
-		super(keyParam,typeParam,position,resourceType);
+	public DiscourseParam(String keyParam, DiscourseTypeParam typeParam, Position position, DiscourseResourceType resourceType){
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.resourceType = resourceType;
+		this.validValues = new ArrayList<String>();
 		generateValue();
 	}
 	
-	public DiscourseParam(Param param){
-		super(param);
-		generateValue();
+	public DiscourseParam(DiscourseParam discourseParam){
+		this.keyParam = discourseParam.getKeyParam();
+		this.typeParam = discourseParam.getTypeParam();
+		this.position = discourseParam.getPosition();
+		this.classParam = discourseParam.getClassParam();
+		this.resourceType = discourseParam.getResourceType();
+		this.validValues = discourseParam.getValidValues();
+		this.value = discourseParam.getValue();
+		
+	}
+	
+	public DiscourseTypeParam getTypeParam() {
+		return typeParam;
 	}
 
-	private static final long serialVersionUID = 284320922843475342L;
-	
+	public void setTypeParam(DiscourseTypeParam typeParam) {
+		this.typeParam = typeParam;
+	}
+
+	public DiscourseEquivalenceClass getClassParam() {
+		return classParam;
+	}
+
+	public void setClassParam(DiscourseEquivalenceClass classParam) {
+		this.classParam = classParam;
+	}
+
 	public void generateValue(){
-		if(classParam != null){
+		if(this.classParam != null){
 			this.value = this.classParam.generateValue(validValues);
 		}
+	}
+	
+	public void generateValue(List<DiscoursePreCondition> preConditionList) {
+		if(classParam != null){
+			this.value = classParam.generateValue(validValues);
+		}
+		for(DiscoursePreCondition preCondition : preConditionList){
+			if(preCondition.getResourceType().equals(this.getResourceType())){
+				this.setValue(preCondition.getValue());
+			}
+		}
+	}
+	
+	public void print(){
+		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType + " " + value);
 	}
 
 }

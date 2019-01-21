@@ -1,14 +1,14 @@
 package it.alessandrochillemi.tesi.WLGenerator;
 
 public class PreCondition{
-	private String resourceType;
-	private String value;
+	protected ResourceType resourceType;
+	protected String value;
 	
 	public PreCondition(){
 		
 	}
 	
-	public PreCondition(String resourceType, String value){
+	public PreCondition(ResourceType resourceType, String value){
 		this.resourceType = resourceType;
 		this.value = value;
 	}
@@ -24,16 +24,23 @@ public class PreCondition{
 		this.value = value;
 	}
 
-	public String getResourceType() {
+	public ResourceType getResourceType() {
 		return resourceType;
 	}
 
-	public void setResourceType(String resourceType) {
+	public void setResourceType(ResourceType resourceType) {
 		this.resourceType = resourceType;
+	}
+	
+	public void generatePreConditionValue(String baseURL, String apiUsername, String apiKey){
+		if(this.resourceType != null){
+			this.value = this.resourceType.generatePreConditionValue(baseURL, apiUsername, apiKey);
+		}
 	}
 	
 	public void print(){
 		System.out.println(resourceType + ": " + value);
 	}
+
 
 }

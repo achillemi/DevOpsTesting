@@ -36,7 +36,7 @@ public class WLGenerator{
 	    	String apiUsername = environment.getProperty("api_username");
 	    	String apiKey = environment.getProperty("api_key");
 	    	
-	    	FrameMap frameMap = new FrameMap(frameMapPath);
+	    	FrameMap<DiscoursePreCondition> frameMap = new FrameMap<DiscoursePreCondition>(frameMapPath);
 	    	
 	    	//Scelgo il frame secondo la probabilità di selezione impostata con l'ausilio di un vettore che memorizza la probabilità cumulata
 //	    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
@@ -62,8 +62,8 @@ public class WLGenerator{
 	    	//Leggo il frame con l'indice scelto
 //			System.out.println("Selected frame: " + selectedFrame);
 //	    	FrameBean frameBean = frameMap.readByKey(selectedFrame);
-	    	int selectedFrame = 1042;
-			FrameBean frameBean = frameMap.readByKey(selectedFrame);
+	    	int selectedFrame = 4005;
+			FrameBean<DiscoursePreCondition> frameBean = frameMap.readByKey(selectedFrame);
 	    	
 	    	//Stampo il frame scelto
 	    	frameBean.print();
@@ -71,11 +71,11 @@ public class WLGenerator{
 //	    	System.out.println("");
 	    	
 	    	//Forzo le precondizioni
-	    	ArrayList<PreCondition> preConditionList = DiscoursePreCondition.generateDiscoursePreConditions();
+	    	ArrayList<DiscoursePreCondition> preConditionList = DiscoursePreCondition.getAllDiscoursePreConditions(baseURL,apiUsername,apiKey);
 	    	
 //	    	//Creo una APIRequest con i campi del Frame estratto
-	    	APIRequest apiRequest = new APIRequest(frameBean, preConditionList);
-	    	apiRequest.generateValue();
+	    	APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(frameBean, preConditionList);
+	    	apiRequest.generateParamValues();
 	    	apiRequest.setBaseURL(baseURL);
 	    	apiRequest.setApiUsername(apiUsername);
 	    	apiRequest.setApiKey(apiKey);
@@ -90,11 +90,13 @@ public class WLGenerator{
 				e2.printStackTrace();
 			}
 	    	
-	    	ResponseLogList responseLogList = new ResponseLogList();
-	    	ResponseLog responseLog = new ResponseLog(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
+	    	ResponseLogList<DiscoursePreCondition> responseLogList = new ResponseLogList<DiscoursePreCondition>("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
+	    	ResponseLog<DiscoursePreCondition> responseLog = new ResponseLog<DiscoursePreCondition>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
 	    	
 	    	responseLogList.add(responseLog);
 	    	System.out.println(responseLogList.count(Integer.toString(selectedFrame, 10)));
+	    	responseLogList.get(0).print();
+	    	responseLogList.saveToFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
 	    	
     }
 }

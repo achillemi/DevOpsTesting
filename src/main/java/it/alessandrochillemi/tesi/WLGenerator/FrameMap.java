@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-public class FrameMap {
+public class FrameMap<T extends PreCondition> {
 	
 	//A Treemap keeps the entries sorted by the keys' natural ordering
-	private TreeMap<Integer, FrameBean> map;
+	private TreeMap<Integer, FrameBean<T>> map;
 	
 	public FrameMap(){
-		this.map = new TreeMap<Integer, FrameBean>();
+		this.map = new TreeMap<Integer, FrameBean<T>>();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -30,7 +30,7 @@ public class FrameMap {
 			try {
 				fis = new FileInputStream(path);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				this.map = (TreeMap<Integer, FrameBean>) ois.readObject();
+				this.map = (TreeMap<Integer, FrameBean<T>>) ois.readObject();
 				ois.close();
 			} catch (IOException | ClassNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -46,16 +46,16 @@ public class FrameMap {
 		return map.size();
 	}
 	
-	public FrameBean readByKey(Integer key){
+	public FrameBean<T> readByKey(Integer key){
 		return map.get(key);
 	}
 	
-	public Iterator<Map.Entry<Integer, FrameBean>> iterator(){
+	public Iterator<Map.Entry<Integer, FrameBean<T>>> iterator(){
 		return map.entrySet().iterator();
 	}
 	
-	public void append(List<FrameBean> list){
-		for(FrameBean frameBean : list){
+	public void append(List<FrameBean<T>> list){
+		for(FrameBean<T> frameBean : list){
 			map.put(map.isEmpty() ? 1 : map.lastKey()+1, frameBean);
 		}
 	}
@@ -64,7 +64,7 @@ public class FrameMap {
 	public ArrayList<Double> getProbSelectionDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 		
-		for(Map.Entry<Integer, FrameBean> entry : map.entrySet()){
+		for(Map.Entry<Integer, FrameBean<T>> entry : map.entrySet()){
 			ret.add(entry.getValue().getProbSelection());
 		}
 		return ret;
@@ -72,20 +72,20 @@ public class FrameMap {
 	
 	//Set the probability selection for every entry in the FrameMap
 	public void setProbSelectionDistribution(ArrayList<Double> probSelectionDistribution){
-		Iterator<Map.Entry<Integer, FrameBean>> iter = map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, FrameBean<T>>> iter = map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-		    Entry<Integer, FrameBean> entry = iter.next();
+		    Entry<Integer, FrameBean<T>> entry = iter.next();
 		    entry.getValue().setProbSelection(probSelectionDistribution.get(i));
 		    i++;
 		}
 	}
 	
 	//Get all the frames that have the specified endpoint
-	public ArrayList<FrameBean> getFrameBeansByEndpoint(HTTPMethod method, String endpoint){
-		ArrayList<FrameBean> ret = new ArrayList<FrameBean>();
+	public ArrayList<FrameBean<T>> getFrameBeansByEndpoint(HTTPMethod method, String endpoint){
+		ArrayList<FrameBean<T>> ret = new ArrayList<FrameBean<T>>();
 		
-		for(Map.Entry<Integer, FrameBean> entry : map.entrySet()){
+		for(Map.Entry<Integer, FrameBean<T>> entry : map.entrySet()){
 			if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 				ret.add(entry.getValue());
 			}
@@ -95,17 +95,17 @@ public class FrameMap {
 	
 	//Update all the frames that have the specified endpoint to the specified frame list;
 	//if the specified list has a different number of elements than the ones already present, a message is shown and the operation is not performed.
-	public void updateFrameBeansByEndpoint(HTTPMethod method, String endpoint, List<FrameBean> frameBeansList){
-		ArrayList<FrameBean> oldFrameList = getFrameBeansByEndpoint(method,endpoint);
+	public void updateFrameBeansByEndpoint(HTTPMethod method, String endpoint, List<FrameBean<T>> frameBeansList){
+		ArrayList<FrameBean<T>> oldFrameList = getFrameBeansByEndpoint(method,endpoint);
 		
 		if(frameBeansList.size() != oldFrameList.size()){
 			System.out.println("The specified frame list has a different number of elements than the existing one!");
 		}
 		else{
-			Iterator<Map.Entry<Integer, FrameBean>> iter = map.entrySet().iterator();
+			Iterator<Map.Entry<Integer, FrameBean<T>>> iter = map.entrySet().iterator();
 			int i = 0;
 			while (iter.hasNext()) {
-			    Entry<Integer, FrameBean> entry = iter.next();
+			    Entry<Integer, FrameBean<T>> entry = iter.next();
 			    if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 			    	entry.setValue(frameBeansList.get(i));
 			    	i++;
@@ -134,9 +134,9 @@ public class FrameMap {
 //	}
 	
 	public void deleteFrames(HTTPMethod method, String endpoint){
-		Iterator<Map.Entry<Integer, FrameBean>> iter = map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, FrameBean<T>>> iter = map.entrySet().iterator();
 		while (iter.hasNext()) {
-		    Entry<Integer, FrameBean> entry = iter.next();
+		    Entry<Integer, FrameBean<T>> entry = iter.next();
 		    if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 		        iter.remove();
 		    }
@@ -158,7 +158,7 @@ public class FrameMap {
 	
 	public void print(){
 		if(map != null){
-			for(Entry<Integer, FrameBean> entry : map.entrySet()){
+			for(Entry<Integer, FrameBean<T>> entry : map.entrySet()){
 				System.out.print(entry.getKey() + " ");
 				entry.getValue().print();
 				System.out.print("\n");
@@ -169,7 +169,7 @@ public class FrameMap {
 	//Print the entries with the specified endpoint only
 	public void print(HTTPMethod method, String endpoint){
 		if(map != null){
-			for(Entry<Integer, FrameBean> entry : map.entrySet()){
+			for(Entry<Integer, FrameBean<T>> entry : map.entrySet()){
 				if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 					System.out.print(entry.getKey() + " ");
 					entry.getValue().print();

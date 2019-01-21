@@ -3,17 +3,17 @@ package it.alessandrochillemi.tesi.WLGenerator;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ResponseLog implements Serializable{
+public class ResponseLog<T extends PreCondition> implements Serializable{
 	
 	private String frameID;									//ID del Frame a cui si riferisce questa risposta
 	private Integer responseCode;							//Codice di risposta della richiesta HTTP
 	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
 	private String responseBody;							//Body della risposta alla richiesta HTTP
-	private ArrayList<? extends Param> paramList;			//Lista di parametri usati nella richiesta
+	private ArrayList<? extends Param<T>> paramList;		//Lista di parametri usati nella richiesta
 	
 	private static final long serialVersionUID = 7679179561832569179L;
 
-	public ResponseLog(String frameID, Integer responseCode, String responseMessage, String responseBody, ArrayList<? extends Param> paramList) {
+	public ResponseLog(String frameID, Integer responseCode, String responseMessage, String responseBody, ArrayList<? extends Param<T>> paramList) {
 		super();
 		this.frameID = frameID;
 		this.responseCode = responseCode;
@@ -46,10 +46,10 @@ public class ResponseLog implements Serializable{
 	public void setResponseBody(String responseBody) {
 		this.responseBody = responseBody;
 	}
-	public ArrayList<? extends Param> getParamList() {
+	public ArrayList<? extends Param<T>> getParamList() {
 		return paramList;
 	}
-	public void setParamList(ArrayList<? extends Param> paramList) {
+	public void setParamList(ArrayList<? extends Param<T>> paramList) {
 		this.paramList = paramList;
 	}
 	
@@ -58,7 +58,8 @@ public class ResponseLog implements Serializable{
 		System.out.println("RESPONSE CODE: " + responseCode);
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
 		System.out.println("RESPONSE BODY: " + responseBody);
-		for(Param p : paramList){
+		System.out.println("PARAMETERS: ");
+		for(Param<T> p : paramList){
 			p.print();
 		}
 	}
