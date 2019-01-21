@@ -1,7 +1,6 @@
 package it.alessandrochillemi.tesi.WLGenerator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
@@ -93,13 +92,17 @@ public class DiscourseParam extends Param<DiscoursePreCondition>{
 		}
 	}
 	
-	public void generateValue(List<DiscoursePreCondition> preConditionList) {
+	public void generateValue(ArrayList<DiscoursePreCondition> preConditionList) {
 		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
+			this.value = this.classParam.generateValue(validValues);
 		}
-		for(DiscoursePreCondition preCondition : preConditionList){
-			if(preCondition.getResourceType().equals(this.getResourceType())){
-				this.setValue(preCondition.getValue());
+		if(classParam.toString().endsWith("_VALID")){
+			for(DiscoursePreCondition preCondition : preConditionList){
+				if(preCondition.getResourceType().equals(this.getResourceType())){
+					if(preCondition.getValue() != null){
+						this.setValue(preCondition.getValue());
+					}
+				}
 			}
 		}
 	}

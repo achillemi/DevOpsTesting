@@ -125,9 +125,13 @@ public class Param<T extends PreCondition> implements Serializable{
 		if(classParam != null){
 			this.value = classParam.generateValue(validValues);
 		}
-		for(PreCondition preCondition : preConditionList){
-			if(preCondition.getResourceType().equals(this.getResourceType())){
-				this.setValue(preCondition.getValue());
+		if(classParam.toString().endsWith("_VALID")){
+			for(PreCondition preCondition : preConditionList){
+				if(preCondition.getResourceType().equals(this.getResourceType())){
+					if(preCondition.getValue() != null){
+						this.setValue(preCondition.getValue());
+					}
+				}
 			}
 		}
 	}

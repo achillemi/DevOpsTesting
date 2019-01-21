@@ -73,8 +73,8 @@ public class Test {
 //		System.out.println("ok!");
 		
     	ResponseLogList<DiscoursePreCondition> responseLogList = new ResponseLogList<DiscoursePreCondition>("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
-    	System.out.println(responseLogList.size());
-    	responseLogList.get(0).print();
+    	System.out.println(responseLogList.size()+"\n");
+    	responseLogList.get(1).print();
 //    	for(Param<DiscoursePreCondition> p : responseLogList.get(0).getParamList()){
 //    		p.print();
 //    	}

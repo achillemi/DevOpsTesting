@@ -59,19 +59,19 @@ public class WLGenerator{
 //				}
 //			}
 	    	
+	    	int selectedFrame = 2523;
+			
 	    	//Leggo il frame con l'indice scelto
-//			System.out.println("Selected frame: " + selectedFrame);
-//	    	FrameBean frameBean = frameMap.readByKey(selectedFrame);
-	    	int selectedFrame = 4005;
+			System.out.println("Selected frame: " + selectedFrame);
 			FrameBean<DiscoursePreCondition> frameBean = frameMap.readByKey(selectedFrame);
 	    	
 	    	//Stampo il frame scelto
 	    	frameBean.print();
 	    	
-//	    	System.out.println("");
-	    	
 	    	//Forzo le precondizioni
+	    	System.out.println("\nForcing pre-conditions...");
 	    	ArrayList<DiscoursePreCondition> preConditionList = DiscoursePreCondition.getAllDiscoursePreConditions(baseURL,apiUsername,apiKey);
+	    	System.out.println("Pre-conditions created!");
 	    	
 //	    	//Creo una APIRequest con i campi del Frame estratto
 	    	APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(frameBean, preConditionList);
@@ -79,6 +79,12 @@ public class WLGenerator{
 	    	apiRequest.setBaseURL(baseURL);
 	    	apiRequest.setApiUsername(apiUsername);
 	    	apiRequest.setApiKey(apiKey);
+	    	
+//	    	for(Param<DiscoursePreCondition> p : apiRequest.getParamList()){
+//	    		p.generateValue(preConditionList);
+//	    		System.out.println(p.getClassParam());
+//	    		System.out.println(p.getValue());
+//	    	}
 	    	
 	    	Response response = apiRequest.sendRequest();
 	    	
@@ -93,9 +99,10 @@ public class WLGenerator{
 	    	ResponseLogList<DiscoursePreCondition> responseLogList = new ResponseLogList<DiscoursePreCondition>("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
 	    	ResponseLog<DiscoursePreCondition> responseLog = new ResponseLog<DiscoursePreCondition>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
 	    	
+	    	System.out.println("");
+	    	responseLog.print();
+	    	
 	    	responseLogList.add(responseLog);
-	    	System.out.println(responseLogList.count(Integer.toString(selectedFrame, 10)));
-	    	responseLogList.get(0).print();
 	    	responseLogList.saveToFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
 	    	
     }
