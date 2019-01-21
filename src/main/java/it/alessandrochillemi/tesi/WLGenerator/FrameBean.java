@@ -69,7 +69,7 @@ public class FrameBean<T extends PreCondition> implements Serializable{
 	public void print(){
 		System.out.println(method + " " + endpoint + ": ");
 		for(int i = 0; i<paramList.size(); i++){
-			System.out.print(i + ": [");
+			System.out.print((i+1) + ": [");
 			paramList.get(i).print();
 			System.out.print("]; ");
 		}
