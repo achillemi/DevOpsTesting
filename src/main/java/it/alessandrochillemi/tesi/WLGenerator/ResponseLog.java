@@ -57,11 +57,12 @@ public class ResponseLog<T extends PreCondition> implements Serializable{
 		System.out.println("FRAME ID: " + frameID);
 		System.out.println("RESPONSE CODE: " + responseCode);
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
-		System.out.println("RESPONSE BODY: " + responseBody);
+//		System.out.println("RESPONSE BODY: " + responseBody);
 		System.out.println("PARAMETERS: ");
-		for(Param<T> p : paramList){
-			p.print();
-		}
+//		for(Param<T> p : paramList){
+//			p.print();
+//			System.out.println();
+//		}
 	}
 
 }

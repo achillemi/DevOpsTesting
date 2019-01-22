@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.apache.commons.lang3.RandomUtils;
+
 import okhttp3.Response;
 
 public class WLGenerator{
@@ -39,27 +41,27 @@ public class WLGenerator{
 	    	FrameMap<DiscoursePreCondition> frameMap = new FrameMap<DiscoursePreCondition>(frameMapPath);
 	    	
 	    	//Scelgo il frame secondo la probabilità di selezione impostata con l'ausilio di un vettore che memorizza la probabilità cumulata
-//	    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
-//	    	ArrayList<Double> cumulativePVector = new ArrayList<Double>();
-//	    	
-//	    	cumulativePVector.add(probSelectionDistribution.get(0));
-//	    	
-//	    	for(int i = 1; i<probSelectionDistribution.size(); i++){
-//	    		Double d = cumulativePVector.get(i-1)+probSelectionDistribution.get(i);
-//	    		cumulativePVector.add(d);
-//	    	}
-//	    	
-//	    	double rand = RandomUtils.nextDouble(0, 1);
-//	    	
-//	    	int selectedFrame=-1;		
-//			for(int index =0; index<probSelectionDistribution.size(); index++){
-//				if (rand <= cumulativePVector.get(index)) {
-//					selectedFrame = index;
-//					break;
-//				}
-//			}
+	    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
+	    	ArrayList<Double> cumulativePVector = new ArrayList<Double>();
 	    	
-	    	int selectedFrame = 2523;
+	    	cumulativePVector.add(probSelectionDistribution.get(0));
+	    	
+	    	for(int i = 1; i<probSelectionDistribution.size(); i++){
+	    		Double d = cumulativePVector.get(i-1)+probSelectionDistribution.get(i);
+	    		cumulativePVector.add(d);
+	    	}
+	    	
+	    	double rand = RandomUtils.nextDouble(0, 1);
+	    	
+	    	int selectedFrame=-1;		
+			for(int index =0; index<probSelectionDistribution.size(); index++){
+				if (rand <= cumulativePVector.get(index)) {
+					selectedFrame = index;
+					break;
+				}
+			}
+	    	
+//	    	int selectedFrame = 2523;
 			
 	    	//Leggo il frame con l'indice scelto
 			System.out.println("Selected frame: " + selectedFrame);
