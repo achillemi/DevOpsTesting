@@ -3,17 +3,17 @@ package it.alessandrochillemi.tesi.WLGenerator;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ResponseLog<T extends PreCondition> implements Serializable{
+public class ResponseLog<P extends Param<? extends PreCondition>> implements Serializable{
 	
 	private String frameID;									//ID del Frame a cui si riferisce questa risposta
 	private Integer responseCode;							//Codice di risposta della richiesta HTTP
 	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
 	private String responseBody;							//Body della risposta alla richiesta HTTP
-	private ArrayList<? extends Param<T>> paramList;		//Lista di parametri usati nella richiesta
+	private ArrayList<P> paramList;							//Lista di parametri usati nella richiesta
 	
 	private static final long serialVersionUID = 7679179561832569179L;
 
-	public ResponseLog(String frameID, Integer responseCode, String responseMessage, String responseBody, ArrayList<? extends Param<T>> paramList) {
+	public ResponseLog(String frameID, Integer responseCode, String responseMessage, String responseBody, ArrayList<P> paramList) {
 		super();
 		this.frameID = frameID;
 		this.responseCode = responseCode;
@@ -46,10 +46,10 @@ public class ResponseLog<T extends PreCondition> implements Serializable{
 	public void setResponseBody(String responseBody) {
 		this.responseBody = responseBody;
 	}
-	public ArrayList<? extends Param<T>> getParamList() {
+	public ArrayList<P> getParamList() {
 		return paramList;
 	}
-	public void setParamList(ArrayList<? extends Param<T>> paramList) {
+	public void setParamList(ArrayList<P> paramList) {
 		this.paramList = paramList;
 	}
 	
