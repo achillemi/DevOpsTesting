@@ -1,16 +1,19 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.WLGenerator.discourse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import it.alessandrochillemi.tesi.WLGenerator.PreCondition;
 
 public class DiscoursePreCondition extends PreCondition{
 	
 	private DiscourseResourceType resourceType;
 	
 	public DiscoursePreCondition(DiscourseResourceType resourceType, String value) {
+		super(resourceType,value);
+		
 		this.resourceType = resourceType;
-		this.value = value;
 	}
 	
 	public DiscoursePreCondition(DiscourseResourceType resourceType) {
@@ -18,7 +21,7 @@ public class DiscoursePreCondition extends PreCondition{
 	}
 
 	public DiscourseResourceType getResourceType() {
-		return resourceType;
+		return this.resourceType;
 	}
 
 	public void setResourceType(DiscourseResourceType resourceType) {

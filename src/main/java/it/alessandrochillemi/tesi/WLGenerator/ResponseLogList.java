@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class ResponseLogList<T extends PreCondition> {
-	private ArrayList<ResponseLog<T>> responseLogList;
+public class ResponseLogList<R extends ResponseLog<? extends Param<? extends PreCondition>>> {
+	private ArrayList<R> responseLogList;
 	
 	public ResponseLogList(){
-		responseLogList = new ArrayList<ResponseLog<T>>();
+		responseLogList = new ArrayList<R>();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -23,7 +23,7 @@ public class ResponseLogList<T extends PreCondition> {
 			try {
 				fis = new FileInputStream(path);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				this.responseLogList = (ArrayList<ResponseLog<T>>) ois.readObject();
+				this.responseLogList = (ArrayList<R>) ois.readObject();
 				ois.close();
 			} catch (IOException | ClassNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -39,18 +39,18 @@ public class ResponseLogList<T extends PreCondition> {
 		return responseLogList.size();
 	}
 	
-	public void add(ResponseLog<T> responseLog){
+	public void add(R responseLog){
 		responseLogList.add(responseLog);
 	}
 	
-	public ResponseLog<T> get(int index){
+	public R get(int index){
 		return responseLogList.get(index);
 	}
 
 	//Numero di risposte riferite al frame specificato
 	public int count(String frameID){
 		int count = 0;
-		for(ResponseLog<? extends PreCondition> r : responseLogList){
+		for(R r : responseLogList){
 			if(r.getFrameID().equals(frameID)){
 				count++;
 			}

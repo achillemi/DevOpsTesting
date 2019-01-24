@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.Validate;
 
-public class Param<T extends PreCondition> implements Serializable{
+public abstract class Param<T extends PreCondition> implements Serializable{
 	
 	public enum Position{BODY,PATH,QUERY};
 	
@@ -14,16 +14,13 @@ public class Param<T extends PreCondition> implements Serializable{
 	protected Position position;												//Posizione del parametro nella richiesta HTTP
 	protected EquivalenceClass classParam;										//Classe di equivalenza del parametro
 	protected ResourceType resourceType;										//Tipo della risorsa
+	protected boolean required;													//Parametro obbligatorio o meno
 	protected ArrayList<String> validValues;									//Eventuale elenco di valori validi per enumerativi
 	protected String value;														//Valore del parametro
 	
 	private static final long serialVersionUID = 1L;
 	
-	public Param(){
-		
-	}
-	
-	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType, ArrayList<String> validValues){
+	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType, boolean required, ArrayList<String> validValues){
 		//Check that classParam is not null
 		Validate.notNull(classParam, "classParam can't be null!");
 		
@@ -32,11 +29,12 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.position = position;
 		this.classParam = classParam;
 		this.resourceType = resourceType;
+		this.required = required;
 		this.validValues = validValues;
-		this.value = classParam.generateValue(validValues);
+		this.generateValue();
 	}
 	
-	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType){
+	public Param(String keyParam, TypeParam typeParam, Position position, EquivalenceClass classParam, ResourceType resourceType, boolean required){
 		//Check that classParam is not null
 		Validate.notNull(classParam, "classParam can't be null!");
 		
@@ -45,8 +43,29 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.position = position;
 		this.classParam = classParam;
 		this.resourceType = resourceType;
+		this.required = required;
 		this.validValues = new ArrayList<String>();
-		this.value = classParam.generateValue(validValues);
+		this.generateValue();
+	}
+	
+	public Param(String keyParam, TypeParam typeParam, Position position, ResourceType resourceType, boolean required, ArrayList<String> validValues){
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.resourceType = resourceType;
+		this.required = required;
+		this.validValues = validValues;
+		this.generateValue();
+	}
+	
+	public Param(String keyParam, TypeParam typeParam, Position position, ResourceType resourceType, boolean required){
+		this.keyParam = keyParam;
+		this.typeParam = typeParam;
+		this.position = position;
+		this.resourceType = resourceType;
+		this.required = required;
+		this.validValues = new ArrayList<String>();
+		this.generateValue();
 	}
 	
 	public Param(Param<T> param){
@@ -55,6 +74,7 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.position = param.getPosition();
 		this.classParam = param.getClassParam();
 		this.resourceType = param.getResourceType();
+		this.required = param.isRequired();
 		this.validValues = param.getValidValues();
 		this.value = param.getValue();
 	}
@@ -67,9 +87,7 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.keyParam = keyParam;
 	}
 
-	public TypeParam getTypeParam() {
-		return typeParam;
-	}
+	public abstract TypeParam getTypeParam();
 
 	public void setTypeParam(TypeParam typeParam) {
 		this.typeParam = typeParam;
@@ -91,6 +109,14 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.classParam = classParam;
 	}
 	
+	public boolean isRequired() {
+		return required;
+	}
+
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+
 	public ArrayList<String> getValidValues() {
 		return validValues;
 	}
@@ -115,29 +141,9 @@ public class Param<T extends PreCondition> implements Serializable{
 		this.resourceType = resourceType;
 	}
 	
-	public void generateValue(){
-		if(this.classParam != null){
-			this.value = this.classParam.generateValue(validValues);
-		}
-	}
+	public abstract void generateValue();
+	public abstract void generateValue(ArrayList<T> preConditionList);
 	
-	public void generateValue(ArrayList<T> preConditionList) {
-		if(classParam != null){
-			this.value = classParam.generateValue(validValues);
-		}
-		if(classParam.toString().endsWith("_VALID")){
-			for(PreCondition preCondition : preConditionList){
-				if(preCondition.getResourceType().equals(this.getResourceType())){
-					if(preCondition.getValue() != null){
-						this.setValue(preCondition.getValue());
-					}
-				}
-			}
-		}
-	}
-	
-	public void print(){
-		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType + " " + value);
-	}
+	public abstract void print();
 	
 }

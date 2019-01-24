@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.WLGenerator.discourse;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import it.alessandrochillemi.tesi.WLGenerator.APIRequest;
+import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
+import it.alessandrochillemi.tesi.WLGenerator.Param;
+import it.alessandrochillemi.tesi.WLGenerator.ResourceType;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -155,14 +159,14 @@ public enum DiscourseResourceType implements ResourceType{
 		String endpoint = "/categories.json";
 		
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p1);
-		DiscourseParam p2 = new DiscourseParam("color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p2 = new DiscourseParam("color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p2);
-		DiscourseParam p3 = new DiscourseParam("text_color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p3 = new DiscourseParam("text_color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p3);
 		
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -193,14 +197,15 @@ public enum DiscourseResourceType implements ResourceType{
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
 		
+		//Set parameters
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("title", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p1 = new DiscourseParam("title", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p1);
-		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p2);
-		DiscourseParam p3 = new DiscourseParam("category", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.CATEGORY_ID);
+		DiscourseParam p3 = new DiscourseParam("category", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.CATEGORY_ID,true);
 		paramList.add(p3);
-		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
 		
 		//Generate pre-conditions required for creating a new topic
@@ -210,12 +215,18 @@ public enum DiscourseResourceType implements ResourceType{
 		}
 		preConditionList.add(new DiscoursePreCondition(DiscourseResourceType.CATEGORY_ID,categoryIDValue));
 		
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList,preConditionList);
-		apiRequest.generateParamValues();
+		//Apply pre-conditions to params
+		for(DiscourseParam p : paramList){
+			p.generateValue(preConditionList);
+		}
+		
+		//Create an API request
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
     	
+    	//Send the request
     	Response response = apiRequest.sendRequest();
     	
     	String stringResponseBody = null;
@@ -246,31 +257,34 @@ public enum DiscourseResourceType implements ResourceType{
 		
 		String username1 = RandomStringUtils.randomAlphanumeric(10,16);
 		
+		//Set params
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(username1);
 		paramList.add(p1);
-		DiscourseParam p2 = new DiscourseParam("email", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p2 = new DiscourseParam("email", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p2.setValue(username1+"@unina.it");
 		paramList.add(p2);
-		DiscourseParam p3 = new DiscourseParam("password", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p3 = new DiscourseParam("password", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p3.setValue(UUID.randomUUID().toString());
 		paramList.add(p3);
-		DiscourseParam p4 = new DiscourseParam("username", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p4 = new DiscourseParam("username", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p4.setValue(username1);
 		paramList.add(p4);
-		DiscourseParam p5 = new DiscourseParam("active", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p5 = new DiscourseParam("active", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p5.setValue("true");
 		paramList.add(p5);
-		DiscourseParam p6 = new DiscourseParam("approved", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p6 = new DiscourseParam("approved", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p6.setValue("true");
 		paramList.add(p6);
 		
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		//Create an API Request
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
     	
+    	//Send the request
     	Response response = apiRequest.sendRequest();
     	
     	String stringResponseBody = null;
@@ -295,31 +309,34 @@ public enum DiscourseResourceType implements ResourceType{
     	//Create user2
     	String username2 = RandomStringUtils.randomAlphanumeric(10,16);
 
+    	//Set params
     	paramList = new ArrayList<DiscourseParam>();
-		p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(username2);
 		paramList.add(p1);
-		p2 = new DiscourseParam("email", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		p2 = new DiscourseParam("email", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p2.setValue(username2+"@unina.it");
 		paramList.add(p2);
-		p3 = new DiscourseParam("password", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		p3 = new DiscourseParam("password", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p3.setValue(UUID.randomUUID().toString());
 		paramList.add(p3);
-		p4 = new DiscourseParam("username", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		p4 = new DiscourseParam("username", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p4.setValue(username2);
 		paramList.add(p4);
-		p5 = new DiscourseParam("active", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE);
+		p5 = new DiscourseParam("active", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p5.setValue("true");
 		paramList.add(p5);
-		p6 = new DiscourseParam("approved", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE);
+		p6 = new DiscourseParam("approved", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p6.setValue("true");
 		paramList.add(p6);
 
-    	apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		//Create an API Request
+    	apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
     	apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
 
+    	//Send the request
     	response = apiRequest.sendRequest();
 
     	stringResponseBody = null;
@@ -349,16 +366,19 @@ public enum DiscourseResourceType implements ResourceType{
 		HTTPMethod method = HTTPMethod.PUT;
 		String endpoint = "/admin/site_settings/tagging_enabled";
 
+		//Set params
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("tagging_enabled", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p1 = new DiscourseParam("tagging_enabled", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue("true");
 		paramList.add(p1);
 
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		//Create an API Request
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
 
+		//Send the request
 		Response response = apiRequest.sendRequest();
 
 		//Create tag group
@@ -370,19 +390,22 @@ public enum DiscourseResourceType implements ResourceType{
 		String tag2 = RandomStringUtils.randomAlphanumeric(4, 11);
 		String tagList = tag1+","+tag2;
 
+		//Set params
 		paramList = new ArrayList<DiscourseParam>();
-		p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		p1 = new DiscourseParam("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(tagGroupName);
 		paramList.add(p1);
-		DiscourseParam p2 = new DiscourseParam("tag_names[]", DiscourseTypeParam.LIST, Param.Position.BODY, DiscourseEquivalenceClass.LIST_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p2 = new DiscourseParam("tag_names[]", DiscourseTypeParam.LIST, Param.Position.BODY, DiscourseEquivalenceClass.LIST_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p2.setValue(tagList);
 		paramList.add(p2);
 
-		apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		//Create an API Request
+		apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
 
+		//Send the request
 		response = apiRequest.sendRequest();
 
 		String stringResponseBody = null;
@@ -410,7 +433,7 @@ public enum DiscourseResourceType implements ResourceType{
 		
 		File avatar = new File("resources/mario_rossi.jpeg");
 		
-		//Costruisco l'URL completa, aggiungendo api_key e api_username
+		//Build complete URL, adding api_key and api_username
 		HttpUrl.Builder completeURLBuilder = HttpUrl.parse(baseURL+endpoint).newBuilder()
 				.addQueryParameter("api_key", apiKey)
 				.addQueryParameter("api_username", apiUsername);
@@ -478,16 +501,19 @@ public enum DiscourseResourceType implements ResourceType{
 		String endpoint = "/admin/groups";
 		String group_name = RandomStringUtils.randomAlphanumeric(5,16);
 		
+		//Set params
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("group[name]", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p1 = new DiscourseParam("group[name]", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(group_name);
 		paramList.add(p1);
 		
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList);
+		//Create an API Request
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
     	
+    	//Send the request
     	Response response = apiRequest.sendRequest();
     	
     	String stringResponseBody = null;
@@ -517,12 +543,13 @@ public enum DiscourseResourceType implements ResourceType{
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
 		
+		//Set params
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
-		DiscourseParam p1 = new DiscourseParam("topic_id", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.TOPIC_ID);
+		DiscourseParam p1 = new DiscourseParam("topic_id", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.TOPIC_ID,true);
 		paramList.add(p1);
-		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p2);
-		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE);
+		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
 		
 		//Generate pre-conditions required for creating a new post
@@ -532,12 +559,18 @@ public enum DiscourseResourceType implements ResourceType{
 		}
 		preConditionList.add(new DiscoursePreCondition(DiscourseResourceType.TOPIC_ID,topicIDValue));
 		
-		APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(method,endpoint,paramList,preConditionList);
-		apiRequest.generateParamValues();
+		//Apply pre-conditions to params
+		for(DiscourseParam p : paramList){
+			p.generateValue(preConditionList);
+		}
+		
+		//Create an API Request
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
     	
+    	//Send the request
     	Response response = apiRequest.sendRequest();
     	
     	String stringResponseBody = null;

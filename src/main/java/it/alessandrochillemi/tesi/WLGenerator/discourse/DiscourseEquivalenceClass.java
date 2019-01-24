@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.WLGenerator.discourse;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -15,11 +15,15 @@ import org.apache.commons.lang3.RandomUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import it.alessandrochillemi.tesi.WLGenerator.EquivalenceClass;
+import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
+
 //Possibili classi di equivalenza per ogni parametro
 public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	STR_NULL,STR_EMPTY,STR_VERY_LONG,STR_INVALID,STR_VALID,
 	COL_EMPTY,COL_INVALID,COL_VALID,
 	DATE_EMPTY,DATE_INVALID,DATE_VALID,
+	EMAIL_EMPTY,EMAIL_INVALID,EMAIL_VALID,
 	NUM_EMPTY,NUM_ABSOLUTE_MINUS_ONE,NUM_ABSOLUTE_ZERO,NUM_VERY_BIG,NUM_INVALID,NUM_VALID,
 	LIST_NULL,LIST_EMPTY,LIST_VALID,
 	BOOLEAN_EMPTY,BOOLEAN_INVALID,BOOLEAN_VALID,
@@ -28,6 +32,7 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	private static String[] stringEquivalenceClasses = new String[] {"STR_NULL","STR_EMPTY","STR_VERY_LONG","STR_INVALID","STR_VALID"};
 	private static String[] colorEquivalenceClasses = new String[] {"COL_EMPTY","COL_INVALID","COL_VALID"};
 	private static String[] dateEquivalenceClasses = new String[] {"DATE_EMPTY","DATE_INVALID","DATE_VALID"};
+	private static String[] emailEquivalenceClasses = new String[] {"EMAIL_EMPTY","EMAIL_INVALID","EMAIL_VALID"};
 	private static String[] numberEquivalenceClasses = new String[] {"NUM_EMPTY","NUM_ABSOLUTE_MINUS_ONE","NUM_ABSOLUTE_ZERO","NUM_VERY_BIG","NUM_INVALID","NUM_VALID"};
 	private static String[] listEquivalenceClasses = new String[] {"LIST_NULL","LIST_EMPTY","LIST_VALID"};
 	private static String[] booleanEquivalenceClasses = new String[] {"BOOLEAN_EMPTY","BOOLEAN_INVALID","BOOLEAN_VALID"};
@@ -50,6 +55,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 				break;
 			case DATE:
 				elements.add(dateEquivalenceClasses);
+				break;
+			case EMAIL:
+				elements.add(emailEquivalenceClasses);
 				break;
 			case NUMBER:
 				elements.add(numberEquivalenceClasses);
@@ -77,6 +85,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 				case DATE:
 					elements.add(dateEquivalenceClasses);
 					break;
+				case EMAIL:
+					elements.add(emailEquivalenceClasses);
+					break;
 				case NUMBER:
 					elements.add(numberEquivalenceClasses);
 					break;
@@ -102,6 +113,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 						break;
 					case DATE:
 						elements.add(dateEquivalenceClasses);
+						break;
+					case EMAIL:
+						elements.add(emailEquivalenceClasses);
 						break;
 					case NUMBER:
 						elements.add(numberEquivalenceClasses);
@@ -129,6 +143,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 						case DATE:
 							elements.add(dateEquivalenceClasses);
 							break;
+						case EMAIL:
+							elements.add(emailEquivalenceClasses);
+							break;
 						case NUMBER:
 							elements.add(numberEquivalenceClasses);
 							break;
@@ -155,6 +172,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 							case DATE:
 								elements.add(dateEquivalenceClasses);
 								break;
+							case EMAIL:
+								elements.add(emailEquivalenceClasses);
+								break;
 							case NUMBER:
 								elements.add(numberEquivalenceClasses);
 								break;
@@ -180,6 +200,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 									break;
 								case DATE:
 									elements.add(dateEquivalenceClasses);
+									break;
+								case EMAIL:
+									elements.add(emailEquivalenceClasses);
 									break;
 								case NUMBER:
 									elements.add(numberEquivalenceClasses);
@@ -213,10 +236,10 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 		return cartesianProduct;	
 	}
 	
-	//Generate a list of FrameBeans from a list of class combinations (useful when creating a FrameMap);
+	//Generate a list of DiscourseFrame from a list of class combinations (useful when creating a FrameMap);
 	//'paramList' is the List of Params of the API that the resulting list of FrameBeans refers to.
-	public static ArrayList<FrameBean<DiscoursePreCondition>> generateFrameBeans(HTTPMethod method, String endpoint, List<DiscourseParam> paramList, Double probSelection, Double probFailure){
-		ArrayList<FrameBean<DiscoursePreCondition>> frameBeansList = new ArrayList<FrameBean<DiscoursePreCondition>>();
+	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure){
+		ArrayList<DiscourseFrame> frameBeansList = new ArrayList<DiscourseFrame>();
 		
 		ArrayList<DiscourseTypeParam> types = new ArrayList<DiscourseTypeParam>();
 		for(int k = 0; k<6; k++){
@@ -230,19 +253,19 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 		List<List<String>> classesCombinations = DiscourseEquivalenceClass.cartesianProduct(types.get(0), types.get(1), types.get(2), types.get(3), types.get(4), types.get(5));
 		
 		for(int i = 0; i<classesCombinations.size(); i++){
-			FrameBean<DiscoursePreCondition> frameBean = new FrameBean<DiscoursePreCondition>();
+			DiscourseFrame frame = new DiscourseFrame();
 			ArrayList<DiscourseParam> frameParamList = new ArrayList<DiscourseParam>();
-			frameBean.setMethod(method);
-			frameBean.setEndpoint(endpoint);
-			frameBean.setProbSelection(probSelection);
-			frameBean.setProbFailure(probFailure);
+			frame.setMethod(method);
+			frame.setEndpoint(endpoint);
+			frame.setProbSelection(probSelection);
+			frame.setProbFailure(probFailure);
 			for(int j = 0; j<paramList.size(); j++){
 				DiscourseParam p1 = new DiscourseParam(paramList.get(j));
 				p1.setClassParam(DiscourseEquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
 				frameParamList.add(p1);
 			}
-			frameBean.setParamList(frameParamList);
-			frameBeansList.add(frameBean);
+			frame.setParamList(frameParamList);
+			frameBeansList.add(frame);
 		}
 		
 		return frameBeansList;
@@ -277,9 +300,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 				case COL_INVALID:
 					//Generate random string with random length from 1 to 2^16, different than 6 to make the color invalid
 					do{
-						nextInt = RandomUtils.nextInt(1, 11);
-					} while(nextInt == 6);
-					value = RandomStringUtils.random(nextInt, true, true);
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+					} while(nextString.length() == 6);
+					value = nextString;
 					break;
 				case COL_VALID:
 					//Generate random hexadecimal number from 0x000000 to 0xFFFFFF and save it as a string with leading # and 0s
@@ -309,6 +332,23 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					nextLong = RandomUtils.nextLong(0, 48L * 365 * 24 * 60 * 60 * 1000);
 					date = new Date(nextLong);
 					value = new SimpleDateFormat("yyyy-MM-dd").format(date);
+					break;
+				case EMAIL_EMPTY:
+					value="";
+					break;
+				case EMAIL_INVALID:
+					//Generate random string with random length from 1 to 2^16 that doesn't contain a '@'
+					do{
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+					} while(nextString.contains("@"));
+					value = nextString;
+					break;
+				case EMAIL_VALID:
+					//Generate random alphanumeric string in the form of x@y.z (where x, y and z are strings of random lengths) of total length up to 2^16
+					String firstEmailPart = RandomStringUtils.randomAlphanumeric(1, RandomUtils.nextInt(1,65537-4));
+					String secondEmailPart = RandomStringUtils.randomAlphanumeric(1, (65537-3-firstEmailPart.length()));
+					String thirdEmailPart = RandomStringUtils.randomAlphanumeric(1, (65537-2-firstEmailPart.length()-secondEmailPart.length()));
+					value = firstEmailPart+"@"+secondEmailPart+"."+thirdEmailPart;
 					break;
 				case LIST_EMPTY:
 					value="";
@@ -368,9 +408,6 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					break;
 				case STR_VALID:
 					//Generate random alphanumeric string as a random UUID
-//					do{
-//						value = RandomStringUtils.randomAlphanumeric(1, 51);
-//					} while(value.chars().distinct().count()<10);
 					value = UUID.randomUUID().toString();
 					break;
 				case STR_VERY_LONG:

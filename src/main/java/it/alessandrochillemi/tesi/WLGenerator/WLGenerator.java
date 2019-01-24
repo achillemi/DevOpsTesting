@@ -9,6 +9,10 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.RandomUtils;
 
+import it.alessandrochillemi.tesi.WLGenerator.discourse.DiscourseFrame;
+import it.alessandrochillemi.tesi.WLGenerator.discourse.DiscourseFrameMap;
+import it.alessandrochillemi.tesi.WLGenerator.discourse.DiscourseParam;
+import it.alessandrochillemi.tesi.WLGenerator.discourse.DiscoursePreCondition;
 import okhttp3.Response;
 
 public class WLGenerator{
@@ -38,7 +42,7 @@ public class WLGenerator{
 	    	String apiUsername = environment.getProperty("api_username");
 	    	String apiKey = environment.getProperty("api_key");
 	    	
-	    	FrameMap<DiscoursePreCondition> frameMap = new FrameMap<DiscoursePreCondition>(frameMapPath);
+	    	DiscourseFrameMap frameMap = new DiscourseFrameMap(frameMapPath);
 	    	
 	    	//Scelgo il frame secondo la probabilità di selezione impostata con l'ausilio di un vettore che memorizza la probabilità cumulata
 	    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
@@ -65,19 +69,23 @@ public class WLGenerator{
 			
 	    	//Leggo il frame con l'indice scelto
 			System.out.println("Selected frame: " + selectedFrame);
-			FrameBean<DiscoursePreCondition> frameBean = frameMap.readByKey(selectedFrame);
+			DiscourseFrame frame = frameMap.readByKey(selectedFrame);
 	    	
 	    	//Stampo il frame scelto
-	    	frameBean.print();
+	    	frame.print();
 	    	
-	    	//Forzo le precondizioni
+	    	//Creo le precondizioni
 	    	System.out.println("\nForcing pre-conditions...");
 	    	ArrayList<DiscoursePreCondition> preConditionList = DiscoursePreCondition.getAllDiscoursePreConditions(baseURL,apiUsername,apiKey);
 	    	System.out.println("Pre-conditions created!");
 	    	
-//	    	//Creo una APIRequest con i campi del Frame estratto
-	    	APIRequest<DiscoursePreCondition> apiRequest = new APIRequest<DiscoursePreCondition>(frameBean, preConditionList);
-	    	apiRequest.generateParamValues();
+	    	//Applico le precondizioni ai parametri
+	    	for(DiscourseParam p : frame.getParamList()){
+	    		p.generateValue(preConditionList);
+	    	}
+	    	
+	    	//Creo una APIRequest con i campi del Frame estratto
+	    	APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(frame);
 	    	apiRequest.setBaseURL(baseURL);
 	    	apiRequest.setApiUsername(apiUsername);
 	    	apiRequest.setApiKey(apiKey);
@@ -98,14 +106,14 @@ public class WLGenerator{
 				e2.printStackTrace();
 			}
 	    	
-	    	ResponseLogList<DiscoursePreCondition> responseLogList = new ResponseLogList<DiscoursePreCondition>("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
-	    	ResponseLog<DiscoursePreCondition> responseLog = new ResponseLog<DiscoursePreCondition>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
+	    	ResponseLogList<ResponseLog<DiscourseParam>> responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
+	    	ResponseLog<DiscourseParam> responseLog = new ResponseLog<DiscourseParam>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
 	    	
 	    	System.out.println("");
 	    	responseLog.print();
 	    	
 	    	responseLogList.add(responseLog);
-	    	responseLogList.saveToFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log");
+	    	responseLogList.saveToFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log_list");
 	    	
     }
 }
