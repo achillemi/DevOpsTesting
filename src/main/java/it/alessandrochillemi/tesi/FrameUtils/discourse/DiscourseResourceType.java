@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +9,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.alessandrochillemi.tesi.WLGenerator.APIRequest;
-import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
-import it.alessandrochillemi.tesi.WLGenerator.Param;
-import it.alessandrochillemi.tesi.WLGenerator.ResourceType;
+import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
+import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
+import it.alessandrochillemi.tesi.FrameUtils.Param;
+import it.alessandrochillemi.tesi.FrameUtils.ResourceType;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;

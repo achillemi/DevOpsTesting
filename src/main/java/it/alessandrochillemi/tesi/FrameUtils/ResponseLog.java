@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.FrameUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;

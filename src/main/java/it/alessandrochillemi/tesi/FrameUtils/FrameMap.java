@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.FrameUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,8 +17,11 @@ public abstract class FrameMap<F extends Frame<? extends Param<? extends PreCond
 	//Get the probability selection for every entry in the FrameMap; the order is preserved, because the underlying Map is a TreeMap.
 	public abstract ArrayList<Double> getProbSelectionDistribution();
 	
-	//Set the probability selection for every entry in the FrameMap
+	//Set the estimated probability selection for every entry in the FrameMap
 	public abstract void setProbSelectionDistribution(ArrayList<Double> probSelectionDistribution);
+	
+	//Set the true probability selection for every entry in the FrameMap
+	public abstract void setTrueProbSelectionDistribution(ArrayList<Double> trueProbSelectionDistribution);
 	
 	//Get all the frames that have the specified endpoint
 	public abstract ArrayList<F> getFramesByEndpoint(HTTPMethod method, String endpoint);

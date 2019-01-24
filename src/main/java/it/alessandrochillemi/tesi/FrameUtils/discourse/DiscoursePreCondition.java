@@ -1,10 +1,10 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import it.alessandrochillemi.tesi.WLGenerator.PreCondition;
+import it.alessandrochillemi.tesi.FrameUtils.PreCondition;
 
 public class DiscoursePreCondition extends PreCondition{
 	

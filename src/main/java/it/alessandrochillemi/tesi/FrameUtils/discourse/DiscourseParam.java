@@ -1,8 +1,8 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.WLGenerator.Param;
+import it.alessandrochillemi.tesi.FrameUtils.Param;
 
 public class DiscourseParam extends Param<DiscoursePreCondition>{
 	

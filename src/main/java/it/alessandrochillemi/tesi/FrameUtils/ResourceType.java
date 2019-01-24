@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.FrameUtils;
 
 public interface ResourceType {
 	
