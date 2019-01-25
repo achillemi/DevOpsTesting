@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract class Param<T extends PreCondition> implements Serializable{
+public abstract class Param implements Serializable{
 	
 	public enum Position{BODY,PATH,QUERY};
 	
@@ -68,7 +68,7 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 		this.generateValue();
 	}
 	
-	public Param(Param<T> param){
+	public Param(Param param){
 		this.keyParam = param.getKeyParam();
 		this.typeParam = param.getTypeParam();
 		this.position = param.getPosition();
@@ -141,8 +141,12 @@ public abstract class Param<T extends PreCondition> implements Serializable{
 		this.resourceType = resourceType;
 	}
 	
+	//Returns true if this parameter is valid; the validity depends on the equivalence class and on the fact that the parameter is required or not
+	public abstract boolean isValid();
+	
 	public abstract void generateValue();
-	public abstract void generateValue(ArrayList<T> preConditionList);
+	
+	public abstract void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey);
 	
 	public abstract void print();
 	

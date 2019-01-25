@@ -38,20 +38,20 @@ public enum DiscourseResourceType implements ResourceType{
 	UPLOAD_AVATAR_ID,
 	NO_RESOURCE;
 	
-	private String categoryIDValue;
-	private String topicIDValue;
-	private String topicSlugValue;
-	private String userID1Value;
-	private String username1Value;
-	private String userID2Value;
-	private String username2Value;
-	private String usernameListValue;
-	private String tagGroupIDValue;
-	private String tagValue;
-	private String uploadAvatarIDValue;
-	private String groupIDValue;
-	private String groupValue;
-	private String postIDValue;
+	private static String categoryIDValue;
+	private static String topicIDValue;
+	private static String topicSlugValue;
+	private static String userID1Value;
+	private static String username1Value;
+	private static String userID2Value;
+	private static String username2Value;
+	private static String usernameListValue;
+	private static String tagGroupIDValue;
+	private static String tagValue;
+	private static String uploadAvatarIDValue;
+	private static String groupIDValue;
+	private static String groupValue;
+	private static String postIDValue;
 	
 
 	public String generatePreConditionValue(String baseURL, String apiUsername, String apiKey) {
@@ -81,6 +81,9 @@ public enum DiscourseResourceType implements ResourceType{
 				break;
 			case POST_ID:
 				if(postIDValue == null){
+					if(topicIDValue == null){
+						generateTopicDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
+					}
 					generatePostDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
 				}
 				value = postIDValue;
@@ -99,18 +102,30 @@ public enum DiscourseResourceType implements ResourceType{
 				break;
 			case TOPIC_ID:
 				if(topicIDValue == null){
+					//Generate pre-conditions required for creating a new topic
+					if(categoryIDValue == null){
+						generateCategoryDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
+					}
 					generateTopicDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
 				}
 				value = topicIDValue;
 				break;
 			case TOPIC_SLUG:
 				if(topicSlugValue == null){
+					//Generate pre-conditions required for creating a new topic
+					if(categoryIDValue == null){
+						generateCategoryDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
+					}
 					generateTopicDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
 				}
 				value = topicSlugValue;
 				break;
 			case UPLOAD_AVATAR_ID:
 				if(uploadAvatarIDValue == null){
+					//Generate pre-conditions required for uploading an avatar
+					if(userID1Value == null){
+						generateUsersDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
+					}
 					generateUploadAvatarIDDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
 				}
 				value = uploadAvatarIDValue;
@@ -166,7 +181,7 @@ public enum DiscourseResourceType implements ResourceType{
 		DiscourseParam p3 = new DiscourseParam("text_color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p3);
 		
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -204,24 +219,13 @@ public enum DiscourseResourceType implements ResourceType{
 		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p2);
 		DiscourseParam p3 = new DiscourseParam("category", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.CATEGORY_ID,true);
+		p3.setValue(categoryIDValue);
 		paramList.add(p3);
 		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
 		
-		//Generate pre-conditions required for creating a new topic
-		ArrayList<DiscoursePreCondition> preConditionList = new ArrayList<DiscoursePreCondition>();	
-		if(categoryIDValue == null){
-			generateCategoryDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
-		}
-		preConditionList.add(new DiscoursePreCondition(DiscourseResourceType.CATEGORY_ID,categoryIDValue));
-		
-		//Apply pre-conditions to params
-		for(DiscourseParam p : paramList){
-			p.generateValue(preConditionList);
-		}
-		
 		//Create an API request
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -279,7 +283,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p6);
 		
 		//Create an API Request
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -331,7 +335,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p6);
 
 		//Create an API Request
-    	apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+    	apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
     	apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -373,7 +377,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p1);
 
 		//Create an API Request
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
@@ -400,7 +404,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p2);
 
 		//Create an API Request
-		apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
@@ -441,11 +445,6 @@ public enum DiscourseResourceType implements ResourceType{
 		HttpUrl completeURL = completeURLBuilder.build();
 		
 		OkHttpClient client = new OkHttpClient();
-		
-		//Generate pre-conditions required for uploading an avatar
-		if(userID1Value == null){
-			generateUsersDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
-		}
 		
 		//Costruisco il body della richiesta HTTP
 		RequestBody requestBody = null;
@@ -508,7 +507,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p1);
 		
 		//Create an API Request
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -546,26 +545,15 @@ public enum DiscourseResourceType implements ResourceType{
 		//Set params
 		ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
 		DiscourseParam p1 = new DiscourseParam("topic_id", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.TOPIC_ID,true);
+		p1.setValue(topicIDValue);
 		paramList.add(p1);
 		DiscourseParam p2 = new DiscourseParam("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p2);
 		DiscourseParam p4 = new DiscourseParam("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
 		
-		//Generate pre-conditions required for creating a new post
-		ArrayList<DiscoursePreCondition> preConditionList = new ArrayList<DiscoursePreCondition>();	
-		if(topicIDValue == null){
-			generateTopicDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
-		}
-		preConditionList.add(new DiscoursePreCondition(DiscourseResourceType.TOPIC_ID,topicIDValue));
-		
-		//Apply pre-conditions to params
-		for(DiscourseParam p : paramList){
-			p.generateValue(preConditionList);
-		}
-		
 		//Create an API Request
-		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
+		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);

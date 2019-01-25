@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class FrameMap<F extends Frame<? extends Param<? extends PreCondition>, ? extends PreCondition>> {
+public abstract class FrameMap<F extends Frame<? extends Param>> {
 	
 	public abstract int size();
 	

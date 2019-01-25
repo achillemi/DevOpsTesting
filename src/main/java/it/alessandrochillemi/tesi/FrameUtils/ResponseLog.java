@@ -3,7 +3,7 @@ package it.alessandrochillemi.tesi.FrameUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ResponseLog<P extends Param<? extends PreCondition>> implements Serializable{
+public class ResponseLog<P extends Param> implements Serializable{
 	
 	private String frameID;									//ID del Frame a cui si riferisce questa risposta
 	private Integer responseCode;							//Codice di risposta della richiesta HTTP

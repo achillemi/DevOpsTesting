@@ -17,7 +17,7 @@ import it.alessandrochillemi.tesi.FrameUtils.Frame;
 import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
 import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
 
-public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
+public class DiscourseFrame extends Frame<DiscourseParam>{
 	
 	private ArrayList<DiscourseParam> paramList;
 
@@ -115,9 +115,9 @@ public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 	}
 	
 	@Override
-	public void generateParamValues(ArrayList<DiscoursePreCondition> preConditionList) {
+	public void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey) {
 		for(DiscourseParam p : this.paramList){
-			p.generateValue(preConditionList);
+			p.generateValueWithPreConditions(baseURL, apiUsername, apiKey);
 		}
 		
 	}

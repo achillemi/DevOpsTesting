@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class ResponseLogList<R extends ResponseLog<? extends Param<? extends PreCondition>>> {
+public class ResponseLogList<R extends ResponseLog<? extends Param>> {
 	private ArrayList<R> responseLogList;
 	
 	public ResponseLogList(){

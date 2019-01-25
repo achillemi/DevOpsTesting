@@ -59,11 +59,6 @@ public class TrueFailureDistributionGenerator {
     	//Carico la FrameMap
     	DiscourseFrameMap frameMap = new DiscourseFrameMap(frameMapPath);
     	
-    	//Creo le precondizioni
-    	System.out.println("\nForcing pre-conditions...");
-    	ArrayList<DiscoursePreCondition> preConditionList = DiscoursePreCondition.getAllDiscoursePreConditions(baseURL,apiUsername,apiKey);
-    	System.out.println("Pre-conditions created!");
-    	
     	DiscourseOracle oracle = new DiscourseOracle();
     	
     	//Ottengo la distribuzione iniziale
@@ -83,13 +78,13 @@ public class TrueFailureDistributionGenerator {
 	    		System.out.println("\nRichiesta " + (j+1) + "...");
 	    		
 	    		//Creo una APIRequest con i campi del Frame estratto
-		    	APIRequest<DiscourseParam, DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(frame);
+		    	APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(frame);
 		    	apiRequest.setBaseURL(baseURL);
 		    	apiRequest.setApiUsername(apiUsername);
 		    	apiRequest.setApiKey(apiKey);
 	    		
 	    		//Genero nuovi valori per i parametri applicando le precondizioni
-	    		apiRequest.generateNewParamValues(preConditionList);
+	    		apiRequest.generateNewParamValuesWithPreConditions();
 	    		
 	    		//Invio la richiesta
 	        	Response response = apiRequest.sendRequest();

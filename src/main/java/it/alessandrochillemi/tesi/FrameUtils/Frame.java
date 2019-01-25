@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 //Classe "bean" che modella i campi di un Frame che devono essere letti o scritti
-public abstract class Frame<P extends Param<C>, C extends PreCondition> implements Serializable{
+public abstract class Frame<P extends Param> implements Serializable{
 	
 	protected HTTPMethod method;															//Metodo della richiesta HTTP per usare l'API
 	protected String endpoint;																//Endpoint dell'API
@@ -30,7 +30,7 @@ public abstract class Frame<P extends Param<C>, C extends PreCondition> implemen
 		this.trueProbFailure = trueProbFailure;
 	}
 	
-	public Frame(Frame<P,C> frame){
+	public Frame(Frame<P> frame){
 		this.method = frame.getMethod();
 		this.endpoint = frame.getEndpoint();
 		this.paramList = frame.getParamList();
@@ -96,7 +96,7 @@ public abstract class Frame<P extends Param<C>, C extends PreCondition> implemen
 		this.trueProbFailure = trueProbFailure;
 	}
 
-	public abstract void generateParamValues(ArrayList<C> preConditionList);
+	public abstract void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey);
 	public abstract void print();
 	
 }

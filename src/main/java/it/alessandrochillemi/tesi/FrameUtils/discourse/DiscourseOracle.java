@@ -18,14 +18,7 @@ public class DiscourseOracle extends Oracle<ResponseLogList<ResponseLog<Discours
 			int j = 0;
 			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
 			while(valid && j<responseLog.getParamList().size()){
-				//Se la classe di equivalenza è "invalid", il valore è invalido
-				if(responseLog.getParamList().get(j).getClassParam().isInvalid()){
-					valid = false;
-				}
-				//Se la classe di equivalenza è "empty" e il parametro è obbligatorio, il valore è invalido
-				else if(responseLog.getParamList().get(j).getClassParam().isEmpty() && responseLog.getParamList().get(j).isRequired()){
-					valid = false;
-				}
+				valid = responseLog.getParamList().get(j).isValid();
 				j++;
 			}
 			
