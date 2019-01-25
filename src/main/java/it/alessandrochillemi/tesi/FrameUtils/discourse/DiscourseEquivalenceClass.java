@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -15,8 +15,8 @@ import org.apache.commons.lang3.RandomUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import it.alessandrochillemi.tesi.WLGenerator.EquivalenceClass;
-import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
+import it.alessandrochillemi.tesi.FrameUtils.EquivalenceClass;
+import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
 
 //Possibili classi di equivalenza per ogni parametro
 public enum DiscourseEquivalenceClass implements EquivalenceClass{
@@ -37,6 +37,24 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	private static String[] listEquivalenceClasses = new String[] {"LIST_NULL","LIST_EMPTY","LIST_VALID"};
 	private static String[] booleanEquivalenceClasses = new String[] {"BOOLEAN_EMPTY","BOOLEAN_INVALID","BOOLEAN_VALID"};
 	private static String[] enumEquivalenceClasses = new String[] {"ENUM_EMPTY","ENUM_INVALID","ENUM_VALID"};
+	
+	public boolean isInvalid(){
+		if(this.toString().endsWith("_INVALID")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public boolean isEmpty(){
+		if(this.toString().endsWith("_EMPTY")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 
 	//Genera la lista di tutte le possibili combinazioni di classi di equivalenza tra i gruppi selezionati;
 	//i gruppi di classi di equivalenza sono selezionati automaticamente in base al tipo specificato in ingresso
@@ -238,8 +256,8 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	
 	//Generate a list of DiscourseFrame from a list of class combinations (useful when creating a FrameMap);
 	//'paramList' is the List of Params of the API that the resulting list of FrameBeans refers to.
-	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure){
-		ArrayList<DiscourseFrame> frameBeansList = new ArrayList<DiscourseFrame>();
+	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+		ArrayList<DiscourseFrame> framesList = new ArrayList<DiscourseFrame>();
 		
 		ArrayList<DiscourseTypeParam> types = new ArrayList<DiscourseTypeParam>();
 		for(int k = 0; k<6; k++){
@@ -259,16 +277,18 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 			frame.setEndpoint(endpoint);
 			frame.setProbSelection(probSelection);
 			frame.setProbFailure(probFailure);
+			frame.setTrueProbSelection(trueProbSelection);
+			frame.setTrueProbFailure(trueProbFailure);
 			for(int j = 0; j<paramList.size(); j++){
 				DiscourseParam p1 = new DiscourseParam(paramList.get(j));
 				p1.setClassParam(DiscourseEquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
 				frameParamList.add(p1);
 			}
 			frame.setParamList(frameParamList);
-			frameBeansList.add(frame);
+			framesList.add(frame);
 		}
 		
-		return frameBeansList;
+		return framesList;
 	}
 	
 	public String generateValue(ArrayList<String> validValues){

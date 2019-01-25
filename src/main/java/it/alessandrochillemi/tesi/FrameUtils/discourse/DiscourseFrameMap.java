@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -20,9 +20,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import it.alessandrochillemi.tesi.WLGenerator.FrameMap;
-import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
-import it.alessandrochillemi.tesi.WLGenerator.Param.Position;
+import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
+import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
+import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
 
 public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 	
@@ -36,7 +36,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 		P4_KEY,P4_TYPE,P4_CLASS,P4_POSITION,P4_RESOURCE_TYPE,P4_IS_REQUIRED,P4_VALID_VALUES,
 		P5_KEY,P5_TYPE,P5_CLASS,P5_POSITION,P5_RESOURCE_TYPE,P5_IS_REQUIRED,P5_VALID_VALUES,
 		P6_KEY,P6_TYPE,P6_CLASS,P6_POSITION,P6_RESOURCE_TYPE,P6_IS_REQUIRED,P6_VALID_VALUES,
-		PROB_SELECTION,PROB_FAILURE;
+		PROB_SELECTION,PROB_FAILURE,TRUE_PROB_SELECTION,TRUE_PROB_FAILURE;
 	};
 	
 	public DiscourseFrameMap(){
@@ -62,7 +62,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 	
 	public void append(ArrayList<DiscourseFrame> list){
 		for(DiscourseFrame frame : list){
-			this.map.put(this.map.isEmpty() ? 1 : this.map.lastKey()+1, frame);
+			this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, frame);
 		}
 	}
 	
@@ -83,6 +83,48 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 		while (iter.hasNext()) {
 			Entry<Integer, DiscourseFrame> entry = iter.next();
 			entry.getValue().setProbSelection(probSelectionDistribution.get(i));
+			i++;
+		}
+	}
+	
+	//Get the true probability selection for every entry in the FrameMap; the order is preserved, because the underlying Map is a TreeMap.
+	public ArrayList<Double> getTrueProbSelectionDistribution(){
+		ArrayList<Double> ret = new ArrayList<Double>();
+
+		for(Map.Entry<Integer, DiscourseFrame> entry : this.map.entrySet()){
+			ret.add(entry.getValue().getTrueProbSelection());
+		}
+		return ret;
+	}
+	
+	//Set the true probability selection for every entry in the FrameMap
+	public void setTrueProbSelectionDistribution(ArrayList<Double> trueProbSelectionDistribution){
+		Iterator<Map.Entry<Integer, DiscourseFrame>> iter = this.map.entrySet().iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<Integer, DiscourseFrame> entry = iter.next();
+			entry.getValue().setTrueProbSelection(trueProbSelectionDistribution.get(i));
+			i++;
+		}
+	}
+	
+	//Get the true probability failure for every entry in the FrameMap; the order is preserved, because the underlying Map is a TreeMap.
+	public ArrayList<Double> getTrueProbFailureDistribution(){
+		ArrayList<Double> ret = new ArrayList<Double>();
+
+		for(Map.Entry<Integer, DiscourseFrame> entry : this.map.entrySet()){
+			ret.add(entry.getValue().getTrueProbFailure());
+		}
+		return ret;
+	}
+
+	//Set the true probability failure for every entry in the FrameMap
+	public void setTrueProbFailureDistribution(ArrayList<Double> trueProbFailureDistribution){
+		Iterator<Map.Entry<Integer, DiscourseFrame>> iter = this.map.entrySet().iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<Integer, DiscourseFrame> entry = iter.next();
+			entry.getValue().setTrueProbFailure(trueProbFailureDistribution.get(i));
 			i++;
 		}
 	}
@@ -164,7 +206,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 					//Create a list of DiscourseParam from the values of the row
 					ArrayList<DiscourseParam> paramList = new ArrayList<DiscourseParam>();
 
-					//Read the parameter's features for each of the 6 parameters on a row
+					//Read the features for each of the 6 parameters on a row
 					for(int i = 1; i<=6; i++){
 						String key = record.get("P"+i+"_KEY");
 						String type = record.get("P"+i+"_TYPE");
@@ -192,12 +234,14 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 					//Read probSelection and probFailure
 					Double probSelection = Double.valueOf(record.get("PROB_SELECTION"));
 					Double probFailure = Double.valueOf(record.get("PROB_FAILURE"));
+					Double trueProbSelection = Double.valueOf(record.get("TRUE_PROB_SELECTION"));
+					Double trueProbFailure = Double.valueOf(record.get("TRUE_PROB_FAILURE"));
 					
 					//Create a new frame from the record just read
-					DiscourseFrame discourseFrame = new DiscourseFrame(method,endpoint,paramList,probSelection,probFailure);
+					DiscourseFrame discourseFrame = new DiscourseFrame(method,endpoint,paramList,probSelection,probFailure,trueProbSelection,trueProbFailure);
 					
 					//Add the frame to the map
-					this.map.put(this.map.isEmpty() ? 1 : this.map.lastKey()+1, discourseFrame);
+					this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, discourseFrame);
 
 				}
 			} catch (FileNotFoundException e) {
@@ -264,6 +308,8 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 				
 				String probSelection = entry.getValue().getProbSelection().toString();
 				String probFailure = entry.getValue().getProbFailure().toString();
+				String trueProbSelection = entry.getValue().getTrueProbSelection().toString();
+				String trueProbFailure = entry.getValue().getTrueProbFailure().toString();
 
 				csvPrinter.printRecord(method, endpoint, 
 						paramKeys.get(0), paramTypes.get(0), paramClasses.get(0), paramPositions.get(0), paramResourceTypes.get(0), paramIsRequireds.get(0), paramValidValues.get(0),
@@ -272,7 +318,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 						paramKeys.get(3), paramTypes.get(3), paramClasses.get(3), paramPositions.get(3), paramResourceTypes.get(3), paramIsRequireds.get(3), paramValidValues.get(3),
 						paramKeys.get(4), paramTypes.get(4), paramClasses.get(4), paramPositions.get(4), paramResourceTypes.get(4), paramIsRequireds.get(4), paramValidValues.get(4),
 						paramKeys.get(5), paramTypes.get(5), paramClasses.get(5), paramPositions.get(5), paramResourceTypes.get(5), paramIsRequireds.get(5), paramValidValues.get(5),
-						probSelection,probFailure);
+						probSelection,probFailure,trueProbSelection,trueProbFailure);
 			}
 
 			csvPrinter.flush();

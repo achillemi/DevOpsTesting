@@ -1,8 +1,8 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.WLGenerator.Param;
+import it.alessandrochillemi.tesi.FrameUtils.Param;
 
 public class DiscourseParam extends Param<DiscoursePreCondition>{
 	
@@ -110,8 +110,11 @@ public class DiscourseParam extends Param<DiscoursePreCondition>{
 	}
 	
 	public void print(){
-//		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType + " " + value);
-		System.out.print(keyParam + " " + position + " " + classParam + " " + resourceType);
+		System.out.print("\nKey: " + keyParam);
+		System.out.print("\nPosition:  " + position);
+		System.out.print("\nClass:  " + classParam);
+		System.out.print("\nResource Type:  " + resourceType);
+		System.out.print("\nValue:  " + value);
 	}
 
 }

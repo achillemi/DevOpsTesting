@@ -1,9 +1,10 @@
-package it.alessandrochillemi.tesi.WLGenerator;
+package it.alessandrochillemi.tesi.FrameUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +15,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class APIRequest<P extends Param<? extends PreCondition>>{
+public class APIRequest<P extends Param<C>, C extends PreCondition>{
 	
 	private String baseURL;																	//Indirizzo del dominio che ospita l'applicazione
 	private String apiUsername;																//Username di chi vuole usare l'API
@@ -85,11 +86,12 @@ public class APIRequest<P extends Param<? extends PreCondition>>{
 		this.paramList = paramList;
 	}
 	
-//	public void generateParamValues(){
-//		for(Param param : paramList){
-//			param.generateValue();
-//		}
-//	}
+	//Generate new values for the params of this request
+	public void generateNewParamValues(ArrayList<C> preConditionList){
+		for(P param : paramList){
+			param.generateValue(preConditionList);
+		}
+	}
 
 	//I parametri devono avere già un valore prima di inviare la richiesta; è possibile assegnare un valore a tutti i parametri con generateValue();
 	public Response sendRequest(){
@@ -148,7 +150,11 @@ public class APIRequest<P extends Param<? extends PreCondition>>{
 		
 //		System.out.println(completeURL);	
 
-		OkHttpClient client = new OkHttpClient();
+		OkHttpClient client = new OkHttpClient.Builder()
+		        .connectTimeout(6000, TimeUnit.SECONDS)
+		        .writeTimeout(6000, TimeUnit.SECONDS)
+		        .readTimeout(6000, TimeUnit.SECONDS)
+		        .build();
 		
 		//Costruisco il body della richiesta HTTP, se necessario
 		RequestBody requestBody = null;

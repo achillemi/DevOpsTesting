@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.WLGenerator.discourse;
+package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,9 +13,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 
-import it.alessandrochillemi.tesi.WLGenerator.Frame;
-import it.alessandrochillemi.tesi.WLGenerator.HTTPMethod;
-import it.alessandrochillemi.tesi.WLGenerator.Param.Position;
+import it.alessandrochillemi.tesi.FrameUtils.Frame;
+import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
+import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
 
 public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 	
@@ -27,8 +27,8 @@ public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 		this.paramList = new ArrayList<DiscourseParam>();
 	}
 	
-	public DiscourseFrame(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure){
-		super(method,endpoint,paramList,probSelection,probFailure);
+	public DiscourseFrame(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+		super(method,endpoint,paramList,probSelection,probFailure,trueProbSelection,trueProbFailure);
 		
 		this.paramList = paramList;
 	}
@@ -39,6 +39,8 @@ public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 		this.paramList = frame.getParamList();
 		this.probSelection = frame.getProbSelection();
 		this.probFailure = frame.getProbFailure();
+		this.trueProbSelection = frame.getTrueProbSelection();
+		this.trueProbFailure = frame.getTrueProbFailure();
 	}
 
 	public ArrayList<DiscourseParam> getParamList() {
@@ -51,13 +53,13 @@ public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 	
 	//Generate a list of Frames from a CSV containing the API descriptions; probSelection and probFailure are constant initial values assigned to every Frame;
 	//they can be manually modified later.
-	public static ArrayList<DiscourseFrame> generateFromCSV(String path, Double probSelection, Double probFailure){
-		if(Files.exists(Paths.get(path))) {
+	public static ArrayList<DiscourseFrame> generateFromCSV(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+		if(Files.exists(Paths.get(apiDescriptionsCSVFilePath))) {
 			ArrayList<DiscourseFrame> ret = new ArrayList<DiscourseFrame>();
 			Reader in;
 			try {
 				//Read the CSV file
-				in = new FileReader(path);
+				in = new FileReader(apiDescriptionsCSVFilePath);
 				Iterable<CSVRecord> records = CSVFormat.RFC4180.withDelimiter(';').withFirstRecordAsHeader().parse(in);
 				
 				//Iterate over rows
@@ -94,7 +96,7 @@ public class DiscourseFrame extends Frame<DiscourseParam,DiscoursePreCondition>{
 					    }
 					}
 					//Get the list of DiscourseFrames and add it to the return array
-					ArrayList<DiscourseFrame> discourseFrames = DiscourseEquivalenceClass.generateDiscourseFrames(method, endpoint, paramList, probSelection, probFailure);
+					ArrayList<DiscourseFrame> discourseFrames = DiscourseEquivalenceClass.generateDiscourseFrames(method, endpoint, paramList, probSelection, probFailure,trueProbSelection,trueProbFailure);
 					ret.addAll(discourseFrames);
 				}
 			} catch (FileNotFoundException e) {
