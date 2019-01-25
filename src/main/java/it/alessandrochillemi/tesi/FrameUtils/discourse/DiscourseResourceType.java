@@ -166,7 +166,7 @@ public enum DiscourseResourceType implements ResourceType{
 		DiscourseParam p3 = new DiscourseParam("text_color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p3);
 		
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -221,7 +221,7 @@ public enum DiscourseResourceType implements ResourceType{
 		}
 		
 		//Create an API request
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -279,7 +279,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p6);
 		
 		//Create an API Request
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -331,7 +331,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p6);
 
 		//Create an API Request
-    	apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+    	apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
     	apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -373,7 +373,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p1);
 
 		//Create an API Request
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
@@ -400,7 +400,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p2);
 
 		//Create an API Request
-		apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
 		apiRequest.setApiUsername(apiUsername);
 		apiRequest.setApiKey(apiKey);
@@ -508,7 +508,7 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p1);
 		
 		//Create an API Request
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -565,7 +565,7 @@ public enum DiscourseResourceType implements ResourceType{
 		}
 		
 		//Create an API Request
-		APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(method,endpoint,paramList);
+		APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);

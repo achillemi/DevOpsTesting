@@ -59,10 +59,10 @@ public class ResponseLog<P extends Param<? extends PreCondition>> implements Ser
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
 //		System.out.println("RESPONSE BODY: " + responseBody);
 		System.out.println("PARAMETERS: ");
-//		for(Param<T> p : paramList){
-//			p.print();
-//			System.out.println();
-//		}
+		for(int i=0; i<paramList.size(); i++){
+			System.out.print("\nPARAMETER " + (i+1) + ":");
+			paramList.get(i).print();
+		}
 	}
 
 }

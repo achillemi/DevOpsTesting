@@ -36,7 +36,7 @@ public class FramesGenerator {
 		Double probSelection = 1.0/8802.0;
 		Double probFailure = 0.0;
 		Double trueProbSelection = 0.0;
-		Double trueProbFailure = 0.0;
+		Double trueProbFailure = 50.0;
 		
 		ArrayList<DiscourseFrame> discourseFrames = DiscourseFrame.generateFromCSV(apiDescriptionsCSVFilePath, probSelection, probFailure, trueProbSelection, trueProbFailure);
 		

@@ -75,7 +75,9 @@ public class TestGenerator{
 
     	//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
-    	int selectedFrame = testSelectionStrategy.selectFrame(probSelectionDistribution);
+//    	int selectedFrame = testSelectionStrategy.selectFrame(probSelectionDistribution);
+    	
+    	int selectedFrame = 74;
 
     	//Leggo il frame con l'indice scelto
     	System.out.println("Selected frame: " + selectedFrame);
@@ -95,7 +97,7 @@ public class TestGenerator{
     	}
 
     	//Creo una APIRequest con i campi del Frame estratto
-    	APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(frame);
+    	APIRequest<DiscourseParam,DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(frame);
     	apiRequest.setBaseURL(baseURL);
     	apiRequest.setApiUsername(apiUsername);
     	apiRequest.setApiKey(apiKey);
@@ -105,12 +107,13 @@ public class TestGenerator{
 
     	//Salvo la risposta nella ResponseLogList esistente o in una nuova
     	ResponseLogList<ResponseLog<DiscourseParam>> responseLogList = null;
-    	if(Files.exists(Paths.get(responseLogListPath))){
-    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>(responseLogListPath);
-    	}
-    	else{
-    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
-    	}
+    	responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
+//    	if(Files.exists(Paths.get(responseLogListPath))){
+//    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>(responseLogListPath);
+//    	}
+//    	else{
+//    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
+//    	}
     	
     	String stringResponseBody = null;
     	try {
@@ -118,6 +121,8 @@ public class TestGenerator{
     	} catch (IOException e2) {
     		// TODO Auto-generated catch block
     		e2.printStackTrace();
+    	} finally{
+    		response.body().close();
     	}
     	
     	ResponseLog<DiscourseParam> responseLog = new ResponseLog<DiscourseParam>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());

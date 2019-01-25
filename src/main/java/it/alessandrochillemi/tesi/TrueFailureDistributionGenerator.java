@@ -5,9 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
@@ -20,7 +17,7 @@ import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseParam;
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscoursePreCondition;
 import okhttp3.Response;
 
-public class TestApp {
+public class TrueFailureDistributionGenerator {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
 	public static final String ENVIRONMENT_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
@@ -68,47 +65,50 @@ public class TestApp {
     	System.out.println("Pre-conditions created!");
     	
     	DiscourseOracle oracle = new DiscourseOracle();
-    	ArrayList<Double> trueProbFailureList = new ArrayList<Double>();
+    	
+    	//Ottengo la distribuzione iniziale
+    	ArrayList<Double> trueProbFailureList = frameMap.getTrueProbFailureDistribution();
     	
     	//Scorro tutti i frame della FrameMap
-    	Iterator<Map.Entry<Integer, DiscourseFrame>> iter = frameMap.iterator();
-    	while (iter.hasNext()) {
-			Entry<Integer, DiscourseFrame> entry = iter.next();
-			System.out.println("\nFrame " + entry.getKey() + "...");
+    	for(int i=0; i<frameMap.size(); i++){
+    		System.out.println("\nFrame " + (i+1) + "...");
+    		
+    		//Ottengo il prossimo frame
+    		DiscourseFrame frame = frameMap.readByKey(i);
 			
 			ResponseLogList<ResponseLog<DiscourseParam>> responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
-			
-			//Ottengo il prossimo frame
-			DiscourseFrame frame = entry.getValue();
-			
-			//Genero i valori dei parametri applicando le precondizioni
-	    	for(DiscourseParam p : frame.getParamList()){
-	    		p.generateValue(preConditionList);
-	    	}
-	    	
-	    	//Creo una APIRequest con i campi del Frame estratto
-	    	APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(frame);
-	    	apiRequest.setBaseURL(baseURL);
-	    	apiRequest.setApiUsername(apiUsername);
-	    	apiRequest.setApiKey(apiKey);
 
 	    	//Eseguo NREQUESTS richieste per il frame estratto
-	    	for(int i = 0; i<NREQUESTS; i++){
-	    		System.out.println("\nRichiesta " + (i+1) + "...");
+	    	for(int j = 0; j<NREQUESTS; j++){
+	    		System.out.println("\nRichiesta " + (j+1) + "...");
+	    		
+	    		//Creo una APIRequest con i campi del Frame estratto
+		    	APIRequest<DiscourseParam, DiscoursePreCondition> apiRequest = new APIRequest<DiscourseParam,DiscoursePreCondition>(frame);
+		    	apiRequest.setBaseURL(baseURL);
+		    	apiRequest.setApiUsername(apiUsername);
+		    	apiRequest.setApiKey(apiKey);
+	    		
+	    		//Genero nuovi valori per i parametri applicando le precondizioni
+	    		apiRequest.generateNewParamValues(preConditionList);
 	    		
 	    		//Invio la richiesta
 	        	Response response = apiRequest.sendRequest();
 	        	
+	        	//Estraggo i campi dalla risposta
+	        	int responseCode = response.code();
+	        	String responseMessage = response.message();
 	        	String stringResponseBody = null;
 	        	try {
 	        		stringResponseBody = response.body().string();
 	        	} catch (IOException e2) {
 	        		// TODO Auto-generated catch block
 	        		e2.printStackTrace();
+	        	} finally{
+	        		response.body().close();
 	        	}
 	        	
-	        	//Salvo la risposta in un ResponseLog e lo aggiungo alla ResponseLogList
-	        	ResponseLog<DiscourseParam> responseLog = new ResponseLog<DiscourseParam>(Integer.toString(entry.getKey(), 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
+	        	//Salvo i campi della risposta in un ResponseLog e lo aggiungo alla ResponseLogList
+	        	ResponseLog<DiscourseParam> responseLog = new ResponseLog<DiscourseParam>(Integer.toString(i, 10), responseCode, responseMessage, stringResponseBody, apiRequest.getParamList());
 	        	responseLogList.add(responseLog);
 	    	}
 	    	
@@ -119,12 +119,22 @@ public class TestApp {
 	    	Double trueProbFailure = (new Double(totalNumberOfFailures))/(new Double(NREQUESTS));
 	    	
 	    	//Aggiungo la probabilità di fallimento vera del frame alla lista di tutte le probabilità di fallimento vere
-	    	trueProbFailureList.add(trueProbFailure);
+	    	trueProbFailureList.set(i, trueProbFailure);
 	    	
+	    	//Ogni 50 frame, salvo la frameMap aggiornata
+	    	if(i%50 == 0){
+	    		responseLogList.saveToFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log_list");
+	    		
+	    		frameMap.setTrueProbFailureDistribution(trueProbFailureList);
+	    		System.out.println("\nTrue probability selection distribution aggiornata!");
+
+	    		frameMap.writeToCSVFile(frameMapPath);
+	    		System.out.println("\nFrameMap salvata!");
+	    	}
     	}
     	
-    	frameMap.setTrueProbSelectionDistribution(trueProbFailureList);
-    	System.out.println("\nTrue probability selection distribution aggiornata!");
+    	frameMap.setTrueProbFailureDistribution(trueProbFailureList);
+    	System.out.println("\nTrue probability failure distribution aggiornata!");
     	
     	frameMap.writeToCSVFile(frameMapPath);
     	System.out.println("\nFrameMap salvata!");
