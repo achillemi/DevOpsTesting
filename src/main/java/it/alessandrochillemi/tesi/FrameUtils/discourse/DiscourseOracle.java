@@ -1,31 +1,22 @@
 package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
 import it.alessandrochillemi.tesi.FrameUtils.Oracle;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 
-public class DiscourseOracle extends Oracle<ResponseLogList<ResponseLog<DiscourseParam>>> {
+public class DiscourseOracle extends Oracle<DiscourseResponseLogList> {
 
 	@Override
-	public int getTotalNumberOfFailures(ResponseLogList<ResponseLog<DiscourseParam>> responseLogList) {
+	public int getTotalNumberOfFailures(DiscourseResponseLogList responseLogList) {
 		int failuresCount = 0;
 		//Analizzo ogni responseLog sulla base delle classi di equivalenza dei parametri utilizzati per capire se si tratta di un fallimento o meno
 		for(int i = 0; i<responseLogList.size(); i++){
-			ResponseLog<DiscourseParam> responseLog = responseLogList.get(i);
+			DiscourseResponseLog responseLog = responseLogList.get(i);
 			
 			//Determino la "validità" della richiesta sulla base dei parametri utilizzati: se ne è stato utilizzato almeno un non valido, considero la richiesta non valida
 			boolean valid = true;
 			int j = 0;
 			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
 			while(valid && j<responseLog.getParamList().size()){
-				//Se la classe di equivalenza è "invalid", il valore è invalido
-				if(responseLog.getParamList().get(j).getClassParam().isInvalid()){
-					valid = false;
-				}
-				//Se la classe di equivalenza è "empty" e il parametro è obbligatorio, il valore è invalido
-				else if(responseLog.getParamList().get(j).getClassParam().isEmpty() && responseLog.getParamList().get(j).isRequired()){
-					valid = false;
-				}
+				valid = responseLog.getParamList().get(j).isValid();
 				j++;
 			}
 			
@@ -49,6 +40,22 @@ public class DiscourseOracle extends Oracle<ResponseLogList<ResponseLog<Discours
 			}
 		}
 		return failuresCount;
+	}
+
+	@Override
+	public int getFrameFailures(DiscourseResponseLogList responseLogList, String frameID) {
+		//Creo una response log list nella quale aggiungo solo le risposte relative al frame specificato
+		DiscourseResponseLogList frameResponseLogList = new DiscourseResponseLogList();
+		
+		for(int i = 0; i<responseLogList.size(); i++){
+			DiscourseResponseLog d = responseLogList.get(i);
+			if(d.getFrameID().equals(frameID)){
+				frameResponseLogList.add(d);
+			}
+		}
+		
+		//Ritorno il numero di fallimenti presenti nella nuova response log list, che sono relativi solo al frame specificato
+		return this.getTotalNumberOfFailures(frameResponseLogList);
 	}
 
 }

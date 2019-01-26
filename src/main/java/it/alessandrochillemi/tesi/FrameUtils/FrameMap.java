@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class FrameMap<F extends Frame<? extends Param<? extends PreCondition>, ? extends PreCondition>> {
+public abstract class FrameMap<F extends Frame<? extends Param>> {
 	
 	public abstract int size();
 	
@@ -40,19 +40,6 @@ public abstract class FrameMap<F extends Frame<? extends Param<? extends PreCond
 	public abstract void updateFramesByEndpoint(HTTPMethod method, String endpoint, ArrayList<F> frameBeansList);
 	
 	public abstract void deleteFrames(HTTPMethod method, String endpoint);
-	
-//	public void saveToFile(String path){
-//		FileOutputStream fos;
-//		try {
-//			fos = new FileOutputStream(path);
-//	        ObjectOutputStream oos = new ObjectOutputStream(fos);
-//	        oos.writeObject(map);
-//	        oos.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
 	
 	public abstract void readFromCSVFile(String path);
 	

@@ -15,7 +15,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class APIRequest<P extends Param<C>, C extends PreCondition>{
+public class APIRequest<P extends Param>{
 	
 	private String baseURL;																	//Indirizzo del dominio che ospita l'applicazione
 	private String apiUsername;																//Username di chi vuole usare l'API
@@ -30,7 +30,7 @@ public class APIRequest<P extends Param<C>, C extends PreCondition>{
 		
 	}
 	
-	public APIRequest(Frame<P, ? extends PreCondition> frameBean){
+	public APIRequest(Frame<P> frameBean){
 		this.method = frameBean.getMethod();
 		this.endpoint = frameBean.getEndpoint();
 		this.paramList = frameBean.getParamList();
@@ -87,20 +87,20 @@ public class APIRequest<P extends Param<C>, C extends PreCondition>{
 	}
 	
 	//Generate new values for the params of this request
-	public void generateNewParamValues(ArrayList<C> preConditionList){
+	public void generateNewParamValuesWithPreConditions(boolean forceNewPreConditions){
 		for(P param : paramList){
-			param.generateValue(preConditionList);
+			param.generateValueWithPreConditions(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
 	}
 
 	//I parametri devono avere già un valore prima di inviare la richiesta; è possibile assegnare un valore a tutti i parametri con generateValue();
 	public Response sendRequest(){
-		ArrayList<Param<? extends PreCondition>> pathParamList = new ArrayList<Param<? extends PreCondition>>();
-		ArrayList<Param<? extends PreCondition>> queryParamList = new ArrayList<Param<? extends PreCondition>>();
-		ArrayList<Param<? extends PreCondition>> bodyParamList = new ArrayList<Param<? extends PreCondition>>();
+		ArrayList<Param> pathParamList = new ArrayList<Param>();
+		ArrayList<Param> queryParamList = new ArrayList<Param>();
+		ArrayList<Param> bodyParamList = new ArrayList<Param>();
 		
 		//Suddivido tutti i parametri in body, path e query parameters
-		for(Param<? extends PreCondition> param : paramList){
+		for(Param param : paramList){
 			if(param.getPosition().equals(Param.Position.PATH)){
 				pathParamList.add(param);
 			}
@@ -157,7 +157,7 @@ public class APIRequest<P extends Param<C>, C extends PreCondition>{
 		        .build();
 		
 		//Costruisco il body della richiesta HTTP, se necessario
-		RequestBody requestBody = null;
+		RequestBody requestBody = RequestBody.create(null, new byte[0]);;
 		if(bodyParamList.size()>0){
 			MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
 					.setType(MultipartBody.FORM);

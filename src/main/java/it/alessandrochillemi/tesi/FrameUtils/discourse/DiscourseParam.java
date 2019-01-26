@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import it.alessandrochillemi.tesi.FrameUtils.Param;
 
-public class DiscourseParam extends Param<DiscoursePreCondition>{
+public class DiscourseParam extends Param{
 	
 	private DiscourseTypeParam typeParam;
 	private DiscourseEquivalenceClass classParam;
@@ -87,25 +87,32 @@ public class DiscourseParam extends Param<DiscoursePreCondition>{
 	public void setResourceType(DiscourseResourceType resourceType) {
 		this.resourceType = resourceType;
 	}
-
+	
+	public boolean isValid(){
+		boolean valid = true;
+		//Se la classe di equivalenza è "invalid", il valore è invalido
+		if(this.classParam.isInvalid()){
+			valid = false;
+		}
+		//Se la classe di equivalenza è "empty" e il parametro è obbligatorio, il valore è invalido
+		else if(this.classParam.isEmpty() && this.isRequired()){
+			valid = false;
+		}
+		return valid;
+	}
+	
 	public void generateValue(){
 		if(this.classParam != null){
 			this.value = this.classParam.generateValue(validValues);
 		}
 	}
 	
-	public void generateValue(ArrayList<DiscoursePreCondition> preConditionList) {
-		if(classParam != null){
-			this.value = this.classParam.generateValue(validValues);
+	public void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
+		if(this.isValid()){
+			this.value = resourceType.generatePreConditionValue(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
-		if(classParam.toString().endsWith("_VALID")){
-			for(DiscoursePreCondition preCondition : preConditionList){
-				if(preCondition.getResourceType().equals(this.getResourceType())){
-					if(preCondition.getValue() != null){
-						this.setValue(preCondition.getValue());
-					}
-				}
-			}
+		if(this.value == null){
+			this.generateValue();
 		}
 	}
 	
