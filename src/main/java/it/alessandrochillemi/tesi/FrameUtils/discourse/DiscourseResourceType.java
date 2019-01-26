@@ -54,8 +54,25 @@ public enum DiscourseResourceType implements ResourceType{
 	private static String postIDValue;
 	
 
-	public String generatePreConditionValue(String baseURL, String apiUsername, String apiKey) {
+	public String generatePreConditionValue(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
 		String value = null;
+		//Se devo forzare nuove PreCondizioni, metto i valori di tutte le variabili a null
+		if(forceNewPreConditions){
+			categoryIDValue = null;
+			topicIDValue = null;
+			topicSlugValue = null;
+			userID1Value = null;
+			username1Value = null;
+			userID2Value = null;
+			username2Value = null;
+			usernameListValue = null;
+			tagGroupIDValue = null;
+			tagValue = null;
+			uploadAvatarIDValue = null;
+			groupIDValue = null;
+			groupValue = null;
+			postIDValue = null;
+		}
 		if(this != null){
 			switch(this){
 			case CATEGORY_ID:
@@ -81,7 +98,12 @@ public enum DiscourseResourceType implements ResourceType{
 				break;
 			case POST_ID:
 				if(postIDValue == null){
+					//Generate pre-conditions required for creating a new post
 					if(topicIDValue == null){
+						//Generate pre-conditions required for creating a new topic
+						if(categoryIDValue == null){
+							generateCategoryDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
+						}
 						generateTopicDiscoursePreConditionValues(baseURL,apiUsername,apiKey);
 					}
 					generatePostDiscoursePreConditionValues(baseURL,apiUsername,apiKey);

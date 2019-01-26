@@ -107,9 +107,9 @@ public class DiscourseParam extends Param{
 		}
 	}
 	
-	public void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey) {
+	public void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
 		if(this.isValid()){
-			this.value = resourceType.generatePreConditionValue(baseURL,apiUsername,apiKey);
+			this.value = resourceType.generatePreConditionValue(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
 		if(this.value == null){
 			this.generateValue();

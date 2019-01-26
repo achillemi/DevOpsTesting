@@ -3,22 +3,26 @@ package it.alessandrochillemi.tesi.FrameUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ResponseLog<P extends Param> implements Serializable{
+public abstract class ResponseLog<P extends Param> implements Serializable{
 	
-	private String frameID;									//ID del Frame a cui si riferisce questa risposta
-	private Integer responseCode;							//Codice di risposta della richiesta HTTP
-	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
-	private String responseBody;							//Body della risposta alla richiesta HTTP
-	private ArrayList<P> paramList;							//Lista di parametri usati nella richiesta
+	protected String frameID;									//ID del Frame a cui si riferisce questa risposta
+	protected Integer responseCode;								//Codice di risposta della richiesta HTTP
+	protected String responseMessage;							//Messaggio di risposta della richiesta HTTP
+//	protected String responseBody;								//Body della risposta alla richiesta HTTP
+	protected ArrayList<P> paramList;							//Lista di parametri usati nella richiesta
 	
 	private static final long serialVersionUID = 7679179561832569179L;
+	
+	public ResponseLog(){
+		this.paramList = new ArrayList<P>();
+	}
 
-	public ResponseLog(String frameID, Integer responseCode, String responseMessage, String responseBody, ArrayList<P> paramList) {
+	public ResponseLog(String frameID, Integer responseCode, String responseMessage, /*String responseBody,*/ ArrayList<P> paramList) {
 		super();
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
-		this.responseBody = responseBody;
+//		this.responseBody = responseBody;
 		this.paramList = paramList;
 	}
 	
@@ -40,12 +44,12 @@ public class ResponseLog<P extends Param> implements Serializable{
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
 	}
-	public String getResponseBody() {
-		return responseBody;
-	}
-	public void setResponseBody(String responseBody) {
-		this.responseBody = responseBody;
-	}
+//	public String getResponseBody() {
+//		return responseBody;
+//	}
+//	public void setResponseBody(String responseBody) {
+//		this.responseBody = responseBody;
+//	}
 	public ArrayList<P> getParamList() {
 		return paramList;
 	}

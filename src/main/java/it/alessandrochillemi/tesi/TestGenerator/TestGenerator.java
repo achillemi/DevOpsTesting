@@ -4,16 +4,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
 
 import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrame;
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrameMap;
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseParam;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscoursePreCondition;
+import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLog;
+import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLogList;
 import okhttp3.Response;
 
 public class TestGenerator{
@@ -73,9 +74,7 @@ public class TestGenerator{
 
     	//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
-//    	int selectedFrame = testSelectionStrategy.selectFrame(probSelectionDistribution);
-    	
-    	int selectedFrame = 74;
+    	int selectedFrame = testSelectionStrategy.selectFrame(probSelectionDistribution);
 
     	//Leggo il frame con l'indice scelto
     	System.out.println("Selected frame: " + selectedFrame);
@@ -86,7 +85,7 @@ public class TestGenerator{
 
     	//Genero i valori dei parametri applicando le precondizioni
     	for(DiscourseParam p : frame.getParamList()){
-    		p.generateValueWithPreConditions(baseURL,apiUsername,apiKey);
+    		p.generateValueWithPreConditions(baseURL,apiUsername,apiKey,true);
     	}
 
     	//Creo una APIRequest con i campi del Frame estratto
@@ -97,34 +96,39 @@ public class TestGenerator{
 
     	//Invio la richiesta
     	Response response = apiRequest.sendRequest();
+    	
+    	//Salvo i risultati e chiudo la risposta
+    	int responseCode = response.code();
+    	String responseMessage = response.message();
+//    	String stringResponseBody = null;
+//    	try {
+//    		stringResponseBody = response.body().string();
+//    	} catch (IOException e2) {
+//    		// TODO Auto-generated catch block
+//    		e2.printStackTrace();
+//    	} finally{
+//    		response.body().close();
+//    	}
+    	response.close();
+    	
 
     	//Salvo la risposta nella ResponseLogList esistente o in una nuova
-    	ResponseLogList<ResponseLog<DiscourseParam>> responseLogList = null;
-    	responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
-//    	if(Files.exists(Paths.get(responseLogListPath))){
-//    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>(responseLogListPath);
-//    	}
-//    	else{
-//    		responseLogList = new ResponseLogList<ResponseLog<DiscourseParam>>();
-//    	}
+    	DiscourseResponseLogList responseLogList = null;
     	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-    	} catch (IOException e2) {
-    		// TODO Auto-generated catch block
-    		e2.printStackTrace();
-    	} finally{
-    		response.body().close();
+    	if(Files.exists(Paths.get(responseLogListPath))){
+    		responseLogList = new DiscourseResponseLogList(responseLogListPath);
+    	}
+    	else{
+    		responseLogList = new DiscourseResponseLogList();
     	}
     	
-    	ResponseLog<DiscourseParam> responseLog = new ResponseLog<DiscourseParam>(Integer.toString(selectedFrame, 10), response.code(), response.message(), stringResponseBody, apiRequest.getParamList());
+    	DiscourseResponseLog responseLog = new DiscourseResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
    
     	System.out.println("");
     	responseLog.print();
 
     	responseLogList.add(responseLog);
-    	responseLogList.saveToFile(responseLogListPath);
+    	responseLogList.writeToCSVFile(responseLogListPath);
 
     }
 }

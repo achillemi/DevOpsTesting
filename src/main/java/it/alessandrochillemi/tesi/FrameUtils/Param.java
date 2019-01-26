@@ -146,7 +146,7 @@ public abstract class Param implements Serializable{
 	
 	public abstract void generateValue();
 	
-	public abstract void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey);
+	public abstract void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions);
 	
 	public abstract void print();
 	

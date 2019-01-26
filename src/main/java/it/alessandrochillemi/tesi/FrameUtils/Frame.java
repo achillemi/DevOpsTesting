@@ -3,7 +3,7 @@ package it.alessandrochillemi.tesi.FrameUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-//Classe "bean" che modella i campi di un Frame che devono essere letti o scritti
+//Classe che modella i campi di un Frame che devono essere letti o scritti
 public abstract class Frame<P extends Param> implements Serializable{
 	
 	protected HTTPMethod method;															//Metodo della richiesta HTTP per usare l'API
@@ -96,7 +96,7 @@ public abstract class Frame<P extends Param> implements Serializable{
 		this.trueProbFailure = trueProbFailure;
 	}
 
-	public abstract void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey);
+	public abstract void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions);
 	public abstract void print();
 	
 }

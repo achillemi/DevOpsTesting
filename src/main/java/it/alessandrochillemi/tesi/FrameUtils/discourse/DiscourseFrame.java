@@ -115,9 +115,9 @@ public class DiscourseFrame extends Frame<DiscourseParam>{
 	}
 	
 	@Override
-	public void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey) {
+	public void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
 		for(DiscourseParam p : this.paramList){
-			p.generateValueWithPreConditions(baseURL, apiUsername, apiKey);
+			p.generateValueWithPreConditions(baseURL, apiUsername, apiKey, forceNewPreConditions);
 		}
 		
 	}

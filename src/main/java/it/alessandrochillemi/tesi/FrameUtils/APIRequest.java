@@ -87,9 +87,9 @@ public class APIRequest<P extends Param>{
 	}
 	
 	//Generate new values for the params of this request
-	public void generateNewParamValuesWithPreConditions(){
+	public void generateNewParamValuesWithPreConditions(boolean forceNewPreConditions){
 		for(P param : paramList){
-			param.generateValueWithPreConditions(baseURL,apiUsername,apiKey);
+			param.generateValueWithPreConditions(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class APIRequest<P extends Param>{
 		        .build();
 		
 		//Costruisco il body della richiesta HTTP, se necessario
-		RequestBody requestBody = null;
+		RequestBody requestBody = RequestBody.create(null, new byte[0]);;
 		if(bodyParamList.size()>0){
 			MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
 					.setType(MultipartBody.FORM);

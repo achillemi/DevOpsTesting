@@ -38,6 +38,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	private static String[] booleanEquivalenceClasses = new String[] {"BOOLEAN_EMPTY","BOOLEAN_INVALID","BOOLEAN_VALID"};
 	private static String[] enumEquivalenceClasses = new String[] {"ENUM_EMPTY","ENUM_INVALID","ENUM_VALID"};
 	
+	//Massimo numero di caratteri per ogni parametro
+	private static final int MAX_LENGTH = 1001;
+	
 	public boolean isInvalid(){
 		if(this.toString().endsWith("_INVALID")){
 			return true;
@@ -305,9 +308,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value = "";
 					break;
 				case BOOLEAN_INVALID:
-					//Generate a random string of random length from 1 to 2^16, different than "true" or "false"
+					//Generate a random string of random length from 1 to MAX_LENGTH, different than "true" or "false"
 					do{
-						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, MAX_LENGTH), true, true);
 					} while(nextString.equals("true") || nextString.equals("false"));
 					value = nextString;
 					break;
@@ -318,9 +321,9 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value="";
 					break;
 				case COL_INVALID:
-					//Generate random string with random length from 1 to 2^16, different than 6 to make the color invalid
+					//Generate random string with random length from 1 to MAX_LENGTH, different than 6 to make the color invalid
 					do{
-						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, MAX_LENGTH), true, true);
 					} while(nextString.length() == 6);
 					value = nextString;
 					break;
@@ -357,17 +360,17 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value="";
 					break;
 				case EMAIL_INVALID:
-					//Generate random string with random length from 1 to 2^16 that doesn't contain a '@'
+					//Generate random string with random length from 1 to MAX_LENGTH that doesn't contain a '@'
 					do{
-						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, MAX_LENGTH), true, true);
 					} while(nextString.contains("@"));
 					value = nextString;
 					break;
 				case EMAIL_VALID:
 					//Generate random alphanumeric string in the form of x@y.z (where x, y and z are strings of random lengths) of total length up to 2^16
-					String firstEmailPart = RandomStringUtils.randomAlphanumeric(1, RandomUtils.nextInt(1,65537-4));
-					String secondEmailPart = RandomStringUtils.randomAlphanumeric(1, (65537-3-firstEmailPart.length()));
-					String thirdEmailPart = RandomStringUtils.randomAlphanumeric(1, (65537-2-firstEmailPart.length()-secondEmailPart.length()));
+					String firstEmailPart = RandomStringUtils.randomAlphanumeric(1, RandomUtils.nextInt(1,MAX_LENGTH-4));
+					String secondEmailPart = RandomStringUtils.randomAlphanumeric(1, (MAX_LENGTH-3-firstEmailPart.length()));
+					String thirdEmailPart = RandomStringUtils.randomAlphanumeric(1, (MAX_LENGTH-2-firstEmailPart.length()-secondEmailPart.length()));
 					value = firstEmailPart+"@"+secondEmailPart+"."+thirdEmailPart;
 					break;
 				case LIST_EMPTY:
@@ -396,8 +399,8 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value="";
 					break;
 				case NUM_INVALID:
-					//Generate random alphabetic string with length from 1 to 2^16
-					value = RandomStringUtils.randomAlphabetic(1, 65537);
+					//Generate random alphabetic string with length from 1 to MAX_LENGTH
+					value = RandomStringUtils.randomAlphabetic(1, MAX_LENGTH);
 					break;
 				case NUM_VALID:
 					//Generate random integer from Integer.MIN_VALUE to Integer.MAX_VALUE
@@ -420,8 +423,8 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value="";
 					break;
 				case STR_INVALID:
-					//Generate random string with length from 1 to 2^16 with non-printable characters (ASCII code from 0 to 31)
-					value = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), 0, 31, false, false);
+					//Generate random string with length from 1 to MAX_LENGTH with non-printable characters (ASCII code from 0 to 31)
+					value = RandomStringUtils.random(RandomUtils.nextInt(1, MAX_LENGTH), 0, 31, false, false);
 					break;
 				case STR_NULL:
 					value="NULL";
@@ -431,17 +434,20 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 					value = UUID.randomUUID().toString();
 					break;
 				case STR_VERY_LONG:
-					//Generate random alphanumeric string with length from 2^16 to r, where "r" is a random number between 1 and 2^16-1
-					nextInt = 65536 + RandomUtils.nextInt(1, 65536);
-					value = RandomStringUtils.randomAlphanumeric(65536, nextInt);
+//					//Generate random alphanumeric string with length from 2^16 to r, where "r" is a random number between 1 and 2^16-1
+//					nextInt = 65536 + RandomUtils.nextInt(1, 65536);
+//					value = RandomStringUtils.randomAlphanumeric(65536, nextInt);
+					
+					//Generate random alphanumeric string with length=MAX_LENGTH
+					value = RandomStringUtils.randomAlphanumeric(MAX_LENGTH, MAX_LENGTH+1);
 					break;
 				case ENUM_EMPTY:
 					value="";
 					break;
 				case ENUM_INVALID:
-					//Generate a random string of random length from 1 to 2^16, different than any of the valid values
+					//Generate a random string of random length from 1 to MAX_LENGTH, different than any of the valid values
 					do{
-						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, 65537), true, true);
+						nextString = RandomStringUtils.random(RandomUtils.nextInt(1, MAX_LENGTH), true, true);
 					} while(validValues.contains(nextString));
 					value = nextString;
 					break;
