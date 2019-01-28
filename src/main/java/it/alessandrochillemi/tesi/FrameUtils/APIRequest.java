@@ -15,7 +15,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class APIRequest<P extends Param>{
+public class APIRequest{
 	
 	private String baseURL;																	//Indirizzo del dominio che ospita l'applicazione
 	private String apiUsername;																//Username di chi vuole usare l'API
@@ -24,19 +24,19 @@ public class APIRequest<P extends Param>{
 	private HTTPMethod method;																//Metodo della richiesta HTTP per usare l'API
 	private String endpoint;																//Endpoint dell'API
 	
-	private ArrayList<P> paramList;															//Lista di parametri della richiesta
+	private ArrayList<Param> paramList;															//Lista di parametri della richiesta
 		
 	public APIRequest(){
 		
 	}
 	
-	public APIRequest(Frame<P> frameBean){
-		this.method = frameBean.getMethod();
-		this.endpoint = frameBean.getEndpoint();
-		this.paramList = frameBean.getParamList();
+	public APIRequest(Frame frame){
+		this.method = frame.getMethod();
+		this.endpoint = frame.getEndpoint();
+		this.paramList = frame.getParamList();
 	}
 	
-	public APIRequest(HTTPMethod method, String endpoint, ArrayList<P> paramList){
+	public APIRequest(HTTPMethod method, String endpoint, ArrayList<Param> paramList){
 		this.method = method;
 		this.endpoint = endpoint;
 		this.paramList = paramList;
@@ -78,17 +78,17 @@ public class APIRequest<P extends Param>{
 		this.endpoint = endpoint;
 	}
 
-	public ArrayList<P> getParamList() {
+	public ArrayList<Param> getParamList() {
 		return paramList;
 	}
 
-	public void setParamList(ArrayList<P> paramList) {
+	public void setParamList(ArrayList<Param> paramList) {
 		this.paramList = paramList;
 	}
 	
 	//Generate new values for the params of this request
 	public void generateNewParamValuesWithPreConditions(boolean forceNewPreConditions){
-		for(P param : paramList){
+		for(Param param : paramList){
 			param.generateValueWithPreConditions(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
 	}

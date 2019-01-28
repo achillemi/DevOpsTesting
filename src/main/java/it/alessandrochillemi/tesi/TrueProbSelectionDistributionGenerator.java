@@ -1,57 +1,20 @@
 package it.alessandrochillemi.tesi;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrameMap;
 
 public class TrueProbSelectionDistributionGenerator {
 	
-	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static final String ENVIRONMENT_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
-
-	//Percentuale di variazione della distribuzione di probabilità di selezione vera rispetto alla distribuzione di probabilità "stimata"
-	private static final Double VARIATION = 0.3;
-	
 	//Percentuale dell'insieme dei frame che avranno una variazione proporzionale a +VARIATION; la restante parte di frame avrà una variazione proporzionale a -VARIATION
 	private static final Double SET1_SIZE_PROPORTION = 0.6;
 	
-	private static String frameMapPath;
-	
 	private static Random random = new Random();
 
-	private static void loadEnvironment(){
-		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
-		Properties environment = new Properties();
-		InputStream is = null;
-		try {
-			is = new FileInputStream(ENVIRONMENT_PATH);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		try {
-			environment.load(is);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		//Leggo le variabili d'ambiente
-		frameMapPath = environment.getProperty("frame_map_path");
-	}
-
-	public static void main(String[] args) {
-		
-		loadEnvironment();
-		
-		//Carico la FrameMap
-    	DiscourseFrameMap frameMap = new DiscourseFrameMap(frameMapPath);
+	public static ArrayList<Double> generateTrueProbSelectionDistributiion(DiscourseFrameMap frameMap, Double variation) {
 		
     	//Ottengo la distribuzione di probabilità di selezione a partire dalla quale calcolo la distribuzione di probabilità di selezione vera
 		ArrayList<Double> estimatedProbSelectionDistribution = frameMap.getProbSelectionDistribution();
@@ -61,8 +24,8 @@ public class TrueProbSelectionDistributionGenerator {
 		int set2Size = frameMap.size() - set1Size;
 		
 		//Ottengo i due set di numeri casuali
-		List<Double> set1 = randomsToTargetSum(set1Size,VARIATION);	
-		List<Double> set2 = randomsToTargetSum(set2Size,-VARIATION);
+		List<Double> set1 = randomsToTargetSum(set1Size,variation);	
+		List<Double> set2 = randomsToTargetSum(set2Size,-variation);
 		
 		//Concateno le due liste ed eseguo uno shuffling
 		List<Double> finalSet = new ArrayList<Double>(set1);
@@ -84,13 +47,8 @@ public class TrueProbSelectionDistributionGenerator {
 			normalize(trueProbSelectionDistribution);
 		}
 		
-		//Aggiungo la distribuzione di probabilità di selezione calcolata alla frameMap
-		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-		
-		//Salvo la frameMap
-		frameMap.writeToCSVFile(frameMapPath);
-		
-		System.out.println("Tutto ok!");
+		//Ritorno la distribuzione di probabilità di selezione calcolata
+		return trueProbSelectionDistribution;
 
 	}
 	

@@ -17,6 +17,8 @@ import com.google.common.collect.Lists;
 
 import it.alessandrochillemi.tesi.FrameUtils.EquivalenceClass;
 import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
+import it.alessandrochillemi.tesi.FrameUtils.Param;
+import it.alessandrochillemi.tesi.FrameUtils.TypeParam;
 
 //Possibili classi di equivalenza per ogni parametro
 public enum DiscourseEquivalenceClass implements EquivalenceClass{
@@ -28,15 +30,6 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	LIST_NULL,LIST_EMPTY,LIST_VALID,
 	BOOLEAN_EMPTY,BOOLEAN_INVALID,BOOLEAN_VALID,
 	ENUM_EMPTY,ENUM_INVALID,ENUM_VALID;
-
-	private static String[] stringEquivalenceClasses = new String[] {"STR_NULL","STR_EMPTY","STR_VERY_LONG","STR_INVALID","STR_VALID"};
-	private static String[] colorEquivalenceClasses = new String[] {"COL_EMPTY","COL_INVALID","COL_VALID"};
-	private static String[] dateEquivalenceClasses = new String[] {"DATE_EMPTY","DATE_INVALID","DATE_VALID"};
-	private static String[] emailEquivalenceClasses = new String[] {"EMAIL_EMPTY","EMAIL_INVALID","EMAIL_VALID"};
-	private static String[] numberEquivalenceClasses = new String[] {"NUM_EMPTY","NUM_ABSOLUTE_MINUS_ONE","NUM_ABSOLUTE_ZERO","NUM_VERY_BIG","NUM_INVALID","NUM_VALID"};
-	private static String[] listEquivalenceClasses = new String[] {"LIST_NULL","LIST_EMPTY","LIST_VALID"};
-	private static String[] booleanEquivalenceClasses = new String[] {"BOOLEAN_EMPTY","BOOLEAN_INVALID","BOOLEAN_VALID"};
-	private static String[] enumEquivalenceClasses = new String[] {"ENUM_EMPTY","ENUM_INVALID","ENUM_VALID"};
 	
 	//Massimo numero di caratteri per ogni parametro
 	private static final int MAX_LENGTH = 1001;
@@ -63,183 +56,21 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	//i gruppi di classi di equivalenza sono selezionati automaticamente in base al tipo specificato in ingresso
 	//per ogni parametro; viene usata la libreria Google Guava in combinazione con Java 8, prendendo spunto dalla risposta
 	//seguente indirizzo: https://stackoverflow.com/a/37490796/5863657
-	public static List<List<String>> cartesianProduct(DiscourseTypeParam typeParam1, DiscourseTypeParam typeParam2, DiscourseTypeParam typeParam3, DiscourseTypeParam typeParam4, DiscourseTypeParam typeParam5, DiscourseTypeParam typeParam6){
+	public static List<List<String>> cartesianProduct(TypeParam typeParam1, TypeParam typeParam2, TypeParam typeParam3, TypeParam typeParam4, TypeParam typeParam5, TypeParam typeParam6){
 		List<String[]> elements = new LinkedList<String[]>();
 
 		if(typeParam1 != null){
-			switch(typeParam1){
-			case STRING:
-				elements.add(stringEquivalenceClasses);
-				break;
-			case COLOR:
-				elements.add(colorEquivalenceClasses);
-				break;
-			case DATE:
-				elements.add(dateEquivalenceClasses);
-				break;
-			case EMAIL:
-				elements.add(emailEquivalenceClasses);
-				break;
-			case NUMBER:
-				elements.add(numberEquivalenceClasses);
-				break;
-			case LIST:
-				elements.add(listEquivalenceClasses);
-				break;
-			case BOOLEAN:
-				elements.add(booleanEquivalenceClasses);
-				break;
-			case ENUM:
-				elements.add(enumEquivalenceClasses);
-				break;
-			default:
-				break;
-			}
+			elements.add(typeParam1.getClasses());
 			if(typeParam2 != null){
-				switch(typeParam2){
-				case STRING:
-					elements.add(stringEquivalenceClasses);
-					break;
-				case COLOR:
-					elements.add(colorEquivalenceClasses);
-					break;
-				case DATE:
-					elements.add(dateEquivalenceClasses);
-					break;
-				case EMAIL:
-					elements.add(emailEquivalenceClasses);
-					break;
-				case NUMBER:
-					elements.add(numberEquivalenceClasses);
-					break;
-				case LIST:
-					elements.add(listEquivalenceClasses);
-					break;
-				case BOOLEAN:
-					elements.add(booleanEquivalenceClasses);
-					break;
-				case ENUM:
-					elements.add(enumEquivalenceClasses);
-					break;
-				default:
-					break;
-				}
+				elements.add(typeParam2.getClasses());
 				if(typeParam3 != null){
-					switch(typeParam3){
-					case STRING:
-						elements.add(stringEquivalenceClasses);
-						break;
-					case COLOR:
-						elements.add(colorEquivalenceClasses);
-						break;
-					case DATE:
-						elements.add(dateEquivalenceClasses);
-						break;
-					case EMAIL:
-						elements.add(emailEquivalenceClasses);
-						break;
-					case NUMBER:
-						elements.add(numberEquivalenceClasses);
-						break;
-					case LIST:
-						elements.add(listEquivalenceClasses);
-						break;
-					case BOOLEAN:
-						elements.add(booleanEquivalenceClasses);
-						break;
-					case ENUM:
-						elements.add(enumEquivalenceClasses);
-						break;
-					default:
-						break;
-					}
+					elements.add(typeParam3.getClasses());
 					if(typeParam4 != null){
-						switch(typeParam4){
-						case STRING:
-							elements.add(stringEquivalenceClasses);
-							break;
-						case COLOR:
-							elements.add(colorEquivalenceClasses);
-							break;
-						case DATE:
-							elements.add(dateEquivalenceClasses);
-							break;
-						case EMAIL:
-							elements.add(emailEquivalenceClasses);
-							break;
-						case NUMBER:
-							elements.add(numberEquivalenceClasses);
-							break;
-						case LIST:
-							elements.add(listEquivalenceClasses);
-							break;
-						case BOOLEAN:
-							elements.add(booleanEquivalenceClasses);
-							break;
-						case ENUM:
-							elements.add(enumEquivalenceClasses);
-							break;
-						default:
-							break;
-						}
+						elements.add(typeParam4.getClasses());
 						if(typeParam5 != null){
-							switch(typeParam5){
-							case STRING:
-								elements.add(stringEquivalenceClasses);
-								break;
-							case COLOR:
-								elements.add(colorEquivalenceClasses);
-								break;
-							case DATE:
-								elements.add(dateEquivalenceClasses);
-								break;
-							case EMAIL:
-								elements.add(emailEquivalenceClasses);
-								break;
-							case NUMBER:
-								elements.add(numberEquivalenceClasses);
-								break;
-							case LIST:
-								elements.add(listEquivalenceClasses);
-								break;
-							case BOOLEAN:
-								elements.add(booleanEquivalenceClasses);
-								break;
-							case ENUM:
-								elements.add(enumEquivalenceClasses);
-								break;
-							default:
-								break;
-							}
+							elements.add(typeParam5.getClasses());
 							if(typeParam6 != null){
-								switch(typeParam6){
-								case STRING:
-									elements.add(stringEquivalenceClasses);
-									break;
-								case COLOR:
-									elements.add(colorEquivalenceClasses);
-									break;
-								case DATE:
-									elements.add(dateEquivalenceClasses);
-									break;
-								case EMAIL:
-									elements.add(emailEquivalenceClasses);
-									break;
-								case NUMBER:
-									elements.add(numberEquivalenceClasses);
-									break;
-								case LIST:
-									elements.add(listEquivalenceClasses);
-									break;
-								case BOOLEAN:
-									elements.add(booleanEquivalenceClasses);
-									break;
-								case ENUM:
-									elements.add(enumEquivalenceClasses);
-									break;
-								default:
-									break;
-								}
+								elements.add(typeParam6.getClasses());
 							}
 						}
 					}
@@ -259,12 +90,12 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	
 	//Generate a list of DiscourseFrame from a list of class combinations (useful when creating a FrameMap);
 	//'paramList' is the List of Params of the API that the resulting list of FrameBeans refers to.
-	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<DiscourseParam> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
 		ArrayList<DiscourseFrame> framesList = new ArrayList<DiscourseFrame>();
 		
-		ArrayList<DiscourseTypeParam> types = new ArrayList<DiscourseTypeParam>();
+		ArrayList<TypeParam> types = new ArrayList<TypeParam>();
 		for(int k = 0; k<6; k++){
-			DiscourseTypeParam t = null;
+			TypeParam t = null;
 			if(k<paramList.size()){
 				t = paramList.get(k).getTypeParam();
 			}
@@ -275,7 +106,7 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 		
 		for(int i = 0; i<classesCombinations.size(); i++){
 			DiscourseFrame frame = new DiscourseFrame();
-			ArrayList<DiscourseParam> frameParamList = new ArrayList<DiscourseParam>();
+			ArrayList<Param> frameParamList = new ArrayList<Param>();
 			frame.setMethod(method);
 			frame.setEndpoint(endpoint);
 			frame.setProbSelection(probSelection);
@@ -283,7 +114,7 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 			frame.setTrueProbSelection(trueProbSelection);
 			frame.setTrueProbFailure(trueProbFailure);
 			for(int j = 0; j<paramList.size(); j++){
-				DiscourseParam p1 = new DiscourseParam(paramList.get(j));
+				Param p1 = new Param(paramList.get(j));
 				p1.setClassParam(DiscourseEquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
 				frameParamList.add(p1);
 			}

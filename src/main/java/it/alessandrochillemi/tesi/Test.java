@@ -4,23 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Properties;
 
-import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
-import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
-import it.alessandrochillemi.tesi.FrameUtils.Param;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseEquivalenceClass;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrame;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseParam;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResourceType;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLog;
 import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLogList;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseTypeParam;
-import okhttp3.Response;
 
 public class Test {
 	
@@ -29,6 +15,7 @@ public class Test {
 	
 	private static String frameMapPath;
 	private static String responseLogListPath;
+	private static String trueProbSelectionResponseLogListPath;
 	private static String baseURL;
 	private static String apiUsername;
 	private static String apiKey;
@@ -51,6 +38,7 @@ public class Test {
     	//Leggo le variabili d'ambiente
     	frameMapPath = environment.getProperty("frame_map_path");
     	responseLogListPath = environment.getProperty("response_log_list_path");
+    	trueProbSelectionResponseLogListPath = environment.getProperty("true_prob_selection_response_log_list_path");
     	baseURL = environment.getProperty("base_url");
     	apiUsername = environment.getProperty("api_username");
     	apiKey = environment.getProperty("api_key");
@@ -60,30 +48,37 @@ public class Test {
 		
 		loadEnvironment();
 		
-		//Carico la FrameMap
-    	DiscourseFrameMap frameMap = new DiscourseFrameMap(frameMapPath);
-    	
-    	DiscourseFrame frame = frameMap.readByKey(1981);
-    	
-    	//Genero i valori dei parametri applicando le precondizioni
-    	for(DiscourseParam p : frame.getParamList()){
-    		p.generateValueWithPreConditions(baseURL,apiUsername,apiKey,true);
-//    		System.out.println(p.getKeyParam());
-//    		System.out.println(p.getClassParam());
-//    		p.setValue("prova");
-    		System.out.println(p.getValue());
-    	}
-    	
-    	//Creo una APIRequest con i campi del Frame estratto
-    	APIRequest<DiscourseParam> apiRequest = new APIRequest<DiscourseParam>(frame);
-    	apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-
-    	//Invio la richiesta
-    	Response response = apiRequest.sendRequest();
-    	
-    	System.out.println(response.code());
+		DiscourseResponseLogList discourseResponseLogList = new DiscourseResponseLogList(trueProbSelectionResponseLogListPath);
+		
+		System.out.println("\nTotal failures: " + discourseResponseLogList.getTotalNumberOfFailures());
+		System.out.println("\nTotal critical failures: " + discourseResponseLogList.getTotalNumberOfCriticalFailures());
+		
+		
+		
+//		//Carico la FrameMap
+//    	DiscourseFrameMap frameMap = new DiscourseFrameMap(frameMapPath);
+//    	
+//    	DiscourseFrame frame = frameMap.readByKey(1981);
+//    	
+//    	//Genero i valori dei parametri applicando le precondizioni
+//    	for(Param p : frame.getParamList()){
+//    		p.generateValueWithPreConditions(baseURL,apiUsername,apiKey,true);
+////    		System.out.println(p.getKeyParam());
+////    		System.out.println(p.getClassParam());
+////    		p.setValue("prova");
+//    		System.out.println(p.getValue());
+//    	}
+//    	
+//    	//Creo una APIRequest con i campi del Frame estratto
+//    	APIRequest apiRequest = new APIRequest(frame);
+//    	apiRequest.setBaseURL(baseURL);
+//    	apiRequest.setApiUsername(apiUsername);
+//    	apiRequest.setApiKey(apiKey);
+//
+//    	//Invio la richiesta
+//    	Response response = apiRequest.sendRequest();
+//    	
+//    	System.out.println(response.code());
 		
 //		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
 //    	loadEnvironment();
