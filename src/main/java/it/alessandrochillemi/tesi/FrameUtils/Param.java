@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract class Param implements Serializable{
+public class Param implements Serializable{
 	
 	public enum Position{BODY,PATH,QUERY};
 	
@@ -87,7 +87,9 @@ public abstract class Param implements Serializable{
 		this.keyParam = keyParam;
 	}
 
-	public abstract TypeParam getTypeParam();
+	public TypeParam getTypeParam(){
+		return typeParam;
+	}
 
 	public void setTypeParam(TypeParam typeParam) {
 		this.typeParam = typeParam;
@@ -142,12 +144,40 @@ public abstract class Param implements Serializable{
 	}
 	
 	//Returns true if this parameter is valid; the validity depends on the equivalence class and on the fact that the parameter is required or not
-	public abstract boolean isValid();
+	public boolean isValid(){
+		boolean valid = true;
+		//Se la classe di equivalenza è "invalid", il valore è invalido
+		if(this.classParam.isInvalid()){
+			valid = false;
+		}
+		//Se la classe di equivalenza è "empty" e il parametro è obbligatorio, il valore è invalido
+		else if(this.classParam.isEmpty() && this.isRequired()){
+			valid = false;
+		}
+		return valid;
+	}
 	
-	public abstract void generateValue();
+	public void generateValue(){
+		if(this.classParam != null){
+			this.value = this.classParam.generateValue(validValues);
+		}
+	}
 	
-	public abstract void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions);
+	public void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
+		if(this.isValid()){
+			this.value = resourceType.generatePreConditionValue(baseURL,apiUsername,apiKey,forceNewPreConditions);
+		}
+		if(this.value == null){
+			this.generateValue();
+		}
+	}
 	
-	public abstract void print();
+	public void print(){
+		System.out.print("\nKey: " + keyParam);
+		System.out.print("\nPosition:  " + position);
+		System.out.print("\nClass:  " + classParam);
+		System.out.print("\nResource Type:  " + resourceType);
+		System.out.print("\nValue:  " + value);
+	}
 	
 }
