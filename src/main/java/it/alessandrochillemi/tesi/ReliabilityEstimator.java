@@ -74,33 +74,51 @@ public class ReliabilityEstimator {
 	}
 	
 	public Double computeTrueReliability(ResponseLogList<? extends ResponseLog> userResponseLogList){
-		return null;
+		Double totalFailures = new Double(userResponseLogList.getTotalNumberOfFailures());
+		
+		Double totalRequests = new Double(userResponseLogList.size());
+				
+		Double trueReliability = totalFailures/totalRequests;
+		
+		this.trueReliability = trueReliability;
+		
+		return trueReliability;
 	}
 	
 	public Double computeTrueReliabilityForCriticalFailures(ResponseLogList<? extends ResponseLog> userResponseLogList){
-		return null;
+		Double totalCriticalFailures = new Double(userResponseLogList.getTotalNumberOfCriticalFailures());
+		
+		Double totalRequests = new Double(userResponseLogList.size());
+		
+		Double trueReliabilityForCriticalFailures = totalCriticalFailures/totalRequests;
+		
+		this.trueReliabilityForCriticalFailures = trueReliabilityForCriticalFailures;
+		
+		return trueReliabilityForCriticalFailures;
 	}
 	
-	//Aggiunge le due reliability a un file
+	//Aggiunge le reliability a un file
+	@SuppressWarnings("resource")
 	public void appendToFile(String CSVFilePath){
-		if(estimatedReliability == null || estimatedReliabilityForCriticalFailures == null){
-			System.out.println("\nReliability non ancora stimate!");
-		}
-		else{
-			BufferedWriter writer;
-			try {
+		BufferedWriter writer;
+		try {
+			CSVPrinter csvPrinter = null;
+			if(Files.exists(Paths.get(CSVFilePath))){
 				writer = Files.newBufferedWriter(Paths.get(CSVFilePath), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-				@SuppressWarnings("resource")
-				CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(';').withHeader(header.class));
-				
-				csvPrinter.printRecord(estimatedReliability,estimatedReliabilityForCriticalFailures,trueReliability,trueReliabilityForCriticalFailures);
-				
-				csvPrinter.flush();
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(';'));
 			}
+			else{
+				writer = Files.newBufferedWriter(Paths.get(CSVFilePath), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+				csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(';').withHeader(header.class));
+			}
+			
+			csvPrinter.printRecord(estimatedReliability,estimatedReliabilityForCriticalFailures,trueReliability,trueReliabilityForCriticalFailures);
+			
+			csvPrinter.flush();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

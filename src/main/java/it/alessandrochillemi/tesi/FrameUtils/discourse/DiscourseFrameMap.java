@@ -28,8 +28,8 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 		super(path);
 	}
 	
-	public DiscourseFrameMap(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
-		super(apiDescriptionsCSVFilePath,probSelection,probFailure,trueProbSelection,trueProbFailure);
+	public DiscourseFrameMap(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+		super(apiDescriptionsCSVFilePath,probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure);
 	}
 	
 	public void readFromCSVFile(String path){
@@ -63,7 +63,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 	
 	//Generate a list of Frames from a CSV containing the API descriptions; probSelection and probFailure are constant initial values assigned to every Frame;
 	//they can be manually modified later.
-	public ArrayList<DiscourseFrame> generateFromCSV(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+	public ArrayList<DiscourseFrame> generateFromCSV(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
 		if(Files.exists(Paths.get(apiDescriptionsCSVFilePath))) {
 			ArrayList<DiscourseFrame> ret = new ArrayList<DiscourseFrame>();
 			Reader in;
@@ -106,7 +106,7 @@ public class DiscourseFrameMap extends FrameMap<DiscourseFrame>{
 						}
 					}
 					//Get the list of DiscourseFrames and add it to the return array
-					ArrayList<DiscourseFrame> discourseFrames = DiscourseEquivalenceClass.generateDiscourseFrames(method, endpoint, paramList, probSelection, probFailure,trueProbSelection,trueProbFailure);
+					ArrayList<DiscourseFrame> discourseFrames = DiscourseEquivalenceClass.generateDiscourseFrames(method, endpoint, paramList, probSelection, probFailure, probCriticalFailure, trueProbSelection, trueProbFailure, trueProbCriticalFailure);
 					ret.addAll(discourseFrames);
 				}
 			} catch (FileNotFoundException e) {

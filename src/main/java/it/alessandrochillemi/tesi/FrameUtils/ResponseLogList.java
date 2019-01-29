@@ -88,4 +88,7 @@ public abstract class ResponseLogList<R extends ResponseLog> {
 	//Ritorna il numero di fallimenti per il frame con Frame ID specificato
 	public abstract int getFrameFailures(String frameID);
 	
+	//Ritorna il numero di fallimenti critici per il frame con Frame ID specificato
+	public abstract int getFrameCriticalFailures(String frameID);
+	
 }

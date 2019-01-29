@@ -234,11 +234,14 @@ public enum DiscourseResourceType implements ResourceType{
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
 		
+		String raw = UUID.randomUUID().toString();
+		
 		//Set parameters
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("title", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p1);
 		Param p2 = new Param("raw", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
+		p2.setValue(raw+" "+raw);
 		paramList.add(p2);
 		Param p3 = new Param("category", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.CATEGORY_ID,true);
 		p3.setValue(categoryIDValue);

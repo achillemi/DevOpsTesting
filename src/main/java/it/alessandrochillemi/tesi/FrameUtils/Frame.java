@@ -16,8 +16,10 @@ public abstract class Frame implements Serializable{
 	protected ArrayList<Param> paramList;													//Lista di parametri
 	protected Double probSelection;															//Probabilità di selezione stimata del Frame
 	protected Double probFailure;															//Probabilità di fallimento stimata del Frame
+	protected Double probCriticalFailure;													//Probabilità di fallimento critica stimata del Frame
 	protected Double trueProbSelection;														//Probabilità di selezione reale del Frame
 	protected Double trueProbFailure;														//Probabilità di fallimento reale del Frame
+	protected Double trueProbCriticalFailure;												//Probabilità di fallimento critica reale del Frame
 		
 	private static final long serialVersionUID = 5259280897255194440L;
 	
@@ -25,14 +27,16 @@ public abstract class Frame implements Serializable{
 		this.paramList = new ArrayList<Param>();
 	}
 	
-	public Frame(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+	public Frame(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
 		this.method = method;
 		this.endpoint = endpoint;
 		this.paramList = paramList;
 		this.probSelection = probSelection;
 		this.probFailure = probFailure;
+		this.probCriticalFailure = probCriticalFailure;
 		this.trueProbSelection = trueProbSelection;
 		this.trueProbFailure = trueProbFailure;
+		this.trueProbCriticalFailure = trueProbCriticalFailure;
 	}
 	
 	public Frame(Frame frame){
@@ -89,6 +93,14 @@ public abstract class Frame implements Serializable{
 	public void setProbFailure(Double probFailure) {
 		this.probFailure = probFailure;
 	}
+	
+	public Double getProbCriticalFailure() {
+		return probCriticalFailure;
+	}
+
+	public void setProbCriticalFailure(Double probCriticalFailure) {
+		this.probCriticalFailure = probCriticalFailure;
+	}
 
 	public Double getTrueProbSelection() {
 		return trueProbSelection;
@@ -106,6 +118,14 @@ public abstract class Frame implements Serializable{
 		this.trueProbFailure = trueProbFailure;
 	}
 	
+	public Double getTrueProbCriticalFailure() {
+		return trueProbCriticalFailure;
+	}
+
+	public void setTrueProbCriticalFailure(Double trueProbCriticalFailure) {
+		this.trueProbCriticalFailure = trueProbCriticalFailure;
+	}
+
 	public void generateParamValuesWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
 		for(Param p : this.paramList){
 			p.generateValueWithPreConditions(baseURL, apiUsername, apiKey, forceNewPreConditions);
@@ -169,8 +189,10 @@ public abstract class Frame implements Serializable{
 		
 		String probSelection = getProbSelection().toString();
 		String probFailure = getProbFailure().toString();
+		String probCriticalFailure = getProbCriticalFailure().toString();
 		String trueProbSelection = getTrueProbSelection().toString();
 		String trueProbFailure = getTrueProbFailure().toString();
+		String trueProbCriticalFailure = getTrueProbCriticalFailure().toString();
 
 		try {
 			csvPrinter.printRecord(method, endpoint, 
@@ -180,7 +202,7 @@ public abstract class Frame implements Serializable{
 					paramKeys.get(3), paramTypes.get(3), paramClasses.get(3), paramPositions.get(3), paramResourceTypes.get(3), paramIsRequireds.get(3), paramValidValues.get(3),
 					paramKeys.get(4), paramTypes.get(4), paramClasses.get(4), paramPositions.get(4), paramResourceTypes.get(4), paramIsRequireds.get(4), paramValidValues.get(4),
 					paramKeys.get(5), paramTypes.get(5), paramClasses.get(5), paramPositions.get(5), paramResourceTypes.get(5), paramIsRequireds.get(5), paramValidValues.get(5),
-					probSelection,probFailure,trueProbSelection,trueProbFailure);
+					probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

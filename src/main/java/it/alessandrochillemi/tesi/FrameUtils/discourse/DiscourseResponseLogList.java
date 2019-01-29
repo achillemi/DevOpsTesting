@@ -122,5 +122,21 @@ public class DiscourseResponseLogList extends ResponseLogList<DiscourseResponseL
 		return frameResponseLogList.getTotalNumberOfFailures();
 	}
 	
+	@Override
+	public int getFrameCriticalFailures(String frameID) {
+		//Creo una response log list nella quale aggiungo solo le risposte relative al frame specificato
+		DiscourseResponseLogList frameResponseLogList = new DiscourseResponseLogList();
+
+		for(int i = 0; i<responseLogList.size(); i++){
+			DiscourseResponseLog d = responseLogList.get(i);
+			if(d.getFrameID().equals(frameID)){
+				frameResponseLogList.add(d);
+			}
+		}
+
+		//Ritorno il numero di fallimenti critici presenti nella nuova response log list, che sono relativi solo al frame specificato
+		return frameResponseLogList.getTotalNumberOfCriticalFailures();
+	}
+	
 
 }

@@ -15,7 +15,7 @@ import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLogList;
 public class ExperimentStarter {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static final String ENVIRONMENT_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
+	public static final String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
 	
 	//Percentuale di variazione della distribuzione di probabilità di selezione vera rispetto alla distribuzione di probabilità "stimata"
 	private static final Double VARIATION = 0.3;
@@ -28,9 +28,13 @@ public class ExperimentStarter {
 	
 	//Numero di richieste da inviare a ogni ciclo
 	public static final int NREQUESTS = 1000;
+	
+	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
+	public static final Double LEARNING_RATE = 0.5;
 
 	private static String apiDescriptionsFilePath;
 	private static String frameMapFilePath;
+	private static String reliabilityResponseLogListFilePath;
 	private static String testResponseLogListPath;
 	private static String userResponseLogListPath;
 	private static String reliabilityFilePath;
@@ -43,7 +47,7 @@ public class ExperimentStarter {
 		Properties environment = new Properties();
 		InputStream is = null;
 		try {
-			is = new FileInputStream(ENVIRONMENT_PATH);
+			is = new FileInputStream(ENVIRONMENT_FILE_PATH);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -56,6 +60,7 @@ public class ExperimentStarter {
 		//Leggo le variabili d'ambiente
 		apiDescriptionsFilePath = environment.getProperty("api_descriptions_file_path");
 		frameMapFilePath = environment.getProperty("frame_map_file_path");
+		reliabilityResponseLogListFilePath = environment.getProperty("reliability_response_log_list_file_path");
 		testResponseLogListPath = environment.getProperty("test_response_log_list_path");
 		userResponseLogListPath = environment.getProperty("user_response_log_list_path");
 		reliabilityFilePath = environment.getProperty("reliability_file_path");
@@ -76,16 +81,21 @@ public class ExperimentStarter {
 		}
 		else{
 			//Creo una nuova frameMap
-			discourseFrameMap = new DiscourseFrameMap(apiDescriptionsFilePath, (1.0/8802.0), 0.0, 0.0, 0.0);
+			discourseFrameMap = new DiscourseFrameMap(apiDescriptionsFilePath, (1.0/8802.0), 0.0, 0.0, 0.0, 0.0, 0.0);
 			
 			//Ottengo la distribuzione della probabilità di selezione vera a partire dalla frameMap esistente, con una variazione proporzionale a +-Variation
-			ArrayList<Double> trueProbSelectionDistribution = TrueProbSelectionDistributionGenerator.generateTrueProbSelectionDistributiion(discourseFrameMap, VARIATION);
+			ArrayList<Double> trueProbSelectionDistribution = TrueProbSelectionDistributionGenerator.generateTrueProbSelectionDistribution(discourseFrameMap, VARIATION);
 			
 			//Aggiorno la distribuzione della probabilità di selezione vera della frameMap
 			discourseFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 			
 			//Salvo la frameMap
 			discourseFrameMap.writeToCSVFile(frameMapFilePath);
+			
+			//Se ho creato una nuova frameMap, termino il programma per permettere di fare delle richieste preventive secondo la distribuzione della probabilità
+			//di selezione vera per stimare la reliability vera.
+			System.out.println("\nNuova Frame Map creata!");
+			return;
 		}
 		
 		//Scelgo la strategia di testing
@@ -100,14 +110,22 @@ public class ExperimentStarter {
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
 		
+		//Stimo la reliability vera a partire dalle richieste eseguite preventivamente secondo la probabilità di selezione vera per la stima della reliability
+		DiscourseResponseLogList reliabilityDiscourseResponseLogList = new DiscourseResponseLogList(reliabilityResponseLogListFilePath);
+		reliabilityEstimator.computeTrueReliability(reliabilityDiscourseResponseLogList);
+		reliabilityEstimator.computeTrueReliabilityForCriticalFailures(reliabilityDiscourseResponseLogList);
+		
+		//Creo un monitor
+		Monitor monitor = new Monitor();
+		
 		for(int i = 0; i<NCYCLES; i++){
 			System.out.println("\nCiclo " + (i+1) + " avviato");
 			
 			//Eseguo NTESTS selezionandoli dalla frame map ottenuta e ottengo le risposte
 			DiscourseResponseLogList discourseTestResponseLogList = testGenerator.generateTests(baseURL, apiUsername, apiKey, discourseFrameMap, NTESTS);
 
-			//Salvo le risposte su un file
-			String testResponseLogListFileName = "test_response_log_list_cycle"+i+".csv";
+			//Salvo le risposte ai test su un file
+			String testResponseLogListFileName = "test_response_log_list_cycle"+(i+1)+".csv";
 			String testResponseLogListFilePath = Paths.get(testResponseLogListPath, testResponseLogListFileName).toString();
 			discourseTestResponseLogList.writeToCSVFile(testResponseLogListFilePath);			
 			System.out.println("\nTest eseguiti");
@@ -117,18 +135,35 @@ public class ExperimentStarter {
 			reliabilityEstimator.computeReliabilityForCriticalFailures(discourseTestResponseLogList);
 			System.out.println("\nReliability calcolata");
 			
+			//Aggiorno il file contenente le reliability calcolate finora
+			reliabilityEstimator.appendToFile(reliabilityFilePath);
+			
 			//Eseguo NREQUESTS selezionandole dalla frame map e ottengo le risposte
 			DiscourseResponseLogList discourseUserResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, discourseFrameMap, NREQUESTS);
 			
-			//Salvo le risposte su un file
-			String userResponseLogListFileName = "user_response_log_list_cycle"+i+".csv";
+			//Salvo le risposte alle richieste su un file
+			String userResponseLogListFileName = "user_response_log_list_cycle"+(i+1)+".csv";
 			String userResponseLogListFilePath = Paths.get(userResponseLogListPath, userResponseLogListFileName).toString();
 			discourseUserResponseLogList.writeToCSVFile(userResponseLogListFilePath);			
 			System.out.println("\nRichieste eseguite");
 			
-			//Aggiorno il file contenente le reliability calcolate finora
-			reliabilityEstimator.appendToFile(reliabilityFilePath);
+			//Ottengo le attuali probSelection, probFailure e probCriticalFailure
+			ArrayList<Double> oldProbSelectionDistribution = discourseFrameMap.getProbSelectionDistribution();
+			ArrayList<Double> oldProbFailureDistribution = discourseFrameMap.getProbFailureDistribution();
+			ArrayList<Double> oldProbCriticalFailureDistribution = discourseFrameMap.getProbCriticalFailureDistribution();
+			
+			//Ottengo le probSelection, probFailure e probCriticalFailure per il ciclo successivo
+			ArrayList<Double> newProbSelectionDistribution = monitor.updateProbSelectionDistribution(oldProbSelectionDistribution, discourseUserResponseLogList, LEARNING_RATE);
+			ArrayList<Double> newProbFailureDistribution = monitor.updateProbFailureDistribution(oldProbFailureDistribution, discourseUserResponseLogList, LEARNING_RATE);
+			ArrayList<Double> newProbCriticalFailureDistribution = monitor.updateProbCriticalFailureDistribution(oldProbCriticalFailureDistribution, discourseUserResponseLogList, LEARNING_RATE);
+			
+			//Aggiorno la frame map con le nuove distribuzioni
+			discourseFrameMap.setProbSelectionDistribution(newProbSelectionDistribution);
+			discourseFrameMap.setProbFailureDistribution(newProbFailureDistribution);
+			discourseFrameMap.setProbCriticalFailureDistribution(newProbCriticalFailureDistribution);
 		}
+		
+		System.out.println("\nTesting terminato!");
 
 	}
 

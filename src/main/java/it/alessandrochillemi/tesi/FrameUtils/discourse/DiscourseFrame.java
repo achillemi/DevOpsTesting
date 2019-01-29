@@ -19,8 +19,8 @@ public class DiscourseFrame extends Frame{
 		super();
 	}
 	
-	public DiscourseFrame(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
-		super(method,endpoint,paramList,probSelection,probFailure,trueProbSelection,trueProbFailure);
+	public DiscourseFrame(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+		super(method,endpoint,paramList,probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure);
 
 	}
 	
@@ -69,8 +69,10 @@ public class DiscourseFrame extends Frame{
 		//Read probSelection and probFailure
 		Double probSelection = Double.valueOf(record.get("PROB_SELECTION"));
 		Double probFailure = Double.valueOf(record.get("PROB_FAILURE"));
+		Double probCriticalFailure = Double.valueOf(record.get("PROB_CRITICAL_FAILURE"));
 		Double trueProbSelection = Double.valueOf(record.get("TRUE_PROB_SELECTION"));
 		Double trueProbFailure = Double.valueOf(record.get("TRUE_PROB_FAILURE"));
+		Double trueProbCriticalFailure = Double.valueOf(record.get("TRUE_PROB_CRITICAL_FAILURE"));
 		
 		//Load frame fields
 		this.method = method;
@@ -78,8 +80,10 @@ public class DiscourseFrame extends Frame{
 		this.paramList = paramList;
 		this.probSelection = probSelection;
 		this.probFailure = probFailure;
+		this.probCriticalFailure = probCriticalFailure;
 		this.trueProbSelection = trueProbSelection;
 		this.trueProbFailure = trueProbFailure;
+		this.trueProbCriticalFailure = trueProbCriticalFailure;
 		
 	}
 

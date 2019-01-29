@@ -14,7 +14,7 @@ public class TrueProbSelectionDistributionGenerator {
 	
 	private static Random random = new Random();
 
-	public static ArrayList<Double> generateTrueProbSelectionDistributiion(DiscourseFrameMap frameMap, Double variation) {
+	public static ArrayList<Double> generateTrueProbSelectionDistribution(DiscourseFrameMap frameMap, Double variation) {
 		
     	//Ottengo la distribuzione di probabilità di selezione a partire dalla quale calcolo la distribuzione di probabilità di selezione vera
 		ArrayList<Double> estimatedProbSelectionDistribution = frameMap.getProbSelectionDistribution();

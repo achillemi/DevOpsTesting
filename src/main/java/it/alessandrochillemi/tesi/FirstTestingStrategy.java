@@ -35,14 +35,14 @@ public class FirstTestingStrategy implements ITestingStrategy {
 	//Calcolo della reliability
 	public Double getReliability(ResponseLogList<? extends ResponseLog> responseLogList) {
 		Double failProb = (new Double(responseLogList.getTotalNumberOfFailures()))/(new Double(responseLogList.size()));
-		Double reliability = 1 - failProb;
+		Double reliability = 1d - failProb;
 		return reliability;
 	}
 
 	//Calcolo della reliability per i fallimenti critici
 	public Double getReliabilityForCriticalFailures(ResponseLogList<? extends ResponseLog> responseLogList) {
 		Double criticalFailProb = (new Double(responseLogList.getTotalNumberOfCriticalFailures()))/(new Double(responseLogList.size()));
-		Double reliabilityForCriticalFailures = 1 - criticalFailProb;
+		Double reliabilityForCriticalFailures = 1d - criticalFailProb;
 		return reliabilityForCriticalFailures;
 	}
 

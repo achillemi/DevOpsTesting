@@ -90,7 +90,7 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	
 	//Generate a list of DiscourseFrame from a list of class combinations (useful when creating a FrameMap);
 	//'paramList' is the List of Params of the API that the resulting list of FrameBeans refers to.
-	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double trueProbSelection, Double trueProbFailure){
+	public static ArrayList<DiscourseFrame> generateDiscourseFrames(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
 		ArrayList<DiscourseFrame> framesList = new ArrayList<DiscourseFrame>();
 		
 		ArrayList<TypeParam> types = new ArrayList<TypeParam>();
@@ -111,8 +111,10 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 			frame.setEndpoint(endpoint);
 			frame.setProbSelection(probSelection);
 			frame.setProbFailure(probFailure);
+			frame.setProbCriticalFailure(probCriticalFailure);
 			frame.setTrueProbSelection(trueProbSelection);
 			frame.setTrueProbFailure(trueProbFailure);
+			frame.setTrueProbCriticalFailure(trueProbCriticalFailure);
 			for(int j = 0; j<paramList.size(); j++){
 				Param p1 = new Param(paramList.get(j));
 				p1.setClassParam(DiscourseEquivalenceClass.valueOf(classesCombinations.get(i).get(j)));
