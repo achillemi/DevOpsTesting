@@ -2,11 +2,11 @@ package it.alessandrochillemi.tesi;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLogList;
+import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 
 public class Monitor{
 	
-	public ArrayList<Double> updateProbSelectionDistribution(ArrayList<Double> oldProbSelectionDistribution, DiscourseResponseLogList userResponseLogList, Double learningRate){
+	public ArrayList<Double> updateProbSelectionDistribution(ArrayList<Double> oldProbSelectionDistribution, ResponseLogList userResponseLogList, Double learningRate){
 		
 		ArrayList<Double> newProbSelectionDistribution = new ArrayList<Double>();
 		
@@ -27,7 +27,7 @@ public class Monitor{
 		return newProbSelectionDistribution;
 	}
 	
-	public ArrayList<Double> updateProbFailureDistribution(ArrayList<Double> oldProbFailureDistribution, DiscourseResponseLogList userResponseLogList, Double learningRate){
+	public ArrayList<Double> updateProbFailureDistribution(ArrayList<Double> oldProbFailureDistribution, ResponseLogList userResponseLogList, Double learningRate){
 		
 		ArrayList<Double> newProbFailureDistribution = new ArrayList<Double>();
 		
@@ -48,7 +48,7 @@ public class Monitor{
 		return newProbFailureDistribution;
 	}
 	
-	public ArrayList<Double> updateProbCriticalFailureDistribution(ArrayList<Double> oldProbCriticalFailureDistribution, DiscourseResponseLogList userResponseLogList, Double learningRate){
+	public ArrayList<Double> updateProbCriticalFailureDistribution(ArrayList<Double> oldProbCriticalFailureDistribution, ResponseLogList userResponseLogList, Double learningRate){
 
 		ArrayList<Double> newProbCriticalFailureDistribution = new ArrayList<Double>();
 

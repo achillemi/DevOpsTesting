@@ -3,11 +3,12 @@ package it.alessandrochillemi.tesi;
 import java.util.ArrayList;
 
 import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
+import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
+import it.alessandrochillemi.tesi.FrameUtils.Frame;
+import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
 import it.alessandrochillemi.tesi.FrameUtils.Param;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrame;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseResponseLogList;
+import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
+import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 import okhttp3.Response;
 
 //Esegue NTESTS scegliendo i frame secondo la distribuzione di probabilità di selezione
@@ -24,11 +25,11 @@ public class TestGenerator{
 		this.testingStrategy = testingStrategy;
 	}
 	
-    public DiscourseResponseLogList generateTests(String baseURL, String apiUsername, String apiKey, DiscourseFrameMap frameMap, int NTests){
+    public ResponseLogList generateTests(String baseURL, String apiUsername, String apiKey, FrameMap frameMap, int NTests, ApplicationFactory applicationFactory){
 
     	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
     	
-    	DiscourseResponseLogList responseLogList = new DiscourseResponseLogList();
+    	ResponseLogList responseLogList = applicationFactory.makeResponseLogList();
     	
     	for(int i = 0; i<NTests; i++){
     		System.out.println("\nTest " + (i+1) + "...");
@@ -38,7 +39,7 @@ public class TestGenerator{
 
     		//Leggo il frame con l'indice scelto
     		System.out.println("Selected frame: " + selectedFrame);
-    		DiscourseFrame frame = frameMap.readByKey(selectedFrame);
+    		Frame frame = frameMap.readByKey(selectedFrame);
 
     		//Stampo il frame scelto
 //    		frame.print();
@@ -63,7 +64,7 @@ public class TestGenerator{
     		response.close();  	
 
     		//Salvo la risposta nella ResponseLogList
-    		DiscourseResponseLog responseLog = new DiscourseResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
+    		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
 
 //    		System.out.println("");
 //    		responseLog.print();

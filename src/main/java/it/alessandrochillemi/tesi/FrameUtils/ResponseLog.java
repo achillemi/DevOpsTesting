@@ -3,38 +3,54 @@ package it.alessandrochillemi.tesi.FrameUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class ResponseLog implements Serializable{
-	
-	protected String frameID;									//ID del Frame a cui si riferisce questa risposta
-	protected Integer responseCode;								//Codice di risposta della richiesta HTTP
-	protected String responseMessage;							//Messaggio di risposta della richiesta HTTP
-//	protected String responseBody;								//Body della risposta alla richiesta HTTP
-	protected ArrayList<Param> paramList;						//Lista di parametri usati nella richiesta
-	
+import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+
+public class ResponseLog implements Serializable{
+
+	private ApplicationSpecifics applicationSpecifics;		//Dettagli relativi all'applicazione a cui questo response log si riferisce
+	private String frameID;									//ID del Frame a cui si riferisce questa risposta
+	private Integer responseCode;							//Codice di risposta della richiesta HTTP
+	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
+	//	private String responseBody;							//Body della risposta alla richiesta HTTP
+	private ArrayList<Param> paramList;						//Lista di parametri usati nella richiesta
+
 	private static final long serialVersionUID = 7679179561832569179L;
-	
-	public ResponseLog(){
+
+	public ResponseLog(ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
 		this.paramList = new ArrayList<Param>();
 	}
 
-	public ResponseLog(String frameID, Integer responseCode, String responseMessage, /*String responseBody,*/ ArrayList<Param> paramList) {
+	public ResponseLog(ApplicationSpecifics applicationSpecifics, String frameID, Integer responseCode, String responseMessage, /*String responseBody,*/ ArrayList<Param> paramList) {
+		this.applicationSpecifics = applicationSpecifics;
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
-//		this.responseBody = responseBody;
+		//		this.responseBody = responseBody;
 		this.paramList = paramList;
 	}
-	
-	public ResponseLog(CSVRecord record){
+
+	public ResponseLog(CSVRecord record, ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
 		this.paramList = new ArrayList<Param>();
 		readFromCSVRow(record);
 	}
-	
+
+	public ApplicationSpecifics getApplicationSpecifics() {
+		return applicationSpecifics;
+	}
+
+	public void setApplicationSpecifics(ApplicationSpecifics applicationSpecifics) {
+		this.applicationSpecifics = applicationSpecifics;
+	}
+
 	public String getFrameID() {
 		return frameID;
 	}
@@ -53,37 +69,78 @@ public abstract class ResponseLog implements Serializable{
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
 	}
-//	public String getResponseBody() {
-//		return responseBody;
-//	}
-//	public void setResponseBody(String responseBody) {
-//		this.responseBody = responseBody;
-//	}
+	//	public String getResponseBody() {
+	//		return responseBody;
+	//	}
+	//	public void setResponseBody(String responseBody) {
+	//		this.responseBody = responseBody;
+	//	}
 	public ArrayList<Param> getParamList() {
 		return paramList;
 	}
 	public void setParamList(ArrayList<Param> paramList) {
 		this.paramList = paramList;
 	}
-	
+
 	public void print(){
 		System.out.println("FRAME ID: " + frameID);
 		System.out.println("RESPONSE CODE: " + responseCode);
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
-//		System.out.println("RESPONSE BODY: " + responseBody);
+		//		System.out.println("RESPONSE BODY: " + responseBody);
 		System.out.println("PARAMETERS: ");
 		for(int i=0; i<paramList.size(); i++){
 			System.out.print("\nPARAMETER " + (i+1) + ":");
 			paramList.get(i).print();
 		}
 	}
-	
+
 	/*	Carica i campi del ResponseLog da una riga di un file CSV; questo metodo dipende dall'implementazione del ResponseLog (ad esempio DiscourseResponseLog, ecc.),
 	 *	perché i campi del CSV vanno letti usando l'EquivalenceClass e il TypeParam appropriati.
 	 */ 
-	public abstract void readFromCSVRow(CSVRecord record);
-	
-//	Scrive i campi del ResponseLog su una riga di un file CSV
+	public void readFromCSVRow(CSVRecord record){
+		//Read Frame ID, Response Code and Response Message
+		String frameID = record.get("FRAME_ID");
+		int responseCode = Integer.parseInt(record.get("RESPONSE_CODE"));
+		String responseMessage = record.get("RESPONSE_MESSAGE");
+
+		//Create a list of Params from the values of the row
+		ArrayList<Param> paramList = new ArrayList<Param>();
+
+		//Read the features for each of the 6 parameters on a row
+		for(int i = 1; i<=6; i++){
+			String keyString = record.get("P"+i+"_KEY");
+			String typeString = record.get("P"+i+"_TYPE");
+			String eqClassString = record.get("P"+i+"_CLASS");
+			String positionString = record.get("P"+i+"_POSITION");
+			String resourceTypeString = record.get("P"+i+"_RESOURCE_TYPE");
+			String isRequiredString = record.get("P"+i+"_IS_REQUIRED");
+			String validValuesString = record.get("P"+i+"_VALID_VALUES");
+
+			//If P_KEY!=null and P_KEY!="/", create a new parameter and add it to the list; otherwise, it means that there are no more parameters
+			if(keyString != null && !keyString.equals("/")){
+				TypeParam typeParam = applicationSpecifics.getTypeParamEnum(typeString);
+				EquivalenceClass eqClass = applicationSpecifics.getEquivalenceClassEnum(eqClassString);
+				Position position = EnumUtils.getEnumIgnoreCase(Position.class, positionString);
+				ResourceType resourceType = applicationSpecifics.getResourceTypeEnum(resourceTypeString);
+				boolean isRequired = Boolean.parseBoolean(isRequiredString);
+				ArrayList<String> validValues = new ArrayList<String>();
+				if(!validValuesString.equals("/")){
+					validValues.addAll(Arrays.asList(validValuesString.split(",")));
+				}
+				Param p = new Param(keyString,typeParam,position,eqClass,resourceType,isRequired,validValues);
+				paramList.add(p);
+			}
+		}
+
+		//Load ResponseLog fields
+		this.frameID = frameID;
+		this.responseCode = responseCode;
+		this.responseMessage = responseMessage;
+//		this.responseBody = responseBody;
+		this.paramList = paramList;
+	}
+
+	//	Scrive i campi del ResponseLog su una riga di un file CSV
 	public void writeToCSVRow(CSVPrinter csvPrinter){
 		String frameID = getFrameID();
 		int responseCode = getResponseCode();

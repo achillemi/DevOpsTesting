@@ -1,10 +1,14 @@
 package it.alessandrochillemi.tesi.FrameUtils;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,8 +16,12 @@ import java.util.TreeMap;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.EnumUtils;
 
-public abstract class FrameMap<F extends Frame> {
+import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+
+public class FrameMap{
 	
 	private enum header{
 		METHOD,ENDPOINT,
@@ -26,19 +34,23 @@ public abstract class FrameMap<F extends Frame> {
 		PROB_SELECTION,PROB_FAILURE,PROB_CRITICAL_FAILURE,TRUE_PROB_SELECTION,TRUE_PROB_FAILURE,TRUE_PROB_CRITICAL_FAILURE;
 	};
 	
-	protected TreeMap<Integer, F> map;
+	private ApplicationSpecifics applicationSpecifics;
+	private TreeMap<Integer, Frame> map;
 	
-	public FrameMap(){
-		this.map = new TreeMap<Integer, F>();
+	public FrameMap(ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
+		this.map = new TreeMap<Integer, Frame>();
 	}
 	
-	public FrameMap(String path){
-		this.map = new TreeMap<Integer, F>();
+	public FrameMap(String path, ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
+		this.map = new TreeMap<Integer, Frame>();
 		readFromCSVFile(path);
 	}
 	
-	public FrameMap(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
-		this.map = new TreeMap<Integer, F>();
+	public FrameMap(ApplicationSpecifics applicationSpecifics, String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+		this.applicationSpecifics = applicationSpecifics;
+		this.map = new TreeMap<Integer, Frame>();
 		this.append(generateFromCSV(apiDescriptionsCSVFilePath,probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure));
 	}
 	
@@ -46,20 +58,20 @@ public abstract class FrameMap<F extends Frame> {
 		return this.map.size();
 	}
 	
-	public F readByKey(Integer key){
+	public Frame readByKey(Integer key){
 		return this.map.get(key);
 	}
 	
-	public void put(Integer key, F frame){
+	public void put(Integer key, Frame frame){
 		this.map.put(key, frame);
 	}
 	
-	public Iterator<Map.Entry<Integer, F>> iterator(){
+	public Iterator<Map.Entry<Integer, Frame>> iterator(){
 		return this.map.entrySet().iterator();
 	}
 	
-	public void append(ArrayList<F> list){
-		for(F frame : list){
+	public void append(ArrayList<Frame> list){
+		for(Frame frame : list){
 			this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, frame);
 		}
 	}
@@ -68,7 +80,7 @@ public abstract class FrameMap<F extends Frame> {
 	public ArrayList<Double> getProbSelectionDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			ret.add(entry.getValue().getProbSelection());
 		}
 		return ret;
@@ -76,10 +88,10 @@ public abstract class FrameMap<F extends Frame> {
 
 	//Set the probability selection for every entry in the FrameMap
 	public void setProbSelectionDistribution(ArrayList<Double> probSelectionDistribution){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			entry.getValue().setProbSelection(probSelectionDistribution.get(i));
 			i++;
 		}
@@ -89,7 +101,7 @@ public abstract class FrameMap<F extends Frame> {
 	public ArrayList<Double> getProbFailureDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			ret.add(entry.getValue().getProbFailure());
 		}
 		return ret;
@@ -97,10 +109,10 @@ public abstract class FrameMap<F extends Frame> {
 	
 	//Set the probability failure for every entry in the FrameMap
 	public void setProbFailureDistribution(ArrayList<Double> probFailureDistribution){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			entry.getValue().setProbFailure(probFailureDistribution.get(i));
 			i++;
 		}
@@ -110,7 +122,7 @@ public abstract class FrameMap<F extends Frame> {
 	public ArrayList<Double> getProbCriticalFailureDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			ret.add(entry.getValue().getProbCriticalFailure());
 		}
 		return ret;
@@ -118,10 +130,10 @@ public abstract class FrameMap<F extends Frame> {
 
 	//Set the probability of critical failure for every entry in the FrameMap
 	public void setProbCriticalFailureDistribution(ArrayList<Double> probCriticalFailureDistribution){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			entry.getValue().setProbCriticalFailure(probCriticalFailureDistribution.get(i));
 			i++;
 		}
@@ -131,7 +143,7 @@ public abstract class FrameMap<F extends Frame> {
 	public ArrayList<Double> getTrueProbSelectionDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			ret.add(entry.getValue().getTrueProbSelection());
 		}
 		return ret;
@@ -139,10 +151,10 @@ public abstract class FrameMap<F extends Frame> {
 
 	//Set the true probability selection for every entry in the FrameMap
 	public void setTrueProbSelectionDistribution(ArrayList<Double> trueProbSelectionDistribution){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			entry.getValue().setTrueProbSelection(trueProbSelectionDistribution.get(i));
 			i++;
 		}
@@ -152,7 +164,7 @@ public abstract class FrameMap<F extends Frame> {
 	public ArrayList<Double> getTrueProbFailureDistribution(){
 		ArrayList<Double> ret = new ArrayList<Double>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			ret.add(entry.getValue().getTrueProbFailure());
 		}
 		return ret;
@@ -160,20 +172,20 @@ public abstract class FrameMap<F extends Frame> {
 
 	//Set the true probability failure for every entry in the FrameMap
 	public void setTrueProbFailureDistribution(ArrayList<Double> trueProbFailureDistribution){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		int i = 0;
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			entry.getValue().setTrueProbFailure(trueProbFailureDistribution.get(i));
 			i++;
 		}
 	}
 
 	//Get all the frames that have the specified endpoint
-	public ArrayList<F> getFramesByEndpoint(HTTPMethod method, String endpoint){
-		ArrayList<F> ret = new ArrayList<F>();
+	public ArrayList<Frame> getFramesByEndpoint(HTTPMethod method, String endpoint){
+		ArrayList<Frame> ret = new ArrayList<Frame>();
 
-		for(Map.Entry<Integer, F> entry : this.map.entrySet()){
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
 			if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 				ret.add(entry.getValue());
 			}
@@ -183,17 +195,17 @@ public abstract class FrameMap<F extends Frame> {
 
 	//Update all the frames that have the specified endpoint to the specified frame list;
 	//if the specified list has a different number of elements than the ones already present, a message is shown and the operation is not performed.
-	public void updateFramesByEndpoint(HTTPMethod method, String endpoint, ArrayList<F> framesList){
-		ArrayList<F> oldFrameList = getFramesByEndpoint(method,endpoint);
+	public void updateFramesByEndpoint(HTTPMethod method, String endpoint, ArrayList<Frame> framesList){
+		ArrayList<Frame> oldFrameList = getFramesByEndpoint(method,endpoint);
 
 		if(framesList.size() != oldFrameList.size()){
 			System.out.println("The specified frame list has a different number of elements than the existing one!");
 		}
 		else{
-			Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+			Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 			int i = 0;
 			while (iter.hasNext()) {
-				Entry<Integer, F> entry = iter.next();
+				Entry<Integer, Frame> entry = iter.next();
 				if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 					entry.setValue(framesList.get(i));
 					i++;
@@ -222,18 +234,105 @@ public abstract class FrameMap<F extends Frame> {
 	//}
 
 	public void deleteFrames(HTTPMethod method, String endpoint){
-		Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 		while (iter.hasNext()) {
-			Entry<Integer, F> entry = iter.next();
+			Entry<Integer, Frame> entry = iter.next();
 			if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 				iter.remove();
 			}
 		}
 	}
 	
-	public abstract void readFromCSVFile(String path);
+	public void readFromCSVFile(String path){
+		if(Files.exists(Paths.get(path))){
+			Reader in;
+			try {
+				//Read the CSV file
+				in = new FileReader(path);
+				Iterable<CSVRecord> records = CSVFormat.RFC4180.withDelimiter(';').withFirstRecordAsHeader().parse(in);
+				for (CSVRecord record : records) {
+					//Create a new frame from the record
+					Frame discourseFrame = new Frame(record,applicationSpecifics);
+
+					//Add the frame to the map
+					this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, discourseFrame);
+
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else{
+			System.out.println("File does not exist!");
+		}
+	}
 	
-	public abstract ArrayList<F> generateFromCSV(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure);
+	//Generate a list of Frames from a CSV containing the API descriptions; probSelection and probFailure are constant initial values assigned to every Frame;
+	//they can be manually modified later.
+	private ArrayList<Frame> generateFromCSV(String apiDescriptionsCSVFilePath, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+		if(Files.exists(Paths.get(apiDescriptionsCSVFilePath))) {
+			ArrayList<Frame> ret = new ArrayList<Frame>();
+			Reader in;
+			try {
+				//Read the CSV file
+				in = new FileReader(apiDescriptionsCSVFilePath);
+				Iterable<CSVRecord> records = CSVFormat.RFC4180.withDelimiter(';').withFirstRecordAsHeader().parse(in);
+
+				//Iterate over rows
+				for (CSVRecord record : records) {
+					//Create a list of DiscourseParam from the values of the row
+					ArrayList<Param> paramList = new ArrayList<Param>();
+
+					//Read API method and endpoint
+					HTTPMethod method = HTTPMethod.valueOf(record.get("METHOD"));
+					String endpoint = record.get("ENDPOINT");
+
+					//Read the parameter's features for each of the 6 parameters (at most) on a row
+					for(int i = 1; i<=6; i++){
+						String keyString = record.get("P"+i+"_KEY");
+						String typeString = record.get("P"+i+"_TYPE");
+						String positionString = record.get("P"+i+"_POSITION");
+						String resourceTypeString = record.get("P"+i+"_RESOURCE_TYPE");
+						String isRequiredString = record.get("P"+i+"_IS_REQUIRED");
+						String validValuesString = record.get("P"+i+"_VALID_VALUES");
+
+						//If P_KEY!=null and P_KEY!="/", create a new parameter and add it to the list; otherwise, it means that there are no more parameters
+						if(keyString != null && !keyString.equals("/")){
+							TypeParam typeParam = applicationSpecifics.getTypeParamEnum(typeString);
+							Position position = EnumUtils.getEnumIgnoreCase(Position.class, positionString);
+							ResourceType resourceType = applicationSpecifics.getResourceTypeEnum(resourceTypeString);
+							boolean isRequired = Boolean.parseBoolean(isRequiredString);
+							ArrayList<String> validValues = new ArrayList<String>();
+							if(!validValuesString.equals("/")){
+								validValues.addAll(Arrays.asList(validValuesString.split(",")));
+							}
+
+							Param p = new Param(keyString,typeParam,position,resourceType,isRequired,validValues);
+							paramList.add(p);
+						}
+					}
+					//Get the list of Frame and add it to the return array
+					ArrayList<Frame> frameList = applicationSpecifics.generateFrames(method, endpoint, paramList, probSelection, probFailure, probCriticalFailure, trueProbSelection, trueProbFailure, trueProbCriticalFailure);
+					ret.addAll(frameList);
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return ret;
+		}
+		else{
+			System.out.println("File does not exist!");
+			return null;
+		}
+	}
 	
 	public void writeToCSVFile(String path){
 		BufferedWriter writer;
@@ -242,10 +341,10 @@ public abstract class FrameMap<F extends Frame> {
 
 			CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(';').withHeader(header.class));
 			
-			Iterator<Map.Entry<Integer, F>> iter = this.map.entrySet().iterator();
+			Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
 			
 			while (iter.hasNext()) {
-				Entry<Integer, F> entry = iter.next();
+				Entry<Integer, Frame> entry = iter.next();
 				
 				//Write every frame to a new row of the CSV file
 				entry.getValue().writeToCSVRow(csvPrinter);
@@ -261,7 +360,7 @@ public abstract class FrameMap<F extends Frame> {
 	
 	public void print(){
 		if(this.map != null){
-			for(Entry<Integer, F> entry : this.map.entrySet()){
+			for(Entry<Integer, Frame> entry : this.map.entrySet()){
 				System.out.print(entry.getKey() + " ");
 				entry.getValue().print();
 				System.out.print("\n");
@@ -272,7 +371,7 @@ public abstract class FrameMap<F extends Frame> {
 	//Print the entries with the specified endpoint only
 	public void print(HTTPMethod method, String endpoint){
 		if(this.map != null){
-			for(Entry<Integer, F> entry : this.map.entrySet()){
+			for(Entry<Integer, Frame> entry : this.map.entrySet()){
 				if(entry.getValue().getMethod().equals(method) && entry.getValue().getEndpoint().equals(endpoint)){
 					System.out.print(entry.getKey() + " ");
 					entry.getValue().print();
