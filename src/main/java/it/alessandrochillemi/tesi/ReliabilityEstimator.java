@@ -9,7 +9,6 @@ import java.nio.file.StandardOpenOption;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
 import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 
 public class ReliabilityEstimator {
@@ -63,34 +62,34 @@ public class ReliabilityEstimator {
 		this.trueReliabilityForCriticalFailures = trueReliabilityForCriticalFailures;
 	}
 
-	public Double computeReliability(ResponseLogList<? extends ResponseLog> testResponseLogList){
+	public Double computeReliability(ResponseLogList testResponseLogList){
 		estimatedReliability = testingStrategy.getReliability(testResponseLogList);
 		return estimatedReliability;
 	}
 	
-	public Double computeReliabilityForCriticalFailures(ResponseLogList<? extends ResponseLog> testResponseLogList){
+	public Double computeReliabilityForCriticalFailures(ResponseLogList testResponseLogList){
 		estimatedReliabilityForCriticalFailures = testingStrategy.getReliabilityForCriticalFailures(testResponseLogList);
 		return estimatedReliabilityForCriticalFailures;
 	}
 	
-	public Double computeTrueReliability(ResponseLogList<? extends ResponseLog> userResponseLogList){
+	public Double computeTrueReliability(ResponseLogList userResponseLogList){
 		Double totalFailures = new Double(userResponseLogList.getTotalNumberOfFailures());
 		
 		Double totalRequests = new Double(userResponseLogList.size());
 				
-		Double trueReliability = totalFailures/totalRequests;
+		Double trueReliability = 1d - totalFailures/totalRequests;
 		
 		this.trueReliability = trueReliability;
 		
 		return trueReliability;
 	}
 	
-	public Double computeTrueReliabilityForCriticalFailures(ResponseLogList<? extends ResponseLog> userResponseLogList){
+	public Double computeTrueReliabilityForCriticalFailures(ResponseLogList userResponseLogList){
 		Double totalCriticalFailures = new Double(userResponseLogList.getTotalNumberOfCriticalFailures());
 		
 		Double totalRequests = new Double(userResponseLogList.size());
 		
-		Double trueReliabilityForCriticalFailures = totalCriticalFailures/totalRequests;
+		Double trueReliabilityForCriticalFailures = 1d - totalCriticalFailures/totalRequests;
 		
 		this.trueReliabilityForCriticalFailures = trueReliabilityForCriticalFailures;
 		

@@ -3,31 +3,38 @@ package it.alessandrochillemi.tesi.FrameUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+
 //Classe che modella i campi di un Frame che devono essere letti o scritti
-public abstract class Frame implements Serializable{
+public class Frame implements Serializable{
 	
-	protected HTTPMethod method;															//Metodo della richiesta HTTP per usare l'API
-	protected String endpoint;																//Endpoint dell'API
-	protected ArrayList<Param> paramList;													//Lista di parametri
-	protected Double probSelection;															//Probabilità di selezione stimata del Frame
-	protected Double probFailure;															//Probabilità di fallimento stimata del Frame
-	protected Double probCriticalFailure;													//Probabilità di fallimento critica stimata del Frame
-	protected Double trueProbSelection;														//Probabilità di selezione reale del Frame
-	protected Double trueProbFailure;														//Probabilità di fallimento reale del Frame
-	protected Double trueProbCriticalFailure;												//Probabilità di fallimento critica reale del Frame
+	private ApplicationSpecifics applicationSpecifics;									//Dettagli relativi all'applicazione a cui questo frame si riferisce
+	private HTTPMethod method;															//Metodo della richiesta HTTP per usare l'API
+	private String endpoint;															//Endpoint dell'API
+	private ArrayList<Param> paramList;													//Lista di parametri
+	private Double probSelection;														//Probabilità di selezione stimata del Frame
+	private Double probFailure;															//Probabilità di fallimento stimata del Frame
+	private Double probCriticalFailure;													//Probabilità di fallimento critica stimata del Frame
+	private Double trueProbSelection;													//Probabilità di selezione reale del Frame
+	private Double trueProbFailure;														//Probabilità di fallimento reale del Frame
+	private Double trueProbCriticalFailure;												//Probabilità di fallimento critica reale del Frame
 		
 	private static final long serialVersionUID = 5259280897255194440L;
 	
-	public Frame(){
+	public Frame(ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
 		this.paramList = new ArrayList<Param>();
 	}
 	
-	public Frame(HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection, Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+	public Frame(ApplicationSpecifics applicationSpecifics, HTTPMethod method, String endpoint, ArrayList<Param> paramList, Double probSelection,Double probFailure, Double probCriticalFailure, Double trueProbSelection, Double trueProbFailure, Double trueProbCriticalFailure){
+		this.applicationSpecifics = applicationSpecifics;
 		this.method = method;
 		this.endpoint = endpoint;
 		this.paramList = paramList;
@@ -40,6 +47,7 @@ public abstract class Frame implements Serializable{
 	}
 	
 	public Frame(Frame frame){
+		this.applicationSpecifics = frame.getApplicationSpecifics();
 		this.method = frame.getMethod();
 		this.endpoint = frame.getEndpoint();
 		this.paramList = frame.getParamList();
@@ -49,9 +57,18 @@ public abstract class Frame implements Serializable{
 		this.trueProbFailure = frame.getTrueProbFailure();
 	}
 	
-	public Frame(CSVRecord record){
+	public Frame(CSVRecord record, ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
 		this.paramList = new ArrayList<Param>();
 		readFromCSVRow(record);	
+	}
+	
+	public ApplicationSpecifics getApplicationSpecifics() {
+		return applicationSpecifics;
+	}
+
+	public void setApplicationSpecifics(ApplicationSpecifics applicationSpecifics) {
+		this.applicationSpecifics = applicationSpecifics;
 	}
 
 	public HTTPMethod getMethod() {
@@ -143,10 +160,59 @@ public abstract class Frame implements Serializable{
 		//System.out.print("probSel: " + probSelection);
 	}
 
-	/*	Carica i campi del Frame da una riga di un file CSV; questo metodo dipende dall'implementazione del Frame (ad esempio DiscourseFrame, ecc.),
-	 *	perché i campi del CSV vanno letti usando l'EquivalenceClass e il TypeParam appropriati.
-	 */ 
-	public abstract void readFromCSVRow(CSVRecord record);
+	//	Carica i campi del Frame da una riga di un file CSV; questo metodo dipende dall'applicazione in uso (membro 'appSpecifics')
+	public void readFromCSVRow(CSVRecord record){
+		//Read API method and endpoint
+		HTTPMethod method = HTTPMethod.valueOf(record.get("METHOD"));
+		String endpoint = record.get("ENDPOINT");
+
+		//Create a list of Param from the values of the row
+		ArrayList<Param> paramList = new ArrayList<Param>();
+
+		//Read the features for each of the 6 parameters on a row
+		for(int i = 1; i<=6; i++){
+			String keyString = record.get("P"+i+"_KEY");
+			String typeString = record.get("P"+i+"_TYPE");
+			String eqClassString = record.get("P"+i+"_CLASS");
+			String positionString = record.get("P"+i+"_POSITION");
+			String resourceTypeString = record.get("P"+i+"_RESOURCE_TYPE");
+			String isRequiredString = record.get("P"+i+"_IS_REQUIRED");
+			String validValuesString = record.get("P"+i+"_VALID_VALUES");
+
+			//If P_KEY!=null and P_KEY!="/", create a new parameter and add it to the list; otherwise, it means that there are no more parameters
+			if(keyString != null && !keyString.equals("/")){
+				TypeParam typeParam = applicationSpecifics.getTypeParamEnum(typeString);
+				Position position = EnumUtils.getEnumIgnoreCase(Position.class, positionString);
+				EquivalenceClass eqClass = applicationSpecifics.getEquivalenceClassEnum(eqClassString);
+				ResourceType resourceType = applicationSpecifics.getResourceTypeEnum(resourceTypeString);
+				boolean isRequired = Boolean.parseBoolean(isRequiredString);
+				ArrayList<String> validValues = new ArrayList<String>();
+				if(!validValuesString.equals("/")){
+					validValues.addAll(Arrays.asList(validValuesString.split(",")));
+				}
+				Param p = new Param(keyString,typeParam,position,eqClass,resourceType,isRequired,validValues);
+				paramList.add(p);
+			}
+		}
+		//Read probSelection and probFailure
+		Double probSelection = Double.valueOf(record.get("PROB_SELECTION"));
+		Double probFailure = Double.valueOf(record.get("PROB_FAILURE"));
+		Double probCriticalFailure = Double.valueOf(record.get("PROB_CRITICAL_FAILURE"));
+		Double trueProbSelection = Double.valueOf(record.get("TRUE_PROB_SELECTION"));
+		Double trueProbFailure = Double.valueOf(record.get("TRUE_PROB_FAILURE"));
+		Double trueProbCriticalFailure = Double.valueOf(record.get("TRUE_PROB_CRITICAL_FAILURE"));
+
+		//Load frame fields
+		this.method = method;
+		this.endpoint = endpoint;
+		this.paramList = paramList;
+		this.probSelection = probSelection;
+		this.probFailure = probFailure;
+		this.probCriticalFailure = probCriticalFailure;
+		this.trueProbSelection = trueProbSelection;
+		this.trueProbFailure = trueProbFailure;
+		this.trueProbCriticalFailure = trueProbCriticalFailure;
+	}
 	
 	//	Scrive i campi del Frame su una riga di un file CSV
 	public void writeToCSVRow(CSVPrinter csvPrinter){

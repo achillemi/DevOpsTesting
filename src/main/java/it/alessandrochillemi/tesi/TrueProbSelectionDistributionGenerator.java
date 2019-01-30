@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFrameMap;
+import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
 
 public class TrueProbSelectionDistributionGenerator {
 	
@@ -14,7 +14,7 @@ public class TrueProbSelectionDistributionGenerator {
 	
 	private static Random random = new Random();
 
-	public static ArrayList<Double> generateTrueProbSelectionDistribution(DiscourseFrameMap frameMap, Double variation) {
+	public static ArrayList<Double> generateTrueProbSelectionDistribution(FrameMap frameMap, Double variation) {
 		
     	//Ottengo la distribuzione di probabilità di selezione a partire dalla quale calcolo la distribuzione di probabilità di selezione vera
 		ArrayList<Double> estimatedProbSelectionDistribution = frameMap.getProbSelectionDistribution();
@@ -23,9 +23,12 @@ public class TrueProbSelectionDistributionGenerator {
 		int set1Size = (int) (SET1_SIZE_PROPORTION*frameMap.size());
 		int set2Size = frameMap.size() - set1Size;
 		
+		//Calcolo la somma alle quali devono arrivare i valori casuali calcolati per i due set
+		Double targetSumSet = variation/2.0;
+		
 		//Ottengo i due set di numeri casuali
-		List<Double> set1 = randomsToTargetSum(set1Size,variation);	
-		List<Double> set2 = randomsToTargetSum(set2Size,-variation);
+		List<Double> set1 = randomsToTargetSum(set1Size,targetSumSet);	
+		List<Double> set2 = randomsToTargetSum(set2Size,-targetSumSet);
 		
 		//Concateno le due liste ed eseguo uno shuffling
 		List<Double> finalSet = new ArrayList<Double>(set1);

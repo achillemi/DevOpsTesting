@@ -1,7 +1,10 @@
 package it.alessandrochillemi.tesi.FrameUtils;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,8 +12,9 @@ import java.util.Iterator;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
-public abstract class ResponseLogList<R extends ResponseLog> {
+public class ResponseLogList{
 	private enum header{
 		FRAME_ID,RESPONSE_CODE,RESPONSE_MESSAGE,
 		P1_KEY,P1_TYPE,P1_CLASS,P1_POSITION,P1_RESOURCE_TYPE,P1_IS_REQUIRED,P1_VALID_VALUES,
@@ -20,32 +24,61 @@ public abstract class ResponseLogList<R extends ResponseLog> {
 		P5_KEY,P5_TYPE,P5_CLASS,P5_POSITION,P5_RESOURCE_TYPE,P5_IS_REQUIRED,P5_VALID_VALUES,
 		P6_KEY,P6_TYPE,P6_CLASS,P6_POSITION,P6_RESOURCE_TYPE,P6_IS_REQUIRED,P6_VALID_VALUES;
 	};
-	
-	protected ArrayList<R> responseLogList;
-	
-	public ResponseLogList(){
-		responseLogList = new ArrayList<R>();
+
+	private ApplicationSpecifics applicationSpecifics;
+	private ArrayList<ResponseLog> responseLogList;
+
+	public ResponseLogList(ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
+		this.responseLogList = new ArrayList<ResponseLog>();
 	}
-	
-	public ResponseLogList(String path){
-		responseLogList = new ArrayList<R>();
+
+	public ResponseLogList(String path,ApplicationSpecifics applicationSpecifics){
+		this.applicationSpecifics = applicationSpecifics;
+		responseLogList = new ArrayList<ResponseLog>();
 		readFromCSVFile(path);
 	}
-	
+
 	public int size(){
 		return this.responseLogList.size();
 	}
-	
-	public void add(R responseLog){
+
+	public void add(ResponseLog responseLog){
 		this.responseLogList.add(responseLog);
 	}
-	
-	public R get(int index){
+
+	public ResponseLog get(int index){
 		return this.responseLogList.get(index);
 	}
-	
-	public abstract void readFromCSVFile(String path);
-	
+
+	public void readFromCSVFile(String path){
+		if(Files.exists(Paths.get(path))){
+			Reader in;
+			try {
+				//Read the CSV file
+				in = new FileReader(path);
+				Iterable<CSVRecord> records = CSVFormat.RFC4180.withDelimiter(';').withFirstRecordAsHeader().parse(in);
+				for (CSVRecord record : records) {
+					//Create a new response log from the record
+					ResponseLog responseLog = new ResponseLog(record,applicationSpecifics);
+
+					//Add the frame to the map
+					this.responseLogList.add(responseLog);
+
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else{
+			System.out.println("File does not exist!");
+		}
+	}
+
 	public void writeToCSVFile(String path) {
 		BufferedWriter writer;
 		try {
@@ -53,9 +86,9 @@ public abstract class ResponseLogList<R extends ResponseLog> {
 
 			CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(';').withHeader(header.class));
 
-			Iterator<R> iter = this.responseLogList.iterator();
+			Iterator<ResponseLog> iter = this.responseLogList.iterator();
 			while (iter.hasNext()) {
-				R responseLog = iter.next();
+				ResponseLog responseLog = iter.next();
 				responseLog.writeToCSVRow(csvPrinter);
 			}
 
@@ -65,30 +98,101 @@ public abstract class ResponseLogList<R extends ResponseLog> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	//Numero di risposte riferite al frame specificato
 	public int count(String frameID){
 		int count = 0;
-		for(R r : this.responseLogList){
+		for(ResponseLog r : this.responseLogList){
 			if(r.getFrameID().equals(frameID)){
 				count++;
 			}
 		}
 		return count;
 	}
-	
+
 	//Ritorna il numero totale di fallimenti nella lista
-	public abstract int getTotalNumberOfFailures();
-	
+	public int getTotalNumberOfFailures(){
+		int failuresCount = 0;
+		//Analizzo ogni responseLog sulla base delle classi di equivalenza dei parametri utilizzati per capire se si tratta di un fallimento o meno
+		for(int i = 0; i<responseLogList.size(); i++){
+			ResponseLog responseLog = responseLogList.get(i);
+
+			//Determino la "validità" della richiesta sulla base dei parametri utilizzati: se ne è stato utilizzato almeno un non valido, considero la richiesta non valida
+			boolean valid = true;
+			int j = 0;
+			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
+			while(valid && j<responseLog.getParamList().size()){
+				valid = responseLog.getParamList().get(j).isValid();
+				j++;
+			}
+
+			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento o meno
+			if(applicationSpecifics.getOracle().isFailure(valid, responseLog.getResponseCode())){
+				failuresCount++;
+			}
+		}
+		return failuresCount;
+	}
+
 	//Ritorna il numero totale di fallimenti critici nella lista
-	public abstract int getTotalNumberOfCriticalFailures();
+	public int getTotalNumberOfCriticalFailures(){
+		//Conto i fallimenti critici
+		int countCriticalFailures = 0;
+
+		for(int i = 0; i<responseLogList.size(); i++){
+			ResponseLog responseLog = responseLogList.get(i);
+
+			//Determino la "validità" della richiesta sulla base dei parametri utilizzati: se ne è stato utilizzato almeno un non valido, considero la richiesta non valida
+			boolean valid = true;
+			int j = 0;
+			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
+			while(valid && j<responseLog.getParamList().size()){
+				valid = responseLog.getParamList().get(j).isValid();
+				j++;
+			}
+
+			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento critico o meno
+			if(applicationSpecifics.getOracle().isCriticalFailure(valid, responseLog.getResponseCode())){
+				countCriticalFailures++;
+			}
+		}
+
+		//Ritorno il numero di fallimenti critici
+		return countCriticalFailures;
+	}
 
 	//Ritorna il numero di fallimenti per il frame con Frame ID specificato
-	public abstract int getFrameFailures(String frameID);
-	
+	public int getFrameFailures(String frameID){
+		//Creo una response log list nella quale aggiungo solo le risposte relative al frame specificato
+		ResponseLogList frameResponseLogList = new ResponseLogList(applicationSpecifics);
+
+		for(int i = 0; i<responseLogList.size(); i++){
+			ResponseLog responseLog = responseLogList.get(i);
+			if(responseLog.getFrameID().equals(frameID)){
+				frameResponseLogList.add(responseLog);
+			}
+		}
+
+		//Ritorno il numero di fallimenti presenti nella nuova response log list, che sono relativi solo al frame specificato
+		return frameResponseLogList.getTotalNumberOfFailures();
+	}
+
 	//Ritorna il numero di fallimenti critici per il frame con Frame ID specificato
-	public abstract int getFrameCriticalFailures(String frameID);
-	
+	public int getFrameCriticalFailures(String frameID){
+		//Creo una response log list nella quale aggiungo solo le risposte relative al frame specificato
+		ResponseLogList frameResponseLogList = new ResponseLogList(applicationSpecifics);
+
+		for(int i = 0; i<responseLogList.size(); i++){
+			ResponseLog responseLog = responseLogList.get(i);
+			if(responseLog.getFrameID().equals(frameID)){
+				frameResponseLogList.add(responseLog);
+			}
+		}
+
+		//Ritorno il numero di fallimenti critici presenti nella nuova response log list, che sono relativi solo al frame specificato
+		return frameResponseLogList.getTotalNumberOfCriticalFailures();
+	}
+
 }

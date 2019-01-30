@@ -4,15 +4,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Properties;
 
+import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
+import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
+import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
+
 public class Test {
-	
+
 	//Percorso nel quale si trova il file con le variabili di ambiente
 	public static final String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
-	
+
 	private static String apiDescriptionsFilePath;
 	private static String frameMapFilePath;
 	private static String reliabilityResponseLogListFilePath;
@@ -51,17 +54,26 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-		
+
 		loadEnvironment();
-		
-		if(Files.exists(Paths.get(frameMapFilePath))){
-			System.out.println("esiste!");
-		}
-		else{
-			System.out.println("non esiste!");
-		}
-		
-  
+
+		//Creo una ApplicationFactory per l'applicazione desiderata
+		ApplicationFactory applicationFactory = new DiscourseFactory();
+
+		//Carico la FrameMap
+		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
+
+		//Scelgo la strategia di testing
+		ITestingStrategy testingStrategy = new FirstTestingStrategy();
+
+		//Creo un workload generator
+		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);
+
+		//Eseguo 10000 richieste selezionando i frame dalla frame map ottenuta e ottengo le risposte
+		ResponseLogList reliabilityResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, 10000, applicationFactory);
+
+		reliabilityResponseLogList.writeToCSVFile(reliabilityResponseLogListFilePath);			
+		System.out.println("\nTest eseguiti");
 
 	}
 

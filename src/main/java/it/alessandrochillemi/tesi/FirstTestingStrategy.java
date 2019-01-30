@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.RandomUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
 import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
 
 public class FirstTestingStrategy implements ITestingStrategy {
@@ -33,14 +32,14 @@ public class FirstTestingStrategy implements ITestingStrategy {
 	}
 
 	//Calcolo della reliability
-	public Double getReliability(ResponseLogList<? extends ResponseLog> responseLogList) {
+	public Double getReliability(ResponseLogList responseLogList) {
 		Double failProb = (new Double(responseLogList.getTotalNumberOfFailures()))/(new Double(responseLogList.size()));
 		Double reliability = 1d - failProb;
 		return reliability;
 	}
 
 	//Calcolo della reliability per i fallimenti critici
-	public Double getReliabilityForCriticalFailures(ResponseLogList<? extends ResponseLog> responseLogList) {
+	public Double getReliabilityForCriticalFailures(ResponseLogList responseLogList) {
 		Double criticalFailProb = (new Double(responseLogList.getTotalNumberOfCriticalFailures()))/(new Double(responseLogList.size()));
 		Double reliabilityForCriticalFailures = 1d - criticalFailProb;
 		return reliabilityForCriticalFailures;
