@@ -23,7 +23,7 @@ public class ExperimentStarter {
 	private static final Double VARIATION = 0.7;
 	
 	//Numero di cicli di test da effettuare
-	public static final int NCYCLES = 5;
+	public static final int NCYCLES = 7;
 	
 	//Numero di test da eseguire a ogni ciclo
 	public static final int NTESTS = 500;
