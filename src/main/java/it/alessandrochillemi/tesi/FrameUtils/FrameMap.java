@@ -252,10 +252,10 @@ public class FrameMap{
 				Iterable<CSVRecord> records = CSVFormat.RFC4180.withDelimiter(';').withFirstRecordAsHeader().parse(in);
 				for (CSVRecord record : records) {
 					//Create a new frame from the record
-					Frame discourseFrame = new Frame(record,applicationSpecifics);
+					Frame frame = new Frame(record,applicationSpecifics);
 
 					//Add the frame to the map
-					this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, discourseFrame);
+					this.map.put(this.map.isEmpty() ? 0 : this.map.lastKey()+1, frame);
 
 				}
 			} catch (FileNotFoundException e) {

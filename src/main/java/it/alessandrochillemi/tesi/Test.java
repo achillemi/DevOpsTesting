@@ -1,10 +1,9 @@
 package it.alessandrochillemi.tesi;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
 import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
@@ -13,68 +12,42 @@ import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
 
 public class Test {
 
-	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static final String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
-
-	private static String apiDescriptionsFilePath;
-	private static String frameMapFilePath;
-	private static String reliabilityResponseLogListFilePath;
-	private static String testResponseLogListPath;
-	private static String userResponseLogListPath;
-	private static String reliabilityFilePath;
-	private static String baseURL;
-	private static String apiUsername;
-	private static String apiKey;
-
-	private static void loadEnvironment(){
-		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
-		Properties environment = new Properties();
-		InputStream is = null;
-		try {
-			is = new FileInputStream(ENVIRONMENT_FILE_PATH);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		try {
-			environment.load(is);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		//Leggo le variabili d'ambiente
-		apiDescriptionsFilePath = environment.getProperty("api_descriptions_file_path");
-		frameMapFilePath = environment.getProperty("frame_map_file_path");
-		reliabilityResponseLogListFilePath = environment.getProperty("reliability_response_log_list_file_path");
-		testResponseLogListPath = environment.getProperty("test_response_log_list_path");
-		userResponseLogListPath = environment.getProperty("user_response_log_list_path");
-		reliabilityFilePath = environment.getProperty("reliability_file_path");
-		baseURL = environment.getProperty("base_url");
-		apiUsername = environment.getProperty("api_username");
-		apiKey = environment.getProperty("api_key");
-	}
+	private static Random random = new Random();
 
 	public static void main(String[] args) {
-
-		loadEnvironment();
 
 		//Creo una ApplicationFactory per l'applicazione desiderata
 		ApplicationFactory applicationFactory = new DiscourseFactory();
 
-		//Carico la FrameMap
-		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
+		FrameMap frameMap = applicationFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/frames_test.csv");
+
+		ArrayList<Double> oldProbSelection = frameMap.getProbSelectionDistribution();
 
 		//Scelgo la strategia di testing
 		ITestingStrategy testingStrategy = new FirstTestingStrategy();
 
-		//Creo un workload generator
-		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);
+		ResponseLogList reliabilityResponseLogList = applicationFactory.makeResponseLogList("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/response_log_list_test.csv");
 
-		//Eseguo 10000 richieste selezionando i frame dalla frame map ottenuta e ottengo le risposte
-		ResponseLogList reliabilityResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, 10000, applicationFactory);
-
-		reliabilityResponseLogList.writeToCSVFile(reliabilityResponseLogListFilePath);			
-		System.out.println("\nTest eseguiti");
-
+		Monitor monitor = new Monitor();
+		
+		ArrayList<Double> newProbSelection = monitor.updateProbSelectionDistribution(oldProbSelection, reliabilityResponseLogList, 0.5);
+		
+		System.out.println("\nOLD PROBABILITY: ");
+		Double oldSum = 0.0;
+		for(int i = 0; i<oldProbSelection.size(); i++){
+			System.out.println(oldProbSelection.get(i));
+			oldSum += oldProbSelection.get(i);
+		}
+		System.out.println("\nOLD PROBABILITY SUM: " + oldSum);
+		
+		System.out.println("\nNEW PROBABILITY: ");
+		Double newSum = 0.0;
+		for(int i = 0; i<newProbSelection.size(); i++){
+			System.out.println(newProbSelection.get(i));
+			newSum += newProbSelection.get(i);
+		}
+		System.out.println("\nNEW PROBABILITY SUM: " + newSum);
+		
 	}
 
 }

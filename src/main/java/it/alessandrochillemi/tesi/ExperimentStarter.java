@@ -23,16 +23,16 @@ public class ExperimentStarter {
 	private static final Double VARIATION = 0.7;
 	
 	//Numero di cicli di test da effettuare
-	public static final int NCYCLES = 7;
+	public static final int NCYCLES = 5;
 	
 	//Numero di test da eseguire a ogni ciclo
-	public static final int NTESTS = 500;
+	public static final int NTESTS = 1000;
 	
 	//Numero di richieste da inviare a ogni ciclo
-	public static final int NREQUESTS = 2000;
+	public static final int NREQUESTS = 5000;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
-	public static final Double LEARNING_RATE = 0.5;
+	public static final Double LEARNING_RATE = 0.2;
 
 	private static String apiDescriptionsFilePath;
 	private static String frameMapFilePath;
@@ -88,8 +88,11 @@ public class ExperimentStarter {
 			//Creo una nuova frameMap
 			frameMap = applicationFactory.makeFrameMap(apiDescriptionsFilePath, (1.0/8802.0), 0.0, 0.0, 0.0, 0.0, 0.0);
 			
-			//Ottengo la distribuzione della probabilità di selezione vera a partire dalla frameMap esistente, con una variazione proporzionale a +-Variation
-			ArrayList<Double> trueProbSelectionDistribution = TrueProbSelectionDistributionGenerator.generateTrueProbSelectionDistribution(frameMap, VARIATION);
+			//Ottengo l'attuale distribuzione di probabilità di selezione dei test
+			ArrayList<Double> estimatedProbSelectionDistribution = frameMap.getProbSelectionDistribution();
+			
+			//Ottengo la distribuzione della probabilità di selezione vera a partire dalla probabilità di selezione attuale, con una variazione proporzionale a +-Variation
+			ArrayList<Double> trueProbSelectionDistribution = ProbDistributionGenerator.generateNewProbDistribution(estimatedProbSelectionDistribution, VARIATION);
 			
 			//Aggiorno la distribuzione della probabilità di selezione vera della frameMap
 			frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
