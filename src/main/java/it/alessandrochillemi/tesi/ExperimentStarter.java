@@ -26,13 +26,13 @@ public class ExperimentStarter {
 	public static final int NCYCLES = 5;
 	
 	//Numero di test da eseguire a ogni ciclo
-	public static final int NTESTS = 1000;
+	public static final int NTESTS = 600;
 	
 	//Numero di richieste da inviare a ogni ciclo
 	public static final int NREQUESTS = 5000;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
-	public static final Double LEARNING_RATE = 0.2;
+	public static final Double LEARNING_RATE = 0.1;
 
 	private static String apiDescriptionsFilePath;
 	private static String frameMapFilePath;
