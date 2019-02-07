@@ -24,7 +24,7 @@ public class APIRequest{
 	private HTTPMethod method;																//Metodo della richiesta HTTP per usare l'API
 	private String endpoint;																//Endpoint dell'API
 	
-	private ArrayList<Param> paramList;															//Lista di parametri della richiesta
+	private ArrayList<Param> paramList;														//Lista di parametri della richiesta
 		
 	public APIRequest(){
 		
