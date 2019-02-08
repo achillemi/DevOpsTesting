@@ -37,7 +37,7 @@ public class WorkloadGenerator {
 
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     		int selectedFrame = testingStrategy.selectFrame(trueProbSelectionDistribution);	
-    		System.out.println("Selected frame: " + selectedFrame);
+    		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
         	
         	//Stampo il frame scelto

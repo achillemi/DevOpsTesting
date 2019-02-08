@@ -26,6 +26,15 @@ public enum DiscourseEquivalenceClass implements EquivalenceClass{
 	//Massimo numero di caratteri per ogni parametro
 	private static final int MAX_LENGTH = 1001;
 	
+	public boolean isValid(){
+		if(this.toString().endsWith("_VALID")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 	public boolean isInvalid(){
 		if(this.toString().endsWith("_INVALID")){
 			return true;

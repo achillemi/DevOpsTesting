@@ -17,7 +17,7 @@ public class TrueReliabilityRequestGenerator {
 	public static final String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
 
 	private static String frameMapFilePath;
-	private static String reliabilityResponseLogListFilePath;
+	private static String preliminaryResponseLogListFilePath;
 	private static String baseURL;
 	private static String apiUsername;
 	private static String apiKey;
@@ -39,7 +39,7 @@ public class TrueReliabilityRequestGenerator {
 
 		//Leggo le variabili d'ambiente
 		frameMapFilePath = environment.getProperty("frame_map_file_path");
-		reliabilityResponseLogListFilePath = environment.getProperty("reliability_response_log_list_file_path");
+		preliminaryResponseLogListFilePath = environment.getProperty("preliminary_response_log_list_file_path");
 		baseURL = environment.getProperty("base_url");
 		apiUsername = environment.getProperty("api_username");
 		apiKey = environment.getProperty("api_key");
@@ -64,7 +64,7 @@ public class TrueReliabilityRequestGenerator {
 		//Eseguo 10000 richieste selezionando i frame dalla frame map ottenuta e ottengo le risposte
 		ResponseLogList reliabilityResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, 10000, applicationFactory);
 
-		reliabilityResponseLogList.writeToCSVFile(reliabilityResponseLogListFilePath);			
+		reliabilityResponseLogList.writeToCSVFile(preliminaryResponseLogListFilePath);			
 		System.out.println("\nTest eseguiti");
 
 	}

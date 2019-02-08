@@ -38,7 +38,7 @@ public class TestGenerator{
     		int selectedFrame = testingStrategy.selectFrame(probSelectionDistribution);
 
     		//Leggo il frame con l'indice scelto
-    		System.out.println("Selected frame: " + selectedFrame);
+    		System.out.println("Frame selezionato: " + selectedFrame);
     		Frame frame = frameMap.readByKey(selectedFrame);
 
     		//Stampo il frame scelto
