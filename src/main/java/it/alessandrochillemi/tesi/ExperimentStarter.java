@@ -20,19 +20,19 @@ import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
 public class ExperimentStarter {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static final String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
+	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
 	
 	//Numero di cicli di test da effettuare
-	public static final int NCYCLES = 8;
+	public static int NCYCLES = 8;
 	
 	//Numero di test da eseguire a ogni ciclo
-	public static final int NTESTS = 1000;
+	public static int NTESTS = 1000;
 	
 	//Numero di richieste da inviare a ogni ciclo
-	public static final int NREQUESTS = 5000;
+	public static int NREQUESTS = 5000;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
-	public static final Double LEARNING_RATE = 0.1;
+	public static Double LEARNING_RATE = 0.1;
 
 	private static String frameMapFilePath;
 	private static String preliminaryResponseLogListFilePath;
@@ -41,7 +41,15 @@ public class ExperimentStarter {
 	private static String apiUsername;
 	private static String apiKey;
 
-	private static void loadEnvironment(){
+	private static void loadEnvironment(String[] args){
+		
+		//Carico i parametri inseriti dall'utente
+		NCYCLES = Integer.valueOf(args[0]);
+		NTESTS = Integer.valueOf(args[1]);
+		NREQUESTS = Integer.valueOf(args[2]);
+		LEARNING_RATE = Double.valueOf(args[3]);
+		ENVIRONMENT_FILE_PATH = args[4];
+		
 		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
 		Properties environment = new Properties();
 		InputStream is = null;
@@ -67,8 +75,13 @@ public class ExperimentStarter {
 
 	public static void main(String[] args) {
 		
+		if(args.length != 5){
+			System.err.println("\nInserire tutti i parametri!");
+			return;
+		}
+		
 		//Carico le variabili d'ambiente
-		loadEnvironment();
+		loadEnvironment(args);
 		
 		//Creo una ApplicationFactory per l'applicazione desiderata
 		ApplicationFactory applicationFactory = new DiscourseFactory();
@@ -136,7 +149,7 @@ public class ExperimentStarter {
 			System.out.println("\nReliability calcolata");
 			
 			//Aggiorno il file contenente le reliability calcolate finora
-			reliabilityEstimator.appendToFile(Paths.get(experimentResponsesPath,"reliability.csv").toString());
+			reliabilityEstimator.appendToFile(Paths.get(responseDirectoryString,"reliability.csv").toString());
 			
 			//Eseguo NREQUESTS richieste selezionando i frame dalla frame map e ottengo le risposte
 			ResponseLogList userResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, NREQUESTS, applicationFactory);

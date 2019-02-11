@@ -1,13 +1,15 @@
 package it.alessandrochillemi.tesi.FrameUtils.discourse;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.common.io.ByteStreams;
 
 import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
 import it.alessandrochillemi.tesi.FrameUtils.HTTPMethod;
@@ -37,7 +39,7 @@ public enum DiscourseResourceType implements ResourceType{
 	GROUP_ID,
 	UPLOAD_AVATAR_ID,
 	NO_RESOURCE;
-	
+
 	private static String categoryIDValue;
 	private static String topicIDValue;
 	private static String topicSlugValue;
@@ -52,11 +54,11 @@ public enum DiscourseResourceType implements ResourceType{
 	private static String groupIDValue;
 	private static String groupValue;
 	private static String postIDValue;
-	
+
 
 	public String generatePreConditionValue(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
 		String value = null;
-		//Se devo forzare nuove PreCondizioni, metto i valori di tutte le variabili a null
+		//Se devo forzare nuove precondizioni, metto i valori di tutte le variabili a null
 		if(forceNewPreConditions){
 			categoryIDValue = null;
 			topicIDValue = null;
@@ -184,17 +186,17 @@ public enum DiscourseResourceType implements ResourceType{
 				break;
 			default:
 				break;
-			
+
 			}
 		}
 		return value;
 	}
-	
+
 	private void generateCategoryDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){				
 		//Create new category
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/categories.json";
-		
+
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p1);
@@ -202,40 +204,55 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p2);
 		Param p3 = new Param("text_color", DiscourseTypeParam.COLOR, Param.Position.BODY, DiscourseEquivalenceClass.COL_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p3);
-		
+
 		APIRequest apiRequest = new APIRequest(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-    	
-    	Response response = apiRequest.sendRequest();
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
+
+		Response response = apiRequest.sendRequest();
+
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
 		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			categoryIDValue = null;
 		}
-    	
-    	categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
 	}
-	
+
 	private void generateTopicDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){
+		//Se categoryIDValue (necessario per creare un nuovo topic) è ancora null a questo punto, significa che la creazione di categoryIDValue è fallita, quindi rinuncio
+		//a creare un nuovo topic.
+		if(categoryIDValue == null){
+			topicIDValue = null;
+			topicSlugValue = null;
+			return;
+		}
+		
 		//Create new topic
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
-		
+
 		String raw = UUID.randomUUID().toString();
-		
+
 		//Set parameters
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("title", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
@@ -248,44 +265,52 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p3);
 		Param p4 = new Param("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
-		
+
 		//Create an API request
 		APIRequest apiRequest = new APIRequest(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-    	
-    	//Send the request
-    	Response response = apiRequest.sendRequest();
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
+
+		//Send the request
+		Response response = apiRequest.sendRequest();
+
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			topicIDValue = jsonResponseBody.get("topic_id").toString();
+			topicSlugValue = jsonResponseBody.get("topic_slug").toString();
 		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			topicIDValue = null;
+			topicSlugValue = null;
 		}
-    	
-    	topicIDValue = jsonResponseBody.get("topic_id").toString();
-    	topicSlugValue = jsonResponseBody.get("topic_slug").toString();
-    	
+
 	}
-	
+
 	private void generateUsersDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){		
 		//Create user1
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/users";
-		
+
 		String username1 = RandomStringUtils.randomAlphanumeric(10,16);
-		
+
 		//Set params
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
@@ -306,40 +331,48 @@ public enum DiscourseResourceType implements ResourceType{
 		Param p6 = new Param("approved", DiscourseTypeParam.BOOLEAN, Param.Position.BODY, DiscourseEquivalenceClass.BOOLEAN_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p6.setValue("true");
 		paramList.add(p6);
-		
+
 		//Create an API Request
 		APIRequest apiRequest = new APIRequest(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-    	
-    	//Send the request
-    	Response response = apiRequest.sendRequest();
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-    	
-    	userID1Value = jsonResponseBody.get("user_id").toString();
-    	username1Value = username1;
-    	
-    	//Create user2
-    	String username2 = RandomStringUtils.randomAlphanumeric(10,16);
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
 
-    	//Set params
-    	paramList = new ArrayList<Param>();
+		//Send the request
+		Response response = apiRequest.sendRequest();
+
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			userID1Value = jsonResponseBody.get("user_id").toString();
+			username1Value = username1;
+		}
+		else{
+			userID1Value = null;
+			username1Value = null;
+		}
+
+		//Create user2
+		String username2 = RandomStringUtils.randomAlphanumeric(10,16);
+
+		//Set params
+		paramList = new ArrayList<Param>();
 		p1 = new Param("name", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(username2);
 		paramList.add(p1);
@@ -360,36 +393,49 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p6);
 
 		//Create an API Request
-    	apiRequest = new APIRequest(method,endpoint,paramList);
-    	apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
+		apiRequest = new APIRequest(method,endpoint,paramList);
+		apiRequest.setBaseURL(baseURL);
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
 
-    	//Send the request
-    	response = apiRequest.sendRequest();
+		//Send the request
+		response = apiRequest.sendRequest();
 
-    	stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-    	} catch (IOException e2) {
-    		// TODO Auto-generated catch block
-    		e2.printStackTrace();
-    	}
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
 
-    	jsonResponseBody = null;
-    	try {
-    		jsonResponseBody = new JSONObject(stringResponseBody);
-    	} catch (JSONException e1) {
-    		// TODO Auto-generated catch block
-    		e1.printStackTrace();
-    	}
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
-    	userID2Value = jsonResponseBody.get("user_id").toString();
-    	username2Value = username2;
-    	
-    	usernameListValue = username1+","+username2;
+			userID2Value = jsonResponseBody.get("user_id").toString();
+			username2Value = username2;
+		}
+		else{
+			userID2Value = null;
+			username2Value = null;
+		}
+
+		if((username1Value != null) && (username2Value != null)){
+			usernameListValue = username1+","+username2;
+		}
+		else{
+			usernameListValue = null;
+		}
 	}
-	
+
 	private void generateTagDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){
 		//Enable tagging
 		HTTPMethod method = HTTPMethod.PUT;
@@ -408,7 +454,7 @@ public enum DiscourseResourceType implements ResourceType{
 		apiRequest.setApiKey(apiKey);
 
 		//Send the request
-		Response response = apiRequest.sendRequest();
+		Response response1 = apiRequest.sendRequest();
 
 		//Create tag group
 		method = HTTPMethod.POST;
@@ -435,138 +481,179 @@ public enum DiscourseResourceType implements ResourceType{
 		apiRequest.setApiKey(apiKey);
 
 		//Send the request
-		response = apiRequest.sendRequest();
+		Response response2 = apiRequest.sendRequest();
 
-		String stringResponseBody = null;
-		try {
-			stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		if((response1 != null) && (response2 != null)){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response2.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response2.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
+			tagValue = tag1;
 		}
-
-		JSONObject jsonResponseBody = null;
-		try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			tagGroupIDValue = null;
+			tagValue = null;
 		}
-
-		tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
-		tagValue = tag1;
 	}
-	
-	private void generateUploadAvatarIDDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){			
+
+	private void generateUploadAvatarIDDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){
+		//Se userID1Value (necessario per fare l'upload di un avatar) è ancora null a questo punto, significa che la creazione di userID1Value è fallita, quindi rinuncio
+		//a fare l'upload di un avatar.
+		if(userID1Value == null){
+			uploadAvatarIDValue = null;
+			return;
+		}
+		
 		String endpoint = "/uploads.json";
-		
-		File avatar = new File("resources/mario_rossi.jpeg");
-		
+
+		InputStream url = getClass().getResourceAsStream("/mario_rossi.jpeg");
+		byte[] avatarBytes = null;
+		try {
+			avatarBytes = ByteStreams.toByteArray(url);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		//Build complete URL, adding api_key and api_username
 		HttpUrl.Builder completeURLBuilder = HttpUrl.parse(baseURL+endpoint).newBuilder()
 				.addQueryParameter("api_key", apiKey)
 				.addQueryParameter("api_username", apiUsername);
-		
+
 		HttpUrl completeURL = completeURLBuilder.build();
-		
+
 		OkHttpClient client = new OkHttpClient();
-		
+
 		//Costruisco il body della richiesta HTTP
 		RequestBody requestBody = null;
 		MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
 				.setType(MultipartBody.FORM)
 				.addFormDataPart("user_id", userID1Value)
 				.addFormDataPart("type", "avatar")
-				.addFormDataPart("files[]", avatar.getName(),RequestBody.create(MediaType.parse("image/jpeg"), avatar))
+				.addFormDataPart("files[]", "mario_rossi.jpeg",RequestBody.create(MediaType.parse("image/jpeg"), avatarBytes))
 				.addFormDataPart("synchronous", "true");
-		
+
 		requestBody = requestBodyBuilder.build();
-		
+
 		Request.Builder requestBuilder = new Request.Builder()
 				.url(completeURL)
 				.post(requestBody);
-		
+
 		Request request = requestBuilder
 				.addHeader("cache-control", "no-cache")
 				.build();
-		
+
 		Response response = null;
 		try {
 			response = client.newCall(request).execute();
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			uploadAvatarIDValue = jsonResponseBody.get("id").toString();
 		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			uploadAvatarIDValue = null;
 		}
-    	
-    	uploadAvatarIDValue = jsonResponseBody.get("id").toString();
 	}
-	
+
 	private void generateGroupDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){		
-		
 		//Create new group
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/admin/groups";
 		String group_name = RandomStringUtils.randomAlphanumeric(5,16);
-		
+
 		//Set params
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("group[name]", DiscourseTypeParam.STRING, Param.Position.BODY, DiscourseEquivalenceClass.STR_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		p1.setValue(group_name);
 		paramList.add(p1);
-		
+
 		//Create an API Request
 		APIRequest apiRequest = new APIRequest(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-    	
-    	//Send the request
-    	Response response = apiRequest.sendRequest();
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
+
+		//Send the request
+		Response response = apiRequest.sendRequest();
+
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
+			groupValue = group_name;
 		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			groupIDValue = null;
+			groupValue = null;
 		}
-    	
-    	groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
-    	groupValue = group_name;
-    	
+
 	}
-	
+
 	private void generatePostDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){		
+		//Se topicIDValue (necessario per creare un nuovo post) è ancora null a questo punto, significa che la creazione di topicIDValue è fallita, quindi rinuncio
+		//a creare un nuovo post.
+		if(topicIDValue == null){
+			postIDValue = null;
+			return;
+		}
 		
 		//Create new post
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
-		
+
 		//Set params
 		ArrayList<Param> paramList = new ArrayList<Param>();
 		Param p1 = new Param("topic_id", DiscourseTypeParam.NUMBER, Param.Position.BODY, DiscourseEquivalenceClass.NUM_VALID, DiscourseResourceType.TOPIC_ID,true);
@@ -576,34 +663,41 @@ public enum DiscourseResourceType implements ResourceType{
 		paramList.add(p2);
 		Param p4 = new Param("created_at", DiscourseTypeParam.DATE, Param.Position.BODY, DiscourseEquivalenceClass.DATE_VALID, DiscourseResourceType.NO_RESOURCE,true);
 		paramList.add(p4);
-		
+
 		//Create an API Request
 		APIRequest apiRequest = new APIRequest(method,endpoint,paramList);
 		apiRequest.setBaseURL(baseURL);
-    	apiRequest.setApiUsername(apiUsername);
-    	apiRequest.setApiKey(apiKey);
-    	
-    	//Send the request
-    	Response response = apiRequest.sendRequest();
-    	
-    	String stringResponseBody = null;
-    	try {
-    		stringResponseBody = response.body().string();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		apiRequest.setApiUsername(apiUsername);
+		apiRequest.setApiKey(apiKey);
+
+		//Send the request
+		Response response = apiRequest.sendRequest();
+		
+		if(response != null){
+			String stringResponseBody = null;
+			try {
+				stringResponseBody = response.body().string();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			response.close();
+
+			JSONObject jsonResponseBody = null;
+			try {
+				jsonResponseBody = new JSONObject(stringResponseBody);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			postIDValue = jsonResponseBody.get("id").toString();
 		}
-    	
-    	JSONObject jsonResponseBody = null;
-    	try {
-			jsonResponseBody = new JSONObject(stringResponseBody);
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		else{
+			postIDValue = null;
 		}
-    	
-    	postIDValue = jsonResponseBody.get("id").toString();
-    	
+
 	}
 
 }

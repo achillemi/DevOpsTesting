@@ -115,21 +115,12 @@ public class ResponseLogList{
 	//Ritorna il numero totale di fallimenti nella lista
 	public int getTotalNumberOfFailures(){
 		int failuresCount = 0;
-		//Analizzo ogni responseLog sulla base delle classi di equivalenza dei parametri utilizzati per capire se si tratta di un fallimento o meno
+		//Analizzo ogni responseLog per capire se si tratta di un fallimento o meno
 		for(int i = 0; i<responseLogList.size(); i++){
 			ResponseLog responseLog = responseLogList.get(i);
 
-			//Determino la "validità" della richiesta sulla base dei parametri utilizzati: se ne è stato utilizzato almeno un non valido, considero la richiesta non valida
-			boolean valid = true;
-			int j = 0;
-			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
-			while(valid && j<responseLog.getParamList().size()){
-				valid = responseLog.getParamList().get(j).isValid();
-				j++;
-			}
-
 			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento o meno
-			if(applicationSpecifics.getOracle().isFailure(valid, responseLog.getResponseCode())){
+			if(applicationSpecifics.getOracle().isFailure(responseLog.getParamList(), responseLog.getResponseCode())){
 				failuresCount++;
 			}
 		}
@@ -144,17 +135,8 @@ public class ResponseLogList{
 		for(int i = 0; i<responseLogList.size(); i++){
 			ResponseLog responseLog = responseLogList.get(i);
 
-			//Determino la "validità" della richiesta sulla base dei parametri utilizzati: se ne è stato utilizzato almeno un non valido, considero la richiesta non valida
-			boolean valid = true;
-			int j = 0;
-			//Scorro i parametri finché non ne trovo almeno uno non valido o termina la lista
-			while(valid && j<responseLog.getParamList().size()){
-				valid = responseLog.getParamList().get(j).isValid();
-				j++;
-			}
-
 			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento critico o meno
-			if(applicationSpecifics.getOracle().isCriticalFailure(valid, responseLog.getResponseCode())){
+			if(applicationSpecifics.getOracle().isCriticalFailure(responseLog.getParamList(), responseLog.getResponseCode())){
 				countCriticalFailures++;
 			}
 		}

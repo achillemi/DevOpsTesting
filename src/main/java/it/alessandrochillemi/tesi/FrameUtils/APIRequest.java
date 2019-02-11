@@ -120,7 +120,12 @@ public class APIRequest{
 		StringBuffer sb = new StringBuffer();
 		int i = 0;
 		while (m.find()) {
-			m.appendReplacement(sb, pathParamList.get(i).getValue());
+			if(pathParamList.get(i).getValue() != null){
+				m.appendReplacement(sb, pathParamList.get(i).getValue());
+			}
+			else{
+				m.appendReplacement(sb, "");
+			}
 			i++;
 		}
 		m.appendTail(sb);
@@ -134,12 +139,17 @@ public class APIRequest{
 		for(int j=0; j<queryParamList.size(); j++){
 			//Se il parametro termina con [], si tratta di un array e va quindi diviso in più parametri
 			if(queryParamList.get(j).getKeyParam().endsWith("[]")){
-				//Divido l'array nei suoi elementi (sono separati da virgole)
-				List<String> queryParamArrayElements = Arrays.asList(queryParamList.get(j).getValue().split(","));
-				
-				//Aggiungo un query parameter per ogni valore
-				for(String value : queryParamArrayElements){
-					completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), value);
+				if(queryParamList.get(j).getValue() != null){
+					//Divido l'array nei suoi elementi (sono separati da virgole)
+					List<String> queryParamArrayElements = Arrays.asList(queryParamList.get(j).getValue().split(","));
+
+					//Aggiungo un query parameter per ogni valore
+					for(String value : queryParamArrayElements){
+						completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), value);
+					}
+				}
+				else{
+					completeURLBuilder = completeURLBuilder.addQueryParameter(queryParamList.get(j).getKeyParam(), null);
 				}
 			}
 			else{
@@ -163,21 +173,24 @@ public class APIRequest{
 					.setType(MultipartBody.FORM);
 
 			for(int j=0; j<bodyParamList.size(); j++){
-				//Se il parametro termina con [], si tratta di un array e va quindi diviso in più parametri
-				if(bodyParamList.get(j).getKeyParam().endsWith("[]")){
-					//Divido l'array nei suoi elementi (sono separati da virgole)
-					List<String> bodyParamArrayElements = Arrays.asList(bodyParamList.get(j).getValue().split(","));
-					
-					//Aggiungo un body parameter per ogni valore
-					for(String value : bodyParamArrayElements){
-						requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), value);
+				if(bodyParamList.get(j).getValue() != null){
+					//Se il parametro termina con [], si tratta di un array e va quindi diviso in più parametri
+					if(bodyParamList.get(j).getKeyParam().endsWith("[]")){
+						//Divido l'array nei suoi elementi (sono separati da virgole)
+						List<String> bodyParamArrayElements = Arrays.asList(bodyParamList.get(j).getValue().split(","));
+
+						//Aggiungo un body parameter per ogni valore
+						for(String value : bodyParamArrayElements){
+							requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), value);
+						}
+					}
+					else{
+						requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), bodyParamList.get(j).getValue());
 					}
 				}
 				else{
-					requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), bodyParamList.get(j).getValue());
+					requestBodyBuilder = requestBodyBuilder.addFormDataPart(bodyParamList.get(j).getKeyParam(), "");
 				}
-//				System.out.println(bodyParamList.get(j).getKeyParam() + ":");
-//				System.out.println(bodyParamList.get(j).getValue());
 			}
 
 			requestBody = requestBodyBuilder.build();

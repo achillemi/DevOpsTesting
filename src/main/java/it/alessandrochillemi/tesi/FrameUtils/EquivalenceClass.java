@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 public interface EquivalenceClass {
 	public String generateValue(ArrayList<String> validValues);
+	public boolean isValid();
 	public boolean isInvalid();
 	public boolean isEmpty();
 	

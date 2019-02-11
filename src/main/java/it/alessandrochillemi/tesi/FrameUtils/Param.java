@@ -143,20 +143,6 @@ public class Param implements Serializable{
 		this.resourceType = resourceType;
 	}
 	
-	//Returns true if this parameter is valid; the validity depends on the equivalence class and on the fact that the parameter is required or not
-	public boolean isValid(){
-		boolean valid = true;
-		//Se la classe di equivalenza è "invalid", il valore è invalido
-		if(this.classParam.isInvalid()){
-			valid = false;
-		}
-		//Se la classe di equivalenza è "empty" e il parametro è obbligatorio, il valore è invalido
-		else if(this.classParam.isEmpty() && this.isRequired()){
-			valid = false;
-		}
-		return valid;
-	}
-	
 	public void generateValue(){
 		if(this.classParam != null){
 			this.value = this.classParam.generateValue(validValues);
@@ -164,7 +150,7 @@ public class Param implements Serializable{
 	}
 	
 	public void generateValueWithPreConditions(String baseURL, String apiUsername, String apiKey, boolean forceNewPreConditions) {
-		if(this.isValid()){
+		if(this.classParam.isValid()){
 			this.value = resourceType.generatePreConditionValue(baseURL,apiUsername,apiKey,forceNewPreConditions);
 		}
 		if(this.value == null){

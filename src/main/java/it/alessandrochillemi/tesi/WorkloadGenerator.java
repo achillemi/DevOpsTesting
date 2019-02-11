@@ -37,7 +37,7 @@ public class WorkloadGenerator {
 
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     		int selectedFrame = testingStrategy.selectFrame(trueProbSelectionDistribution);	
-    		System.out.println("Selected frame: " + selectedFrame);
+    		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
         	
         	//Stampo il frame scelto
@@ -57,10 +57,19 @@ public class WorkloadGenerator {
         	//Invio la richiesta
         	Response response = apiRequest.sendRequest();
         	
-        	//Salvo i risultati e chiudo la risposta
-        	int responseCode = response.code();
-        	String responseMessage = response.message();
-        	response.close();
+    		int responseCode = 0;
+    		String responseMessage = "";
+    		//Se la richiesta è andata a buon fine, salvo i risultati e chiudo la risposta
+    		if(response != null){
+	    		responseCode = response.code();
+	    		responseMessage = response.message();
+	    		response.close();  
+    		}
+    		//Se non è andata a buon fine, la considero un fallimento dell'applicazione e lascio vuoto il messaggio di risposta
+    		else{
+    			responseCode = 500;
+    			responseMessage = "";
+    		}
         	
         	//Salvo la risposta nella ResponseLogList
     		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
