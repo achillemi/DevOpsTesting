@@ -9,7 +9,8 @@ import java.nio.file.StandardOpenOption;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
 
 public class ReliabilityEstimator {
 	

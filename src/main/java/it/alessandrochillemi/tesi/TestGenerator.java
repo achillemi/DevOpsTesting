@@ -1,14 +1,12 @@
 package it.alessandrochillemi.tesi;
 
-import java.util.ArrayList;
-
-import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.Frame;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.Param;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.Frame;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.Param;
+import it.alessandrochillemi.tesi.frameutils.ResponseLog;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
 import okhttp3.Response;
 
 //Esegue NTESTS scegliendo i frame secondo la distribuzione di probabilità di selezione
@@ -26,8 +24,6 @@ public class TestGenerator{
 	}
 	
     public ResponseLogList generateTests(String baseURL, String apiUsername, String apiKey, FrameMap frameMap, int NTests, ApplicationFactory applicationFactory){
-
-    	ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
     	
     	ResponseLogList responseLogList = applicationFactory.makeResponseLogList();
     	
@@ -35,7 +31,7 @@ public class TestGenerator{
     		System.out.println("\nTest " + (i+1) + "...");
     		
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
-    		int selectedFrame = testingStrategy.selectFrame(probSelectionDistribution);
+    		int selectedFrame = testingStrategy.selectFrame(frameMap, true);
 
     		//Leggo il frame con l'indice scelto
     		System.out.println("Frame selezionato: " + selectedFrame);

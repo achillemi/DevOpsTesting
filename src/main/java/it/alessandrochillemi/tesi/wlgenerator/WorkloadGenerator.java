@@ -1,14 +1,13 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.wlgenerator;
 
-import java.util.ArrayList;
-
-import it.alessandrochillemi.tesi.FrameUtils.APIRequest;
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.Frame;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.Param;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.APIRequest;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.Frame;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.Param;
+import it.alessandrochillemi.tesi.frameutils.ResponseLog;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
 import okhttp3.Response;
 
 //Esegue NREQUESTS scegliendo i frame secondo la distribuzione di probabilità di selezione vera
@@ -26,9 +25,6 @@ public class WorkloadGenerator {
 	}
 
 	public ResponseLogList generateRequests(String baseURL, String apiUsername, String apiKey, FrameMap frameMap, int NRequests, ApplicationFactory applicationFactory){
-		
-		//Ottengo la distribuzione di probabilità di selezione vera dei frame
-    	ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
     	
     	ResponseLogList responseLogList = applicationFactory.makeResponseLogList();
     	
@@ -36,7 +32,7 @@ public class WorkloadGenerator {
     		System.out.println("\nRichiesta " + (i+1) + "...");
 
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
-    		int selectedFrame = testingStrategy.selectFrame(trueProbSelectionDistribution);	
+    		int selectedFrame = testingStrategy.selectFrame(frameMap, false);	
     		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
         	

@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi.frameutils;
 
 public interface TypeParam {
 	

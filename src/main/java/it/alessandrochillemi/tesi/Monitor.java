@@ -2,7 +2,7 @@ package it.alessandrochillemi.tesi;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
 public class Monitor{
 	

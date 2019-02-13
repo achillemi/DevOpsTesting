@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi.frameutils;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -19,7 +19,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+import it.alessandrochillemi.tesi.frameutils.Param.Position;
 
 public class FrameMap{
 	
@@ -315,7 +315,7 @@ public class FrameMap{
 							paramList.add(p);
 						}
 					}
-					//Get the list of Frame and add it to the return array
+					//Get the list of Frames and add it to the return array
 					ArrayList<Frame> frameList = applicationSpecifics.generateFrames(method, endpoint, paramList, probSelection, probFailure, probCriticalFailure, trueProbSelection, trueProbFailure, trueProbCriticalFailure);
 					ret.addAll(frameList);
 				}

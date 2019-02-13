@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi.frameutils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+import it.alessandrochillemi.tesi.frameutils.Param.Position;
 
 public class ResponseLog implements Serializable{
 

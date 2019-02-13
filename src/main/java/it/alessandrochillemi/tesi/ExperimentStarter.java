@@ -12,10 +12,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
+import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
 public class ExperimentStarter {
 	

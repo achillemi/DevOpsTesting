@@ -1,9 +1,11 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.wlgenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import it.alessandrochillemi.tesi.utils.DoubleUtils;
 
 public class ProbDistributionGenerator {
 	
@@ -38,11 +40,11 @@ public class ProbDistributionGenerator {
 		}
 		
 		//Se nella distribuzione di probabilità di selezione vera appena calcolata sono presenti numeri negativi, sommo 1 a tutti gli elementi e normalizzo
-		if(areThereNegatives(trueProbSelectionDistribution)){
+		if(DoubleUtils.areThereNegatives(trueProbSelectionDistribution)){
 			for(int i = 0; i<trueProbSelectionDistribution.size(); i++){
 				trueProbSelectionDistribution.set(i, trueProbSelectionDistribution.get(i)+1.0);
 			}
-			normalize(trueProbSelectionDistribution);
+			DoubleUtils.normalize(trueProbSelectionDistribution);
 		}
 		
 		//Ritorno la distribuzione di probabilità di selezione calcolata
@@ -57,7 +59,7 @@ public class ProbDistributionGenerator {
 		//random numbers
 	    Double sum = 0.0;
 	    for (int i = 0; i < nRandoms; i++) {
-	        Double next = randomInRange(0.0,targetSum);
+	        Double next = DoubleUtils.randomInRange(random,0.0,targetSum);
 	        ret.add(next);
 	        sum += next;
 	    }
@@ -69,40 +71,6 @@ public class ProbDistributionGenerator {
 	    }
 	    
 	    return ret;
-	}
-	
-	//Ottiene un Double casuale tra min e max
-	private static Double randomInRange(Double min, Double max) {
-		Double range = max - min;
-		Double scaled = random.nextDouble() * range;
-		Double shifted = scaled + min;
-		return shifted; // == (rand.nextDouble() * (max-min)) + min;
-	}
-
-	
-	//Ritorna un valore "true" se nell'array passato come argomento è presente almeno un valore negativo
-	private static boolean areThereNegatives(ArrayList<Double> doubleList){
-		boolean negative = false;
-		int i = 0;
-		while(!negative && i<doubleList.size()){
-			if(doubleList.get(i)<0){
-				negative = true;
-			}
-			i++;
-		}
-		
-		return negative;
-	}
-	
-	//Normalizza un array di Double
-	private static void normalize(ArrayList<Double> doubleList){
-		Double sum = 0.0;
-		for(Double d : doubleList){
-			sum += d;
-		}
-		for(int i = 0; i<doubleList.size(); i++){
-			doubleList.set(i, doubleList.get(i)/sum);
-		}
 	}
 
 }

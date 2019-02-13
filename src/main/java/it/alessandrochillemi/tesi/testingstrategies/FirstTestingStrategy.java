@@ -1,15 +1,28 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.testingstrategies;
 
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.RandomUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
 public class FirstTestingStrategy implements ITestingStrategy {
 
 	//Algoritmo per la selezione di un frame secondo la distribuzione di probabilità specificata
-	public int selectFrame(ArrayList<Double> probSelectionDistribution) {
+	public int selectFrame(FrameMap frameMap, boolean testingProfile) {
+		
+		ArrayList<Double> probSelectionDistribution = null;
+		
+		//Se testingProfile == true, uso la distribuzione di probabilità stimata (ovvero il profilo di testing)
+		if(testingProfile){
+			probSelectionDistribution = frameMap.getProbSelectionDistribution();
+		}
+		//Se testingProfile == false, uso la distribuzione di probabilità vera (ovvero il profilo utente)
+		else{
+			probSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		}
+		
     	ArrayList<Double> cumulativePVector = new ArrayList<Double>();
     	
     	cumulativePVector.add(probSelectionDistribution.get(0));

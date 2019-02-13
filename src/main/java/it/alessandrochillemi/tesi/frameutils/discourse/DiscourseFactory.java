@@ -1,14 +1,14 @@
-package it.alessandrochillemi.tesi.FrameUtils.discourse;
+package it.alessandrochillemi.tesi.frameutils.discourse;
 
 import java.util.ArrayList;
 
 import org.apache.commons.csv.CSVRecord;
 
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.Param;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLog;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.Param;
+import it.alessandrochillemi.tesi.frameutils.ResponseLog;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
 public class DiscourseFactory extends ApplicationFactory {
 
