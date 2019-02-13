@@ -7,7 +7,8 @@ import java.util.Random;
 
 import it.alessandrochillemi.tesi.utils.DoubleUtils;
 
-public class ProbDistributionGenerator {
+//Genera il profilo di selezione vero a partire da quello di testing in base a una certa percentuale di variazione scelta dall'utente
+public class TrueProbSelectionGenerator {
 	
 	//Percentuale dell'insieme dei frame che avranno una variazione proporzionale a +VARIATION; la restante parte di frame avrà una variazione proporzionale a -VARIATION
 	private static final Double SET1_SIZE_PROPORTION = 0.6;

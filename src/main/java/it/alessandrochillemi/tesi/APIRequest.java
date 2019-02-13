@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import it.alessandrochillemi.tesi.frameutils.Frame;
 import it.alessandrochillemi.tesi.frameutils.HTTPMethod;
 import it.alessandrochillemi.tesi.frameutils.Param;
-import it.alessandrochillemi.tesi.frameutils.Param.Position;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;

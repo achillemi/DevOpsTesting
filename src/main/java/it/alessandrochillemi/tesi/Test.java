@@ -1,27 +1,85 @@
 package it.alessandrochillemi.tesi;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Properties;
 
-import it.alessandrochillemi.tesi.utils.DoubleUtils;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 
 public class Test {
+	//Percorso nel quale si trova il file con le variabili di ambiente
+	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
+
+	private static String frameMapFilePath;
+
+	private static void loadEnvironment(){
+
+		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
+		Properties environment = new Properties();
+		InputStream is = null;
+		try {
+			is = new FileInputStream(ENVIRONMENT_FILE_PATH);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			environment.load(is);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		//Leggo le variabili d'ambiente
+		frameMapFilePath = environment.getProperty("frame_map_file_path");
+	}
 
 	public static void main(String[] args) {
 
-		ArrayList<Double> doubleList = new ArrayList<Double>();
-		
-		doubleList.add(0.7);
-		doubleList.add(0.4);
-		doubleList.add(0.5);
-		
-		DoubleUtils.normalize(doubleList);
-		
-		Double sum = 0.0;
-		for(Double d : doubleList){
-			System.out.println("\n" + d);
-			sum += d;
+		//Carico le variabili d'ambiente
+		loadEnvironment();
+
+		//Creo una ApplicationFactory per l'applicazione desiderata
+		ApplicationFactory applicationFactory = new DiscourseFactory();
+
+		FrameMap frameMap = null;
+		//Carico la frame map; se il file non esiste, esco dal programma
+		if(Files.exists(Paths.get(frameMapFilePath))){
+			frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 		}
-		System.out.println("\n" + sum);
+		else{
+			System.out.println("\nFrame Map non trovata!");
+			return;
+		}
+		
+		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		ArrayList<Double> trueProbFailureDistribution = frameMap.getTrueProbFailureDistribution();
+		ArrayList<Double> trueProbCriticalFailureDistribution = frameMap.getTrueProbCriticalFailureDistribution();
+		
+		Double failProb = 0.0;
+		for(int i = 0; i<trueProbSelectionDistribution.size(); i++){
+			Double d = trueProbSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+			failProb += d;
+		}
+		
+		Double trueReliability = 1d - failProb;
+		
+		Double criticalFailProb = 0.0;
+		for(int i = 0; i<trueProbSelectionDistribution.size(); i++){
+			Double d = trueProbSelectionDistribution.get(i)*trueProbCriticalFailureDistribution.get(i);
+			criticalFailProb += d;
+		}
+		
+		Double trueReliabilityForCriticalFailures = 1d - criticalFailProb;
+		
+		System.out.println("\nReliability: " + trueReliability);
+		System.out.println("\nReliability for critical failures: " + trueReliabilityForCriticalFailures);
+
 	}
 
 }

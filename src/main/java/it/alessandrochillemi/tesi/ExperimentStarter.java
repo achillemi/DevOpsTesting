@@ -90,7 +90,7 @@ public class ExperimentStarter {
 		ApplicationFactory applicationFactory = new DiscourseFactory();
 			
 		FrameMap frameMap = null;
-		//Carico la frame map; se il file non esiste, lo genero a partire dalla descrizione delle API
+		//Carico la frame map; se il file non esiste, esco dal programma
 		if(Files.exists(Paths.get(frameMapFilePath))){
 			frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 		}

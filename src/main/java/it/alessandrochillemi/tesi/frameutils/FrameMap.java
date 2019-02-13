@@ -180,6 +180,28 @@ public class FrameMap{
 			i++;
 		}
 	}
+	
+	//Get the true probability for critical failure for every entry in the FrameMap; the order is preserved, because the underlying Map is a TreeMap.
+	public ArrayList<Double> getTrueProbCriticalFailureDistribution(){
+		ArrayList<Double> ret = new ArrayList<Double>();
+
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
+			ret.add(entry.getValue().getTrueProbCriticalFailure());
+		}
+		return ret;
+	}
+
+	//Set the true probability for critical failure for every entry in the FrameMap
+	public void setTrueProbCriticalFailureDistribution(ArrayList<Double> trueProbCriticalFailureDistribution){
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<Integer, Frame> entry = iter.next();
+			entry.getValue().setTrueProbCriticalFailure(trueProbCriticalFailureDistribution.get(i));
+			i++;
+		}
+	}
+	
 
 	//Get all the frames that have the specified endpoint
 	public ArrayList<Frame> getFramesByEndpoint(HTTPMethod method, String endpoint){

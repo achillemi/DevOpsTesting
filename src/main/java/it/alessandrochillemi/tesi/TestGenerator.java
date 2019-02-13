@@ -37,9 +37,6 @@ public class TestGenerator{
     		System.out.println("Frame selezionato: " + selectedFrame);
     		Frame frame = frameMap.readByKey(selectedFrame);
 
-    		//Stampo il frame scelto
-//    		frame.print();
-
     		//Genero i valori dei parametri applicando le precondizioni
     		for(Param p : frame.getParamList()){
     			p.generateValueWithPreConditions(baseURL,apiUsername,apiKey,true);
@@ -70,9 +67,6 @@ public class TestGenerator{
 
     		//Salvo la risposta nella ResponseLogList
     		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
-
-//    		System.out.println("");
-//    		responseLog.print();
 
     		responseLogList.add(responseLog);
     	}
