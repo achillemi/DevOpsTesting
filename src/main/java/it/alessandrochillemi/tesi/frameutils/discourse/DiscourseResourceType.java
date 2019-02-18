@@ -230,8 +230,13 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
-			categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
+			
+			if(jsonResponseBody != null){
+				categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
+			}
+			else{
+				categoryIDValue = null;
+			}
 		}
 		else{
 			categoryIDValue = null;
@@ -294,8 +299,14 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			topicIDValue = jsonResponseBody.get("topic_id").toString();
-			topicSlugValue = jsonResponseBody.get("topic_slug").toString();
+			if(jsonResponseBody != null){
+				topicIDValue = jsonResponseBody.get("topic_id").toString();
+				topicSlugValue = jsonResponseBody.get("topic_slug").toString();
+			}
+			else{
+				topicIDValue = null;
+				topicSlugValue = null;
+			}
 		}
 		else{
 			topicIDValue = null;
@@ -359,9 +370,15 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
-			userID1Value = jsonResponseBody.get("user_id").toString();
-			username1Value = username1;
+			
+			if(jsonResponseBody != null){
+				userID1Value = jsonResponseBody.get("user_id").toString();
+				username1Value = username1;
+			}
+			else{
+				userID1Value = null;
+				username1Value = null;
+			}
 		}
 		else{
 			userID1Value = null;
@@ -420,8 +437,14 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			userID2Value = jsonResponseBody.get("user_id").toString();
-			username2Value = username2;
+			if(jsonResponseBody != null){
+				userID2Value = jsonResponseBody.get("user_id").toString();
+				username2Value = username2;
+			}
+			else{
+				userID2Value = null;
+				username2Value = null;
+			}
 		}
 		else{
 			userID2Value = null;
@@ -502,8 +525,14 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
-			tagValue = tag1;
+			if(jsonResponseBody != null){
+				tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
+				tagValue = tag1;
+			}
+			else{
+				tagGroupIDValue = null;
+				tagValue = null;
+			}
 		}
 		else{
 			tagGroupIDValue = null;
@@ -585,7 +614,12 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			uploadAvatarIDValue = jsonResponseBody.get("id").toString();
+			if(jsonResponseBody != null){
+				uploadAvatarIDValue = jsonResponseBody.get("id").toString();
+			}
+			else{
+				uploadAvatarIDValue = null;
+			}
 		}
 		else{
 			uploadAvatarIDValue = null;
@@ -632,8 +666,14 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
-			groupValue = group_name;
+			if(jsonResponseBody != null){
+				groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
+				groupValue = group_name;
+			}
+			else{
+				groupIDValue = null;
+				groupValue = null;
+			}
 		}
 		else{
 			groupIDValue = null;
@@ -692,7 +732,12 @@ public enum DiscourseResourceType implements ResourceType{
 				e1.printStackTrace();
 			}
 
-			postIDValue = jsonResponseBody.get("id").toString();
+			if(jsonResponseBody != null){
+				postIDValue = jsonResponseBody.get("id").toString();
+			}
+			else{
+				postIDValue = null;
+			}
 		}
 		else{
 			postIDValue = null;
