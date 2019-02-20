@@ -7,20 +7,20 @@ import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.Param;
 import it.alessandrochillemi.tesi.frameutils.ResponseLog;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
-import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import okhttp3.Response;
 
 //Esegue NREQUESTS scegliendo i frame secondo la distribuzione di probabilità di selezione vera
 public class WorkloadGenerator {
 	
 	//Strategy design pattern
-	private ITestingStrategy testingStrategy;
+	private TestingStrategy testingStrategy;
 
-	public WorkloadGenerator(ITestingStrategy testingStrategy){
+	public WorkloadGenerator(TestingStrategy testingStrategy){
 		this.testingStrategy = testingStrategy;
 	}
 
-	public void setTestSelectionStrategy(ITestingStrategy testingStrategy) {
+	public void setTestSelectionStrategy(TestingStrategy testingStrategy) {
 		this.testingStrategy = testingStrategy;
 	}
 

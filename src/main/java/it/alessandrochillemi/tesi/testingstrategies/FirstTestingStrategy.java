@@ -7,7 +7,7 @@ import org.apache.commons.lang3.RandomUtils;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
-public class FirstTestingStrategy implements ITestingStrategy {
+public class FirstTestingStrategy extends TestingStrategy {
 
 	//Algoritmo per la selezione di un frame secondo la distribuzione di probabilità specificata
 	public int selectFrame(FrameMap frameMap, boolean testingProfile) {

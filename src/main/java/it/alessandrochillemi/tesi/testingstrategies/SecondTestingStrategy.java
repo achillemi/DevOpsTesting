@@ -8,7 +8,7 @@ import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.utils.DoubleUtils;
 
-public class SecondTestingStrategy implements ITestingStrategy {
+public class SecondTestingStrategy extends TestingStrategy {
 
 	@Override
 	public int selectFrame(FrameMap frameMap, boolean testingProfile) {

@@ -11,7 +11,7 @@ import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
-import it.alessandrochillemi.tesi.testingstrategies.ITestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 
 public class TrueReliabilityRequestGenerator {
 
@@ -58,7 +58,7 @@ public class TrueReliabilityRequestGenerator {
 		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 
 		//Scelgo la strategia di testing
-		ITestingStrategy testingStrategy = new FirstTestingStrategy();
+		TestingStrategy testingStrategy = new FirstTestingStrategy();
 
 		//Creo un workload generator
 		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);
