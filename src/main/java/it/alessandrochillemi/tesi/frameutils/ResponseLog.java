@@ -69,17 +69,20 @@ public class ResponseLog implements Serializable{
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
 	}
-	//	public String getResponseBody() {
-	//		return responseBody;
-	//	}
-	//	public void setResponseBody(String responseBody) {
-	//		this.responseBody = responseBody;
-	//	}
+
 	public ArrayList<Param> getParamList() {
 		return paramList;
 	}
 	public void setParamList(ArrayList<Param> paramList) {
 		this.paramList = paramList;
+	}
+	
+	public boolean isFailure(){
+		return this.applicationSpecifics.getOracle().isFailure(paramList, responseCode);
+	}
+	
+	public boolean isCriticalFailure(){
+		return this.applicationSpecifics.getOracle().isCriticalFailure(paramList, responseCode);
 	}
 
 	public void print(){

@@ -38,7 +38,6 @@ public class ExperimentStarter {
 	public static Double LEARNING_RATE = 0.1;
 
 	private static String frameMapFilePath;
-	private static String preliminaryResponseLogListFilePath;
 	private static String experimentResponsesPath;
 	private static String baseURL;
 	private static String apiUsername;
@@ -69,7 +68,6 @@ public class ExperimentStarter {
 
 		//Leggo le variabili d'ambiente
 		frameMapFilePath = environment.getProperty("frame_map_file_path");
-		preliminaryResponseLogListFilePath = environment.getProperty("preliminary_response_log_list_file_path");
 		experimentResponsesPath = environment.getProperty("experiment_responses_path");
 		baseURL = environment.getProperty("base_url");
 		apiUsername = environment.getProperty("api_username");
@@ -100,7 +98,7 @@ public class ExperimentStarter {
 		}
 		
 		//Scelgo la strategia di testing
-		TestingStrategy testingStrategy = new FirstTestingStrategy();
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 		
 		//Creo un test generator
 		TestGenerator testGenerator = new TestGenerator(testingStrategy);
@@ -126,10 +124,9 @@ public class ExperimentStarter {
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
 		
-		//Stimo la reliability vera a partire dalle richieste eseguite preventivamente secondo la probabilità di selezione vera per la stima della reliability
-		ResponseLogList reliabilityResponseLogList = applicationFactory.makeResponseLogList(preliminaryResponseLogListFilePath);
-		reliabilityEstimator.computeTrueReliability(reliabilityResponseLogList);
-		reliabilityEstimator.computeTrueReliabilityForCriticalFailures(reliabilityResponseLogList);
+		//Calcolo la reliability vera
+		reliabilityEstimator.computeTrueReliability();
+		reliabilityEstimator.computeTrueReliabilityForCriticalFailures();
 		
 		//Creo un monitor
 		Monitor monitor = new Monitor();

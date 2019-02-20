@@ -27,11 +27,14 @@ public class TestGenerator{
     	
     	ResponseLogList responseLogList = applicationFactory.makeResponseLogList();
     	
+    	//Calcolo la nuova probabilità di selezione
+    	testingStrategy.computeNewProbSelectionDistribution(true);
+    	
     	for(int i = 0; i<NTests; i++){
     		System.out.println("\nTest " + (i+1) + "...");
     		
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
-    		int selectedFrame = testingStrategy.selectFrame(frameMap, true);
+    		int selectedFrame = testingStrategy.selectFrame(true);
 
     		//Leggo il frame con l'indice scelto
     		System.out.println("Frame selezionato: " + selectedFrame);

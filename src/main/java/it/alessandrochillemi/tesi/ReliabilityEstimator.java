@@ -73,13 +73,13 @@ public class ReliabilityEstimator {
 		return estimatedReliabilityForCriticalFailures;
 	}
 	
-	public Double computeTrueReliability(ResponseLogList userResponseLogList){
-		this.trueReliability = testingStrategy.getTrueReliability(userResponseLogList);
+	public Double computeTrueReliability(){
+		this.trueReliability = testingStrategy.getTrueReliability();
 		return trueReliability;
 	}
 	
-	public Double computeTrueReliabilityForCriticalFailures(ResponseLogList userResponseLogList){		
-		this.trueReliabilityForCriticalFailures = testingStrategy.getTrueReliabilityForCriticalFailures(userResponseLogList);
+	public Double computeTrueReliabilityForCriticalFailures(){		
+		this.trueReliabilityForCriticalFailures = testingStrategy.getTrueReliabilityForCriticalFailures();
 		return trueReliabilityForCriticalFailures;
 	}
 	

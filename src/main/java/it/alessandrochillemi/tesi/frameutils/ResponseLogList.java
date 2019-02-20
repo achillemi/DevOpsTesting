@@ -114,13 +114,14 @@ public class ResponseLogList{
 
 	//Ritorna il numero totale di fallimenti nella lista
 	public int getTotalNumberOfFailures(){
+		//Conto tutti i fallimenti
 		int failuresCount = 0;
 		//Analizzo ogni responseLog per capire se si tratta di un fallimento o meno
 		for(int i = 0; i<responseLogList.size(); i++){
 			ResponseLog responseLog = responseLogList.get(i);
 
 			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento o meno
-			if(applicationSpecifics.getOracle().isFailure(responseLog.getParamList(), responseLog.getResponseCode())){
+			if(responseLog.isFailure()){
 				failuresCount++;
 			}
 		}
@@ -130,19 +131,19 @@ public class ResponseLogList{
 	//Ritorna il numero totale di fallimenti critici nella lista
 	public int getTotalNumberOfCriticalFailures(){
 		//Conto i fallimenti critici
-		int countCriticalFailures = 0;
-
+		int criticalFailuresCount = 0;
+		//Analizzo ogni responseLog per capire se si tratta di un fallimento critico o meno
 		for(int i = 0; i<responseLogList.size(); i++){
 			ResponseLog responseLog = responseLogList.get(i);
 
 			//Applico l'oracolo (dipendente dall'applicazione a cui questa risposta si riferisce) per sapere se si tratta di un fallimento critico o meno
-			if(applicationSpecifics.getOracle().isCriticalFailure(responseLog.getParamList(), responseLog.getResponseCode())){
-				countCriticalFailures++;
+			if(responseLog.isCriticalFailure()){
+				criticalFailuresCount++;
 			}
 		}
 
 		//Ritorno il numero di fallimenti critici
-		return countCriticalFailures;
+		return criticalFailuresCount;
 	}
 
 	//Ritorna il numero di fallimenti per il frame con Frame ID specificato

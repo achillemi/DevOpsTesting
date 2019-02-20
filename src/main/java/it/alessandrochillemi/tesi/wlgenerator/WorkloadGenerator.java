@@ -28,11 +28,14 @@ public class WorkloadGenerator {
     	
     	ResponseLogList responseLogList = applicationFactory.makeResponseLogList();
     	
+    	//Calcolo la nuova probabilità di selezione
+    	testingStrategy.computeNewProbSelectionDistribution(false);
+    	
     	for(int i = 0; i<NRequests; i++){
     		System.out.println("\nRichiesta " + (i+1) + "...");
 
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
-    		int selectedFrame = testingStrategy.selectFrame(frameMap, false);	
+    		int selectedFrame = testingStrategy.selectFrame(false);	
     		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
         	

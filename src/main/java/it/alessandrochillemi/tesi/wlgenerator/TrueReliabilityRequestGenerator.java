@@ -58,7 +58,7 @@ public class TrueReliabilityRequestGenerator {
 		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 
 		//Scelgo la strategia di testing
-		TestingStrategy testingStrategy = new FirstTestingStrategy();
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 
 		//Creo un workload generator
 		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);

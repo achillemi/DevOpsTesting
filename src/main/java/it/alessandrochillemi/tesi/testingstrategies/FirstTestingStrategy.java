@@ -8,10 +8,13 @@ import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
 public class FirstTestingStrategy extends TestingStrategy {
+	
+	public FirstTestingStrategy(FrameMap frameMap){
+		super(frameMap);
+	}
 
 	//Algoritmo per la selezione di un frame secondo la distribuzione di probabilità specificata
-	public int selectFrame(FrameMap frameMap, boolean testingProfile) {
-		
+	public int selectFrame(boolean testingProfile) {	
 		ArrayList<Double> probSelectionDistribution = null;
 		
 		//Se testingProfile == true, uso la distribuzione di probabilità stimata (ovvero il profilo di testing)
@@ -56,6 +59,11 @@ public class FirstTestingStrategy extends TestingStrategy {
 		Double criticalFailProb = (new Double(responseLogList.getTotalNumberOfCriticalFailures()))/(new Double(responseLogList.size()));
 		Double reliabilityForCriticalFailures = 1d - criticalFailProb;
 		return reliabilityForCriticalFailures;
+	}
+
+	//In questa strategia non c'è bisogno di calcolare una nuova distribuzione perché la selezione si basa unicamente sulla probabilità di selezione della FrameMap
+	public void computeNewProbSelectionDistribution(boolean testingProfile) {
+		return;
 	}
 
 }
