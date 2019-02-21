@@ -19,7 +19,7 @@ public class DoubleUtils {
 		boolean negative = false;
 		int i = 0;
 		while(!negative && i<doubleList.size()){
-			if(doubleList.get(i)<0){
+			if(doubleList.get(i)<0.0){
 				negative = true;
 			}
 			i++;
@@ -36,6 +36,15 @@ public class DoubleUtils {
 		}
 		for(int i = 0; i<doubleList.size(); i++){
 			doubleList.set(i, doubleList.get(i)/sum);
+		}
+	}
+	
+	//Pone a 0 tutti i valori negativi
+	public static void rectify(ArrayList<Double> doubleList){
+		for(int i = 0; i<doubleList.size(); i++){
+			if(doubleList.get(i)<0.0){
+				doubleList.set(i, 0.0);
+			}
 		}
 	}
 
