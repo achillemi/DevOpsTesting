@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi.frameutils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+import it.alessandrochillemi.tesi.frameutils.Param.Position;
 
 public class ResponseLog implements Serializable{
 
@@ -69,17 +69,20 @@ public class ResponseLog implements Serializable{
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
 	}
-	//	public String getResponseBody() {
-	//		return responseBody;
-	//	}
-	//	public void setResponseBody(String responseBody) {
-	//		this.responseBody = responseBody;
-	//	}
+
 	public ArrayList<Param> getParamList() {
 		return paramList;
 	}
 	public void setParamList(ArrayList<Param> paramList) {
 		this.paramList = paramList;
+	}
+	
+	public boolean isFailure(){
+		return this.applicationSpecifics.getOracle().isFailure(paramList, responseCode);
+	}
+	
+	public boolean isCriticalFailure(){
+		return this.applicationSpecifics.getOracle().isCriticalFailure(paramList, responseCode);
 	}
 
 	public void print(){

@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import it.alessandrochillemi.tesi.frameutils.Frame;
+import it.alessandrochillemi.tesi.frameutils.HTTPMethod;
+import it.alessandrochillemi.tesi.frameutils.Param;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;

@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.wlgenerator;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 
 public class TrueReliabilityRequestGenerator {
 
@@ -56,7 +58,7 @@ public class TrueReliabilityRequestGenerator {
 		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 
 		//Scelgo la strategia di testing
-		ITestingStrategy testingStrategy = new FirstTestingStrategy();
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 
 		//Creo un workload generator
 		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);

@@ -12,10 +12,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import it.alessandrochillemi.tesi.FrameUtils.ApplicationFactory;
-import it.alessandrochillemi.tesi.FrameUtils.FrameMap;
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
-import it.alessandrochillemi.tesi.FrameUtils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
+import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
 public class ExperimentStarter {
 	
@@ -23,7 +26,7 @@ public class ExperimentStarter {
 	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
 	
 	//Numero di cicli di test da effettuare
-	public static int NCYCLES = 8;
+	public static int NCYCLES = 5;
 	
 	//Numero di test da eseguire a ogni ciclo
 	public static int NTESTS = 1000;
@@ -32,10 +35,9 @@ public class ExperimentStarter {
 	public static int NREQUESTS = 5000;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
-	public static Double LEARNING_RATE = 0.1;
+	public static Double LEARNING_RATE = 0.5;
 
 	private static String frameMapFilePath;
-	private static String preliminaryResponseLogListFilePath;
 	private static String experimentResponsesPath;
 	private static String baseURL;
 	private static String apiUsername;
@@ -66,7 +68,6 @@ public class ExperimentStarter {
 
 		//Leggo le variabili d'ambiente
 		frameMapFilePath = environment.getProperty("frame_map_file_path");
-		preliminaryResponseLogListFilePath = environment.getProperty("preliminary_response_log_list_file_path");
 		experimentResponsesPath = environment.getProperty("experiment_responses_path");
 		baseURL = environment.getProperty("base_url");
 		apiUsername = environment.getProperty("api_username");
@@ -87,7 +88,7 @@ public class ExperimentStarter {
 		ApplicationFactory applicationFactory = new DiscourseFactory();
 			
 		FrameMap frameMap = null;
-		//Carico la frame map; se il file non esiste, lo genero a partire dalla descrizione delle API
+		//Carico la frame map; se il file non esiste, esco dal programma
 		if(Files.exists(Paths.get(frameMapFilePath))){
 			frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 		}
@@ -97,7 +98,7 @@ public class ExperimentStarter {
 		}
 		
 		//Scelgo la strategia di testing
-		ITestingStrategy testingStrategy = new FirstTestingStrategy();
+		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
 		
 		//Creo un test generator
 		TestGenerator testGenerator = new TestGenerator(testingStrategy);
@@ -117,16 +118,14 @@ public class ExperimentStarter {
 		
 		String userResponseDirectoryString = Paths.get(responseDirectoryString, "user_responses").toString();
 		File userResponseDirectory = new File(userResponseDirectoryString);
-		userResponseDirectory.mkdirs();
-		
+		userResponseDirectory.mkdirs();	
 		
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
 		
-		//Stimo la reliability vera a partire dalle richieste eseguite preventivamente secondo la probabilità di selezione vera per la stima della reliability
-		ResponseLogList reliabilityResponseLogList = applicationFactory.makeResponseLogList(preliminaryResponseLogListFilePath);
-		reliabilityEstimator.computeTrueReliability(reliabilityResponseLogList);
-		reliabilityEstimator.computeTrueReliabilityForCriticalFailures(reliabilityResponseLogList);
+		//Calcolo la reliability vera
+		reliabilityEstimator.computeTrueReliability();
+		reliabilityEstimator.computeTrueReliabilityForCriticalFailures();
 		
 		//Creo un monitor
 		Monitor monitor = new Monitor();

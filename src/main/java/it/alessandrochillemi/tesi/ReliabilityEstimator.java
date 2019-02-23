@@ -9,7 +9,8 @@ import java.nio.file.StandardOpenOption;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
+import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 
 public class ReliabilityEstimator {
 	
@@ -19,14 +20,14 @@ public class ReliabilityEstimator {
 	};
 	
 	//Strategy design pattern
-	private ITestingStrategy testingStrategy;
+	private TestingStrategy testingStrategy;
 	
 	private Double estimatedReliability;
 	private Double estimatedReliabilityForCriticalFailures;
 	private Double trueReliability;
 	private Double trueReliabilityForCriticalFailures;
 
-	public ReliabilityEstimator(ITestingStrategy testingStrategy){
+	public ReliabilityEstimator(TestingStrategy testingStrategy){
 		this.testingStrategy = testingStrategy;
 	}
 
@@ -63,36 +64,22 @@ public class ReliabilityEstimator {
 	}
 
 	public Double computeReliability(ResponseLogList testResponseLogList){
-		estimatedReliability = testingStrategy.getReliability(testResponseLogList);
+		this.estimatedReliability = testingStrategy.getReliability(testResponseLogList);
 		return estimatedReliability;
 	}
 	
 	public Double computeReliabilityForCriticalFailures(ResponseLogList testResponseLogList){
-		estimatedReliabilityForCriticalFailures = testingStrategy.getReliabilityForCriticalFailures(testResponseLogList);
+		this.estimatedReliabilityForCriticalFailures = testingStrategy.getReliabilityForCriticalFailures(testResponseLogList);
 		return estimatedReliabilityForCriticalFailures;
 	}
 	
-	public Double computeTrueReliability(ResponseLogList userResponseLogList){
-		Double totalFailures = new Double(userResponseLogList.getTotalNumberOfFailures());
-		
-		Double totalRequests = new Double(userResponseLogList.size());
-				
-		Double trueReliability = 1d - totalFailures/totalRequests;
-		
-		this.trueReliability = trueReliability;
-		
+	public Double computeTrueReliability(){
+		this.trueReliability = testingStrategy.getTrueReliability();
 		return trueReliability;
 	}
 	
-	public Double computeTrueReliabilityForCriticalFailures(ResponseLogList userResponseLogList){
-		Double totalCriticalFailures = new Double(userResponseLogList.getTotalNumberOfCriticalFailures());
-		
-		Double totalRequests = new Double(userResponseLogList.size());
-		
-		Double trueReliabilityForCriticalFailures = 1d - totalCriticalFailures/totalRequests;
-		
-		this.trueReliabilityForCriticalFailures = trueReliabilityForCriticalFailures;
-		
+	public Double computeTrueReliabilityForCriticalFailures(){		
+		this.trueReliabilityForCriticalFailures = testingStrategy.getTrueReliabilityForCriticalFailures();
 		return trueReliabilityForCriticalFailures;
 	}
 	

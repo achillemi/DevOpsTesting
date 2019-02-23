@@ -1,9 +1,9 @@
-package it.alessandrochillemi.tesi.FrameUtils.discourse;
+package it.alessandrochillemi.tesi.frameutils.discourse;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.FrameUtils.Oracle;
-import it.alessandrochillemi.tesi.FrameUtils.Param;
+import it.alessandrochillemi.tesi.frameutils.Oracle;
+import it.alessandrochillemi.tesi.frameutils.Param;
 
 public class DiscourseOracle implements Oracle {
 

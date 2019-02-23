@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.FrameUtils;
+package it.alessandrochillemi.tesi.frameutils;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -19,7 +19,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.EnumUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.Param.Position;
+import it.alessandrochillemi.tesi.frameutils.Param.Position;
 
 public class FrameMap{
 	
@@ -54,6 +54,10 @@ public class FrameMap{
 		this.append(generateFromCSV(apiDescriptionsCSVFilePath,probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure));
 	}
 	
+	public ApplicationSpecifics getApplicationSpecifics() {
+		return applicationSpecifics;
+	}
+
 	public int size(){
 		return this.map.size();
 	}
@@ -180,6 +184,28 @@ public class FrameMap{
 			i++;
 		}
 	}
+	
+	//Get the true probability for critical failure for every entry in the FrameMap; the order is preserved, because the underlying Map is a TreeMap.
+	public ArrayList<Double> getTrueProbCriticalFailureDistribution(){
+		ArrayList<Double> ret = new ArrayList<Double>();
+
+		for(Map.Entry<Integer, Frame> entry : this.map.entrySet()){
+			ret.add(entry.getValue().getTrueProbCriticalFailure());
+		}
+		return ret;
+	}
+
+	//Set the true probability for critical failure for every entry in the FrameMap
+	public void setTrueProbCriticalFailureDistribution(ArrayList<Double> trueProbCriticalFailureDistribution){
+		Iterator<Map.Entry<Integer, Frame>> iter = this.map.entrySet().iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<Integer, Frame> entry = iter.next();
+			entry.getValue().setTrueProbCriticalFailure(trueProbCriticalFailureDistribution.get(i));
+			i++;
+		}
+	}
+	
 
 	//Get all the frames that have the specified endpoint
 	public ArrayList<Frame> getFramesByEndpoint(HTTPMethod method, String endpoint){
@@ -315,7 +341,7 @@ public class FrameMap{
 							paramList.add(p);
 						}
 					}
-					//Get the list of Frame and add it to the return array
+					//Get the list of Frames and add it to the return array
 					ArrayList<Frame> frameList = applicationSpecifics.generateFrames(method, endpoint, paramList, probSelection, probFailure, probCriticalFailure, trueProbSelection, trueProbFailure, trueProbCriticalFailure);
 					ret.addAll(frameList);
 				}

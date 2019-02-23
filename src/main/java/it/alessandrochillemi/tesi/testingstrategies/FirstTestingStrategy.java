@@ -1,15 +1,31 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.testingstrategies;
 
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.RandomUtils;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
-public class FirstTestingStrategy implements ITestingStrategy {
+public class FirstTestingStrategy extends TestingStrategy {
+	
+	public FirstTestingStrategy(FrameMap frameMap){
+		super(frameMap);
+	}
 
 	//Algoritmo per la selezione di un frame secondo la distribuzione di probabilità specificata
-	public int selectFrame(ArrayList<Double> probSelectionDistribution) {
+	public int selectFrame(boolean testingProfile) {	
+		ArrayList<Double> probSelectionDistribution = null;
+		
+		//Se testingProfile == true, uso la distribuzione di probabilità stimata (ovvero il profilo di testing)
+		if(testingProfile){
+			probSelectionDistribution = frameMap.getProbSelectionDistribution();
+		}
+		//Se testingProfile == false, uso la distribuzione di probabilità vera (ovvero il profilo utente)
+		else{
+			probSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		}
+		
     	ArrayList<Double> cumulativePVector = new ArrayList<Double>();
     	
     	cumulativePVector.add(probSelectionDistribution.get(0));
@@ -43,6 +59,11 @@ public class FirstTestingStrategy implements ITestingStrategy {
 		Double criticalFailProb = (new Double(responseLogList.getTotalNumberOfCriticalFailures()))/(new Double(responseLogList.size()));
 		Double reliabilityForCriticalFailures = 1d - criticalFailProb;
 		return reliabilityForCriticalFailures;
+	}
+
+	//In questa strategia non c'è bisogno di calcolare una nuova distribuzione perché la selezione si basa unicamente sulla probabilità di selezione della FrameMap
+	public void computeNewProbSelectionDistribution(boolean testingProfile) {
+		return;
 	}
 
 }

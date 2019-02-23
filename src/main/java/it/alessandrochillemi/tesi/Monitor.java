@@ -2,7 +2,7 @@ package it.alessandrochillemi.tesi;
 
 import java.util.ArrayList;
 
-import it.alessandrochillemi.tesi.FrameUtils.ResponseLogList;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 
 public class Monitor{
 	
@@ -39,8 +39,15 @@ public class Monitor{
 			//Ottengo il numero di richieste effettuate per il frame i-esimo e lo converto in Double
 			Double frameRequests = new Double(userResponseLogList.count(String.valueOf(i)));
 			
-			//Calcolo la nuova probabilità di fallimento
-			Double newProbFailure = learningRate*oldProbFailureDistribution.get(i) + (1d - learningRate)*(frameFailures/frameRequests);
+			//Calcolo la nuova probabilità di fallimento, se frameRequests != 0
+			Double newProbFailure = 0.0;
+			if(frameRequests > 0.0){
+				newProbFailure = learningRate*oldProbFailureDistribution.get(i) + (1d - learningRate)*(frameFailures/frameRequests);
+			}
+			//Se frameRequests è pari a 0, lascio inalterata la probabilità di fallimento
+			else{
+				newProbFailure = oldProbFailureDistribution.get(i);
+			}
 			
 			newProbFailureDistribution.add(newProbFailure);
 		}
@@ -60,9 +67,16 @@ public class Monitor{
 			//Ottengo il numero di richieste effettuate per il frame i-esimo e lo converto in Double
 			Double frameRequests = new Double(userResponseLogList.count(String.valueOf(i)));
 
-			//Calcolo la nuova probabilità di fallimento
-			Double newProbFailure = learningRate*oldProbCriticalFailureDistribution.get(i) + (1d - learningRate)*(frameCriticalFailures/frameRequests);
-
+			//Calcolo la nuova probabilità di fallimento, se frameRequests != 0
+			Double newProbFailure = 0.0;
+			if(frameRequests > 0.0){
+				newProbFailure = learningRate*oldProbCriticalFailureDistribution.get(i) + (1d - learningRate)*(frameCriticalFailures/frameRequests);
+			}
+			//Se frameRequests è pari a 0, lascio inalterata la probabilità di fallimento
+			else{
+				newProbFailure = oldProbCriticalFailureDistribution.get(i);
+			}
+			
 			newProbCriticalFailureDistribution.add(newProbFailure);
 		}
 
