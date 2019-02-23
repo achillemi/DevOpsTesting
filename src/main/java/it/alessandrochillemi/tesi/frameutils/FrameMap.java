@@ -54,6 +54,10 @@ public class FrameMap{
 		this.append(generateFromCSV(apiDescriptionsCSVFilePath,probSelection,probFailure,probCriticalFailure,trueProbSelection,trueProbFailure,trueProbCriticalFailure));
 	}
 	
+	public ApplicationSpecifics getApplicationSpecifics() {
+		return applicationSpecifics;
+	}
+
 	public int size(){
 		return this.map.size();
 	}

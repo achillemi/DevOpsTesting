@@ -9,11 +9,17 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.apache.commons.lang3.RandomUtils;
+
 import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
+import it.alessandrochillemi.tesi.frameutils.Frame;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
+import it.alessandrochillemi.tesi.frameutils.Param;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
+import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
+import it.alessandrochillemi.tesi.utils.DoubleUtils;
 import it.alessandrochillemi.tesi.wlgenerator.TrueProbSelectionGenerator;
 
 @SuppressWarnings("unused")
@@ -49,20 +55,22 @@ public class Test {
 		apiKey = environment.getProperty("api_key");
 	}
 
-	public static void main(String[] args) {
+	public static FrameMap generateFramesForFirstStrategy(ApplicationFactory appFactory, String frameMapFilePath){
 
-		//Carico le variabili d'ambiente
-		loadEnvironment();
+		//Carico la frame map con le f_vere già calcolate preliminarmente
+		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
 
-		ApplicationFactory appFactory = new DiscourseFactory();
+		//Carico le distribuzioni di probabilità attuali, che saranno modificate
+		ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
+		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
+		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
+		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		ArrayList<Double> trueProbFailureDistribution = frameMap.getTrueProbFailureDistribution();
 
-		ArrayList<Double> probSelectionDistribution = null;
-		ArrayList<Double> trueProbSelectionDistribution = null;
-		ArrayList<Double> trueProbFailureDistribution = null;
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 
-		TestingStrategy testingStrategy = null;
-
-		int NFrames = 0;
+		int NFrames = frameMap.size();
+		System.out.println("Numero di frame: " + NFrames);
 
 		Double failProb = 0.0;
 		Double reliability = 0.0;
@@ -72,171 +80,141 @@ public class Test {
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
 		numberFormatter.setMinimumFractionDigits(16);
 
-		//Metodo DEL user
-		FrameMap deleteUserFrameMap = appFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_delete_user_frames.csv");
-		System.out.println("\n\n*** METODO DELETE USER ***");
-		NFrames = deleteUserFrameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(deleteUserFrameMap);
-
-		probSelectionDistribution = deleteUserFrameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = deleteUserFrameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+		//Generazione probabilità di selezione iniziale stimata (casuale)
+		for(int i = 0; i<probSelectionDistribution.size(); i++){
+			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
 		}
-		deleteUserFrameMap.setProbSelectionDistribution(probSelectionDistribution);
+		DoubleUtils.normalize(probSelectionDistribution);
+		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);	
-		deleteUserFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-
-		reliability = 1d - failProb;
-		trueReliability = testingStrategy.getTrueReliability();
-
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
-
-		deleteUserFrameMap.writeToCSVFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_delete_user_frames.csv");
-
-		//Metodo POST categories
-		FrameMap postCategoriesFrameMap = appFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_post_categories_frames.csv");
-		System.out.println("\n\n*** METODO POST CATEGORIES ***");
-		NFrames = postCategoriesFrameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(postCategoriesFrameMap);
-
-		probSelectionDistribution = postCategoriesFrameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = postCategoriesFrameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+		//Generazione probabilità di fallimento iniziale stimata (tutte pari a 0)
+		for(int i = 0; i<probFailureDistribution.size(); i++){
+			probFailureDistribution.set(i, 0.0);
 		}
-		postCategoriesFrameMap.setProbSelectionDistribution(probSelectionDistribution);
+		frameMap.setProbFailureDistribution(probFailureDistribution);
 
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);	
-		postCategoriesFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-
-		reliability = 1d - failProb;
-		trueReliability = testingStrategy.getTrueReliability();
-
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
-
-		postCategoriesFrameMap.writeToCSVFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_post_categories_frames.csv");
-
-		//METODO POST users
-		FrameMap postUsersFrameMap = appFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_post_users_frames.csv");
-		System.out.println("\n\n*** METODO POST USERS ***");
-		NFrames = postUsersFrameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(postUsersFrameMap);
-
-		probSelectionDistribution = postUsersFrameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = postUsersFrameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+		//Generazione probabilità di fallimento critica iniziale stimata (tutte pari a 0)
+		for(int i = 0; i<probCriticalFailureDistribution.size(); i++){
+			probCriticalFailureDistribution.set(i, 0.0);
 		}
-		postUsersFrameMap.setProbSelectionDistribution(probSelectionDistribution);
+		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
 
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);	
-		postUsersFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-
-		reliability = 1d - failProb;
-		trueReliability = testingStrategy.getTrueReliability();
-
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
-
-		postUsersFrameMap.writeToCSVFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_post_users_frames.csv");
-
-		//Metodo PUT categories
-		FrameMap putCategoriesFrameMap = appFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_put_categories_frames.csv");
-		System.out.println("\n\n*** METODO PUT CATEGORIES ***");
-		NFrames = putCategoriesFrameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(putCategoriesFrameMap);
-
-		probSelectionDistribution = putCategoriesFrameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = putCategoriesFrameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
-		}
-		putCategoriesFrameMap.setProbSelectionDistribution(probSelectionDistribution);
-
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);	
-		putCategoriesFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-
-		reliability = 1d - failProb;
-		trueReliability = testingStrategy.getTrueReliability();
-
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
-
-		putCategoriesFrameMap.writeToCSVFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_put_categories_frames.csv");
-
-		//Metodo PUT tag groups
-		FrameMap putTagGroupsFrameMap = appFactory.makeFrameMap("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_put_tag_groups_frames.csv");
-		System.out.println("\n\n*** METODO PUT TAG GROUPS ***");
-		NFrames = putTagGroupsFrameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(putTagGroupsFrameMap);
-
-		probSelectionDistribution = putTagGroupsFrameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = putTagGroupsFrameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
-		}
-		putTagGroupsFrameMap.setProbSelectionDistribution(probSelectionDistribution);
-
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);	
-		putTagGroupsFrameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
-
-		reliability = 1d - failProb;
-		trueReliability = testingStrategy.getTrueReliability();
-
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
-
-		putTagGroupsFrameMap.writeToCSVFile("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_single_methods_experiments/discourse_put_tag_groups_frames.csv");
-
-		//FrameMap completa
-		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
-		System.out.println("\n\n*** FRAME MAP COMPLETA ***");
-		NFrames = frameMap.size();
-		System.out.println("Numero di frame: " + NFrames);
-		testingStrategy = new SecondTestingStrategy(frameMap);
-
-		probSelectionDistribution = frameMap.getProbSelectionDistribution();
-		trueProbFailureDistribution = frameMap.getTrueProbFailureDistribution();
-		failProb = 0.0;
-		for(int i = 0; i<NFrames; i++){
-			probSelectionDistribution.set(i, (1.0/(new Double(NFrames))));
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
-		}
-
+		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
 		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);
 		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 
+		//Calcolo reliability stimata (p(i)*f_vera(i) perché non ho le f_stimate(i) e non voglio fare un ciclo di test)
+		failProb = 0.0;
+		for(int i = 0; i<NFrames; i++){
+			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+		}	
 		reliability = 1d - failProb;
+
+		//Calcolo reliability vera
 		trueReliability = testingStrategy.getTrueReliability();
 
 		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
 		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
 		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
 
+		return frameMap;
+	}
+
+	public static FrameMap generateFramesForSecondStrategy(ApplicationFactory appFactory, String frameMapFilePath){
+
+		//Carico la frame map con le f_vere già calcolate preliminarmente
+		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
+
+		//Carico le distribuzioni di probabilità attuali, che saranno modificate
+		ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();
+		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
+		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
+		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+
+		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
+
+		int NFrames = frameMap.size();
+		System.out.println("Numero di frame: " + NFrames);
+
+		Double failProb = 0.0;
+		Double reliability = 0.0;
+		Double trueReliability = 0.0;
+
+		Locale currentLocale = Locale.ITALY;
+		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
+		numberFormatter.setMinimumFractionDigits(16);
+
+		//Generazione probabilità di selezione iniziale stimata (casuale)
+		for(int i = 0; i<probSelectionDistribution.size(); i++){
+			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
+		}
+		DoubleUtils.normalize(probSelectionDistribution);
+		frameMap.setProbSelectionDistribution(probSelectionDistribution);
+
+		//Generazione probabilità di fallimento iniziale stimata (pari a |classi invalide|/|classi|)
+		for(int i = 0; i<NFrames; i++){
+			Frame frame = frameMap.readByKey(i);
+			Double nClasses = new Double(frame.getParamList().size());
+			
+			Double nInvalidClasses = 0.0;
+			for(Param p : frame.getParamList()){
+				if(!frameMap.getApplicationSpecifics().getOracle().isParamValid(p)){
+					nInvalidClasses += 1.0;
+				}
+			}
+			
+			Double invalidClassesProportion = 0.0;
+			if(nClasses != 0.0){
+				invalidClassesProportion = nInvalidClasses/nClasses;
+			}
+			
+			probFailureDistribution.set(i, invalidClassesProportion);
+		}
+		frameMap.setProbFailureDistribution(probFailureDistribution);
+
+		//Generazione probabilità di fallimento critica iniziale stimata (tutte pari a 0)
+		for(int i = 0; i<probCriticalFailureDistribution.size(); i++){
+			probCriticalFailureDistribution.set(i, 0.0);
+		}
+		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
+
+		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
+		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);
+		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
+
+		//Calcolo reliability stimata (p(i)*f(i))
+		failProb = 0.0;
+		for(int i = 0; i<NFrames; i++){
+			failProb += probSelectionDistribution.get(i)*probFailureDistribution.get(i);
+		}	
+		reliability = 1d - failProb;
+
+		//Calcolo reliability vera
+		trueReliability = testingStrategy.getTrueReliability();
+
+		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
+		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
+		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
+
+		return frameMap;
+	}
+
+	public static void main(String[] args) {
+
+		//Carico le variabili d'ambiente
+		loadEnvironment();
+
+		ApplicationFactory appFactory = new DiscourseFactory();
+		
+		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
+//
+//		FrameMap frameMap = generateFramesForSecondStrategy(appFactory,frameMapFilePath);
+//
+//		frameMap.writeToCSVFile(frameMapFilePath);
+		
+		ArrayList<Double> prova = new ArrayList<Double>();
+		prova.add(0.1);
+		
 	}
 
 }

@@ -38,9 +38,6 @@ public class WorkloadGenerator {
     		int selectedFrame = testingStrategy.selectFrame(false);	
     		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
-        	
-        	//Stampo il frame scelto
-//        	frame.print();
 
         	//Genero i valori dei parametri applicando le precondizioni
         	for(Param p : frame.getParamList()){
@@ -72,9 +69,6 @@ public class WorkloadGenerator {
         	
         	//Salvo la risposta nella ResponseLogList
     		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, apiRequest.getParamList());
-
-//    		System.out.println("");
-//    		responseLog.print();
 
     		responseLogList.add(responseLog);
     	}

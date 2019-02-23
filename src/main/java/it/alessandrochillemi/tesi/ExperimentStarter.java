@@ -16,7 +16,7 @@ import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
-import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
@@ -26,7 +26,7 @@ public class ExperimentStarter {
 	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
 	
 	//Numero di cicli di test da effettuare
-	public static int NCYCLES = 8;
+	public static int NCYCLES = 5;
 	
 	//Numero di test da eseguire a ogni ciclo
 	public static int NTESTS = 1000;
@@ -35,7 +35,7 @@ public class ExperimentStarter {
 	public static int NREQUESTS = 5000;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
-	public static Double LEARNING_RATE = 0.1;
+	public static Double LEARNING_RATE = 0.5;
 
 	private static String frameMapFilePath;
 	private static String experimentResponsesPath;
@@ -98,7 +98,7 @@ public class ExperimentStarter {
 		}
 		
 		//Scelgo la strategia di testing
-		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
+		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
 		
 		//Creo un test generator
 		TestGenerator testGenerator = new TestGenerator(testingStrategy);
@@ -118,8 +118,7 @@ public class ExperimentStarter {
 		
 		String userResponseDirectoryString = Paths.get(responseDirectoryString, "user_responses").toString();
 		File userResponseDirectory = new File(userResponseDirectoryString);
-		userResponseDirectory.mkdirs();
-		
+		userResponseDirectory.mkdirs();	
 		
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
