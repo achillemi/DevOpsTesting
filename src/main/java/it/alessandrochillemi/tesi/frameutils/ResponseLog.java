@@ -18,7 +18,6 @@ public class ResponseLog implements Serializable{
 	private String frameID;									//ID del Frame a cui si riferisce questa risposta
 	private Integer responseCode;							//Codice di risposta della richiesta HTTP
 	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
-	//	private String responseBody;							//Body della risposta alla richiesta HTTP
 	private ArrayList<Param> paramList;						//Lista di parametri usati nella richiesta
 
 	private static final long serialVersionUID = 7679179561832569179L;
@@ -33,7 +32,6 @@ public class ResponseLog implements Serializable{
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
-		//		this.responseBody = responseBody;
 		this.paramList = paramList;
 	}
 
@@ -89,7 +87,6 @@ public class ResponseLog implements Serializable{
 		System.out.println("FRAME ID: " + frameID);
 		System.out.println("RESPONSE CODE: " + responseCode);
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
-		//		System.out.println("RESPONSE BODY: " + responseBody);
 		System.out.println("PARAMETERS: ");
 		for(int i=0; i<paramList.size(); i++){
 			System.out.print("\nPARAMETER " + (i+1) + ":");
@@ -139,7 +136,6 @@ public class ResponseLog implements Serializable{
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
-//		this.responseBody = responseBody;
 		this.paramList = paramList;
 	}
 

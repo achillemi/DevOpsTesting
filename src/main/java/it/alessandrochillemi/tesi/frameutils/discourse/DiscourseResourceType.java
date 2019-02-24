@@ -212,6 +212,8 @@ public enum DiscourseResourceType implements ResourceType{
 
 		Response response = apiRequest.sendRequest();
 
+		//Il valore è impostato a null di default; se l'API è andata a buon fine, viene sovrascritto con il valore giusto
+		categoryIDValue = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -220,7 +222,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -230,16 +232,14 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 			if(jsonResponseBody != null){
-				categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
+				try{
+					categoryIDValue = jsonResponseBody.getJSONObject("category").get("id").toString();
+				} catch (JSONException e){
+					categoryIDValue = null;
+				}
 			}
-			else{
-				categoryIDValue = null;
-			}
-		}
-		else{
-			categoryIDValue = null;
 		}
 	}
 
@@ -251,7 +251,7 @@ public enum DiscourseResourceType implements ResourceType{
 			topicSlugValue = null;
 			return;
 		}
-		
+
 		//Create new topic
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
@@ -280,6 +280,9 @@ public enum DiscourseResourceType implements ResourceType{
 		//Send the request
 		Response response = apiRequest.sendRequest();
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		topicIDValue = null;
+		topicSlugValue = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -288,7 +291,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -300,19 +303,15 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				topicIDValue = jsonResponseBody.get("topic_id").toString();
-				topicSlugValue = jsonResponseBody.get("topic_slug").toString();
-			}
-			else{
-				topicIDValue = null;
-				topicSlugValue = null;
+				try{
+					topicIDValue = jsonResponseBody.get("topic_id").toString();
+					topicSlugValue = jsonResponseBody.get("topic_slug").toString();
+				} catch (JSONException e){
+					topicIDValue = null;
+					topicSlugValue = null;
+				}
 			}
 		}
-		else{
-			topicIDValue = null;
-			topicSlugValue = null;
-		}
-
 	}
 
 	private void generateUsersDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){		
@@ -352,6 +351,9 @@ public enum DiscourseResourceType implements ResourceType{
 		//Send the request
 		Response response = apiRequest.sendRequest();
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		userID1Value = null;
+		username1Value = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -360,7 +362,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -370,19 +372,16 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 			if(jsonResponseBody != null){
-				userID1Value = jsonResponseBody.get("user_id").toString();
-				username1Value = username1;
+				try{
+					userID1Value = jsonResponseBody.get("user_id").toString();
+					username1Value = username1;
+				} catch (JSONException e){
+					userID1Value = null;
+					username1Value = null;
+				}
 			}
-			else{
-				userID1Value = null;
-				username1Value = null;
-			}
-		}
-		else{
-			userID1Value = null;
-			username1Value = null;
 		}
 
 		//Create user2
@@ -418,6 +417,9 @@ public enum DiscourseResourceType implements ResourceType{
 		//Send the request
 		response = apiRequest.sendRequest();
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		userID2Value = null;
+		username2Value = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -426,7 +428,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -438,17 +440,14 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				userID2Value = jsonResponseBody.get("user_id").toString();
-				username2Value = username2;
+				try{
+					userID2Value = jsonResponseBody.get("user_id").toString();
+					username2Value = username2;
+				} catch(JSONException e){
+					userID2Value = null;
+					username2Value = null;
+				}
 			}
-			else{
-				userID2Value = null;
-				username2Value = null;
-			}
-		}
-		else{
-			userID2Value = null;
-			username2Value = null;
 		}
 
 		if((username1Value != null) && (username2Value != null)){
@@ -506,6 +505,9 @@ public enum DiscourseResourceType implements ResourceType{
 		//Send the request
 		Response response2 = apiRequest.sendRequest();
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		tagGroupIDValue = null;
+		tagValue = null;
 		if((response1 != null) && (response2 != null)){
 			String stringResponseBody = null;
 			try {
@@ -514,7 +516,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response2.close();
 
 			JSONObject jsonResponseBody = null;
@@ -526,17 +528,14 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
-				tagValue = tag1;
+				try{
+					tagGroupIDValue = jsonResponseBody.getJSONObject("tag_group").get("id").toString();
+					tagValue = tag1;
+				} catch(JSONException e){
+					tagGroupIDValue = null;
+					tagValue = null;
+				}
 			}
-			else{
-				tagGroupIDValue = null;
-				tagValue = null;
-			}
-		}
-		else{
-			tagGroupIDValue = null;
-			tagValue = null;
 		}
 	}
 
@@ -547,7 +546,7 @@ public enum DiscourseResourceType implements ResourceType{
 			uploadAvatarIDValue = null;
 			return;
 		}
-		
+
 		String endpoint = "/uploads.json";
 
 		InputStream url = getClass().getResourceAsStream("/mario_rossi.jpeg");
@@ -595,6 +594,8 @@ public enum DiscourseResourceType implements ResourceType{
 			e.printStackTrace();
 		}
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		uploadAvatarIDValue = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -603,7 +604,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -615,14 +616,12 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				uploadAvatarIDValue = jsonResponseBody.get("id").toString();
+				try{
+					uploadAvatarIDValue = jsonResponseBody.get("id").toString();
+				} catch(JSONException e){
+					uploadAvatarIDValue = null;
+				}
 			}
-			else{
-				uploadAvatarIDValue = null;
-			}
-		}
-		else{
-			uploadAvatarIDValue = null;
 		}
 	}
 
@@ -647,6 +646,9 @@ public enum DiscourseResourceType implements ResourceType{
 		//Send the request
 		Response response = apiRequest.sendRequest();
 
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		groupIDValue = null;
+		groupValue = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -655,7 +657,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -667,19 +669,15 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
-				groupValue = group_name;
-			}
-			else{
-				groupIDValue = null;
-				groupValue = null;
+				try{
+					groupIDValue = jsonResponseBody.getJSONObject("basic_group").get("id").toString();
+					groupValue = group_name;
+				} catch(JSONException e){
+					groupIDValue = null;
+					groupValue = null;
+				}
 			}
 		}
-		else{
-			groupIDValue = null;
-			groupValue = null;
-		}
-
 	}
 
 	private void generatePostDiscoursePreConditionValues(String baseURL, String apiUsername, String apiKey){		
@@ -689,7 +687,7 @@ public enum DiscourseResourceType implements ResourceType{
 			postIDValue = null;
 			return;
 		}
-		
+
 		//Create new post
 		HTTPMethod method = HTTPMethod.POST;
 		String endpoint = "/posts.json";
@@ -712,7 +710,9 @@ public enum DiscourseResourceType implements ResourceType{
 
 		//Send the request
 		Response response = apiRequest.sendRequest();
-		
+
+		//I valori sono impostati a null di default; se l'API è andata a buon fine, vengono sovrascritti con i valori giusti
+		postIDValue = null;
 		if(response != null){
 			String stringResponseBody = null;
 			try {
@@ -721,7 +721,7 @@ public enum DiscourseResourceType implements ResourceType{
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			response.close();
 
 			JSONObject jsonResponseBody = null;
@@ -733,16 +733,13 @@ public enum DiscourseResourceType implements ResourceType{
 			}
 
 			if(jsonResponseBody != null){
-				postIDValue = jsonResponseBody.get("id").toString();
-			}
-			else{
-				postIDValue = null;
+				try{
+					postIDValue = jsonResponseBody.get("id").toString();
+				} catch(JSONException e){
+					postIDValue = null;
+				}
 			}
 		}
-		else{
-			postIDValue = null;
-		}
-
 	}
 
 }

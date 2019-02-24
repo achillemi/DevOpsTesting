@@ -15,6 +15,7 @@ import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.Frame;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.Param;
+import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
@@ -207,13 +208,16 @@ public class Test {
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
 		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
-//
-//		FrameMap frameMap = generateFramesForSecondStrategy(appFactory,frameMapFilePath);
-//
-//		frameMap.writeToCSVFile(frameMapFilePath);
 		
-		ArrayList<Double> prova = new ArrayList<Double>();
-		prova.add(0.1);
+		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
+		
+		testingStrategy.computeNewProbSelectionDistribution(true);
+		
+		ResponseLogList testResponseLogList = appFactory.makeResponseLogList("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimento_23022019_165814/test_responses/test_response_log_list_cycle2.csv");
+		
+		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
+		
+		System.out.println(reliabilityEstimator.computeReliability(testResponseLogList));
 		
 	}
 

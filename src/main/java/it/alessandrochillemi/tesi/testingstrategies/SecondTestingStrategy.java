@@ -13,53 +13,38 @@ public class SecondTestingStrategy extends TestingStrategy {
 
 	private ArrayList<Double> estimatedProbSelectionDistribution;
 	private ArrayList<Double> newTestingProbSelectionDistribution;
-	private ArrayList<Double> newUserProbSelectionDistribution;	
 
 	public SecondTestingStrategy(FrameMap frameMap){
 		super(frameMap);
 
 		estimatedProbSelectionDistribution = new ArrayList<Double>();
 		newTestingProbSelectionDistribution = new ArrayList<Double>();
-		newUserProbSelectionDistribution = new ArrayList<Double>();
 	}
 
 	//Aggiorno la distribuzione della probabilità di selezione in modo che per il frame i-esimo sia pari a p(i)*f(i)
 	public void computeNewProbSelectionDistribution(boolean testingProfile){
-		ArrayList<Double> probSelectionDistribution = null;
-		ArrayList<Double> probFailureDistribution = null;
-		
-		//Se testingProfile == true, uso le distribuzioni di probabilità stimate (ovvero il profilo di testing)
+		//Se testingProfile == true aggiorno la probabilità di selezione, altrimenti non è necessario (p_vera rimane invariata)
 		if(testingProfile){
-			probSelectionDistribution = frameMap.getProbSelectionDistribution();
-			probFailureDistribution = frameMap.getProbFailureDistribution();
+			//Ottengo le probabilità di selezione e fallimento stimate
+			ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();;
+			ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
 
 			//Memorizzo la distribuzione di probabilità di selezione stimata
 			this.estimatedProbSelectionDistribution = probSelectionDistribution;
-		}
-		//Se testingProfile == false, uso le distribuzioni di probabilità vere (ovvero il profilo utente)
-		else{
-			probSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
-			probFailureDistribution = frameMap.getTrueProbFailureDistribution();
-		}
 
-		//Ottengo una nuova distribuzione di probabilità in cui l'elemento i-esimo è pari a p(i)*f(i)
-		ArrayList<Double> newProbSelectionDistribution = new ArrayList<Double>();
+			//Ottengo una nuova distribuzione di probabilità in cui l'elemento i-esimo è pari a p(i)*f(i)
+			ArrayList<Double> newProbSelectionDistribution = new ArrayList<Double>();
 
-		for(int i = 0; i<probFailureDistribution.size(); i++){
-			Double d = probSelectionDistribution.get(i)*probFailureDistribution.get(i);
-			newProbSelectionDistribution.add(d);
-		}
+			for(int i = 0; i<probFailureDistribution.size(); i++){
+				Double d = probSelectionDistribution.get(i)*probFailureDistribution.get(i);
+				newProbSelectionDistribution.add(d);
+			}
 
-		//Normalizzo la nuova distribuzione di probabilità appena calcolata
-		DoubleUtils.normalize(newProbSelectionDistribution);
+			//Normalizzo la nuova distribuzione di probabilità appena calcolata
+			DoubleUtils.normalize(newProbSelectionDistribution);
 
-		//Se testingProfile == true, la nuova distribuzione di probabilità appena calcolata va usata per il testing
-		if(testingProfile){
+			//Memorizzo la nuova distribuzione di probabilità appena calcolata
 			this.newTestingProbSelectionDistribution = newProbSelectionDistribution;
-		}
-		//Se testingProfile == false, la nuova distribuzione di probabilità appena calcolata va usata per la generazione del workload
-		else{
-			this.newUserProbSelectionDistribution = newProbSelectionDistribution;
 		}
 	}
 
@@ -70,9 +55,9 @@ public class SecondTestingStrategy extends TestingStrategy {
 		if(testingProfile){
 			newProbSelectionDistribution = this.newTestingProbSelectionDistribution;
 		}
-		//Altrimenti, uso la nuova distribuzione di probabilità per l'utente
+		//Altrimenti, uso la p_vera
 		else{
-			newProbSelectionDistribution = this.newUserProbSelectionDistribution;
+			newProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
 		}
 
 		//Seleziono il frame secondo la nuova distribuzione di probabilità
