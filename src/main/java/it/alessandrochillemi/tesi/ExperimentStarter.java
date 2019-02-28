@@ -133,6 +133,11 @@ public class ExperimentStarter {
 		for(int i = 0; i<NCYCLES; i++){
 			System.out.println("\nCiclo " + (i+1) + " avviato");
 			
+			//Salvo la frameMap relativa a questo ciclo
+			String newFrameMapFileName = "frameMap_cycle"+(i+1)+".csv";
+			String newFrameMapFilePath = Paths.get(responseDirectoryString, newFrameMapFileName).toString();
+			frameMap.writeToCSVFile(newFrameMapFilePath);
+			
 			//Eseguo NTESTS test selezionando i frame dalla frame map ottenuta e ottengo le risposte
 			ResponseLogList testResponseLogList = testGenerator.generateTests(baseURL, apiUsername, apiKey, frameMap, NTESTS, applicationFactory);
 		

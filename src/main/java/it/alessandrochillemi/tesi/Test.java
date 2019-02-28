@@ -101,7 +101,7 @@ public class Test {
 		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
 
 		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);
+		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.7);
 		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 
 		//Calcolo reliability stimata (p(i)*f_vera(i) perché non ho le f_stimate(i) e non voglio fare un ciclo di test)
@@ -131,6 +131,7 @@ public class Test {
 		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
 		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
 		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		ArrayList<Double> trueProbCriticalFailureDistribution = frameMap.getTrueProbCriticalFailureDistribution();
 
 		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
 
@@ -138,8 +139,8 @@ public class Test {
 		System.out.println("Numero di frame: " + NFrames);
 
 		Double failProb = 0.0;
-		Double reliability = 0.0;
-		Double trueReliability = 0.0;
+		Double reliabilityForCriticalFailures = 0.0;
+		Double trueReliabilityForCriticalFailures = 0.0;
 
 		Locale currentLocale = Locale.ITALY;
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
@@ -152,7 +153,7 @@ public class Test {
 		DoubleUtils.normalize(probSelectionDistribution);
 		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
-		//Generazione probabilità di fallimento iniziale stimata (pari a |classi invalide|/|classi|)
+		//Generazione probabilità di fallimento iniziale stimata, sia normale che critica, pari a |classi invalide|/|classi|
 		for(int i = 0; i<NFrames; i++){
 			Frame frame = frameMap.readByKey(i);
 			Double nClasses = new Double(frame.getParamList().size());
@@ -170,32 +171,28 @@ public class Test {
 			}
 			
 			probFailureDistribution.set(i, invalidClassesProportion);
+			probCriticalFailureDistribution.set(i, invalidClassesProportion);
 		}
 		frameMap.setProbFailureDistribution(probFailureDistribution);
-
-		//Generazione probabilità di fallimento critica iniziale stimata (tutte pari a 0)
-		for(int i = 0; i<probCriticalFailureDistribution.size(); i++){
-			probCriticalFailureDistribution.set(i, 0.0);
-		}
 		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
 
 		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(probSelectionDistribution, 0.7, 0.99);
+		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.7);
 		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 
-		//Calcolo reliability stimata (p(i)*f(i))
+		//Calcolo reliability critica stimata (p(i)*f_critica_vera(i))
 		failProb = 0.0;
 		for(int i = 0; i<NFrames; i++){
-			failProb += probSelectionDistribution.get(i)*probFailureDistribution.get(i);
+			failProb += probSelectionDistribution.get(i)*trueProbCriticalFailureDistribution.get(i);
 		}	
-		reliability = 1d - failProb;
+		reliabilityForCriticalFailures = 1d - failProb;
 
-		//Calcolo reliability vera
-		trueReliability = testingStrategy.getTrueReliability();
+		//Calcolo reliability critica vera
+		trueReliabilityForCriticalFailures = testingStrategy.getTrueReliabilityForCriticalFailures();
 
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
+		System.out.println("TRUE RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+		System.out.println("ESTIMATED RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(reliabilityForCriticalFailures));
+		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliabilityForCriticalFailures-trueReliabilityForCriticalFailures)));
 
 		return frameMap;
 	}
@@ -207,18 +204,9 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		FrameMap frameMap = appFactory.makeFrameMap(frameMapFilePath);
+		FrameMap frameMap = generateFramesForSecondStrategy(appFactory, frameMapFilePath);
 		
-		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
-		
-		testingStrategy.computeNewProbSelectionDistribution(true);
-		
-		ResponseLogList testResponseLogList = appFactory.makeResponseLogList("/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimento_23022019_165814/test_responses/test_response_log_list_cycle2.csv");
-		
-		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
-		
-		System.out.println(reliabilityEstimator.computeReliability(testResponseLogList));
-		
+		frameMap.writeToCSVFile(frameMapFilePath);
 	}
 
 }
