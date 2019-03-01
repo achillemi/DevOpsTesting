@@ -151,6 +151,13 @@ public class Test {
 			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
 		}
 		DoubleUtils.normalize(probSelectionDistribution);
+		
+//		//Generazione probabilità di selezione iniziale stimata (uniforme)
+//		Double uniformValue = 1.0/(new Double(NFrames));
+//		for(int i = 0; i<probSelectionDistribution.size(); i++){
+//			probSelectionDistribution.set(i, uniformValue);
+//		}
+		
 		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
 		//Generazione probabilità di fallimento iniziale stimata, sia normale che critica, pari a |classi invalide|/|classi|
@@ -177,7 +184,7 @@ public class Test {
 		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
 
 		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.7);
+		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.3);
 		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 
 		//Calcolo reliability critica stimata (p(i)*f_critica_vera(i))
@@ -198,7 +205,6 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-
 		//Carico le variabili d'ambiente
 		loadEnvironment();
 

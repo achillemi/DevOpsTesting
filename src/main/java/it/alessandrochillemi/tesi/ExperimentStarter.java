@@ -111,6 +111,10 @@ public class ExperimentStarter {
 		String responseDirectoryString = Paths.get(experimentResponsesPath,new String("esperimento_" + timestamp)).toString();
 		File responseDirectory = new File(responseDirectoryString);
 		responseDirectory.mkdirs();
+
+		String newFrameMapDirectoryString = Paths.get(responseDirectoryString, "frameMaps").toString();
+		File newFrameMapDirectory = new File(newFrameMapDirectoryString);
+		newFrameMapDirectory.mkdirs();
 		
 		String testResponseDirectoryString = Paths.get(responseDirectoryString, "test_responses").toString();
 		File testResponseDirectory = new File(testResponseDirectoryString);
@@ -135,7 +139,7 @@ public class ExperimentStarter {
 			
 			//Salvo la frameMap relativa a questo ciclo
 			String newFrameMapFileName = "frameMap_cycle"+(i+1)+".csv";
-			String newFrameMapFilePath = Paths.get(responseDirectoryString, newFrameMapFileName).toString();
+			String newFrameMapFilePath = Paths.get(newFrameMapDirectoryString, newFrameMapFileName).toString();
 			frameMap.writeToCSVFile(newFrameMapFilePath);
 			
 			//Eseguo NTESTS test selezionando i frame dalla frame map ottenuta e ottengo le risposte
