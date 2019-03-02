@@ -16,7 +16,7 @@ import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
-import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
@@ -98,7 +98,7 @@ public class ExperimentStarter {
 		}
 		
 		//Scelgo la strategia di testing
-		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 		
 		//Creo un test generator
 		TestGenerator testGenerator = new TestGenerator(testingStrategy);
@@ -111,6 +111,10 @@ public class ExperimentStarter {
 		String responseDirectoryString = Paths.get(experimentResponsesPath,new String("esperimento_" + timestamp)).toString();
 		File responseDirectory = new File(responseDirectoryString);
 		responseDirectory.mkdirs();
+
+		String newFrameMapDirectoryString = Paths.get(responseDirectoryString, "frameMaps").toString();
+		File newFrameMapDirectory = new File(newFrameMapDirectoryString);
+		newFrameMapDirectory.mkdirs();
 		
 		String testResponseDirectoryString = Paths.get(responseDirectoryString, "test_responses").toString();
 		File testResponseDirectory = new File(testResponseDirectoryString);
@@ -132,6 +136,11 @@ public class ExperimentStarter {
 		
 		for(int i = 0; i<NCYCLES; i++){
 			System.out.println("\nCiclo " + (i+1) + " avviato");
+			
+			//Salvo la frameMap relativa a questo ciclo
+			String newFrameMapFileName = "frameMap_cycle"+(i+1)+".csv";
+			String newFrameMapFilePath = Paths.get(newFrameMapDirectoryString, newFrameMapFileName).toString();
+			frameMap.writeToCSVFile(newFrameMapFilePath);
 			
 			//Eseguo NTESTS test selezionando i frame dalla frame map ottenuta e ottengo le risposte
 			ResponseLogList testResponseLogList = testGenerator.generateTests(baseURL, apiUsername, apiKey, frameMap, NTESTS, applicationFactory);

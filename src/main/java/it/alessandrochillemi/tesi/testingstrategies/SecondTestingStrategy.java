@@ -27,7 +27,7 @@ public class SecondTestingStrategy extends TestingStrategy {
 		if(testingProfile){
 			//Ottengo le probabilità di selezione e fallimento stimate
 			ArrayList<Double> probSelectionDistribution = frameMap.getProbSelectionDistribution();;
-			ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
+			ArrayList<Double> probFailureDistribution = frameMap.getProbCriticalFailureDistribution();
 
 			//Memorizzo la distribuzione di probabilità di selezione stimata
 			this.estimatedProbSelectionDistribution = probSelectionDistribution;
