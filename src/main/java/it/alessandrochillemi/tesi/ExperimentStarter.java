@@ -16,7 +16,7 @@ import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
-import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
+import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
@@ -98,7 +98,7 @@ public class ExperimentStarter {
 		}
 		
 		//Scelgo la strategia di testing
-		TestingStrategy testingStrategy = new SecondTestingStrategy(frameMap);
+		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 		
 		//Creo un test generator
 		TestGenerator testGenerator = new TestGenerator(testingStrategy);

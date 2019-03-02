@@ -66,7 +66,7 @@ public class Test {
 		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
 		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
 		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
-		ArrayList<Double> trueProbFailureDistribution = frameMap.getTrueProbFailureDistribution();
+		ArrayList<Double> trueProbCriticalFailureDistribution = frameMap.getTrueProbCriticalFailureDistribution();
 
 		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
 
@@ -74,18 +74,25 @@ public class Test {
 		System.out.println("Numero di frame: " + NFrames);
 
 		Double failProb = 0.0;
-		Double reliability = 0.0;
-		Double trueReliability = 0.0;
+		Double reliabilityForCriticalFailures = 0.0;
+		Double trueReliabilityForCriticalFailures = 0.0;
 
 		Locale currentLocale = Locale.ITALY;
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
 		numberFormatter.setMinimumFractionDigits(16);
 
-		//Generazione probabilità di selezione iniziale stimata (casuale)
+//		//Generazione probabilità di selezione iniziale stimata (casuale)
+//		for(int i = 0; i<probSelectionDistribution.size(); i++){
+//			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
+//		}
+//		DoubleUtils.normalize(probSelectionDistribution);
+		
+		//Generazione probabilità di selezione iniziale stimata (uniforme)
+		Double uniformValue = 1.0/(new Double(NFrames));
 		for(int i = 0; i<probSelectionDistribution.size(); i++){
-			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
+			probSelectionDistribution.set(i, uniformValue);
 		}
-		DoubleUtils.normalize(probSelectionDistribution);
+		
 		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
 		//Generazione probabilità di fallimento iniziale stimata (tutte pari a 0)
@@ -101,22 +108,22 @@ public class Test {
 		frameMap.setProbCriticalFailureDistribution(probCriticalFailureDistribution);
 
 		//Generazione probabilità di selezione vera (variazione della probabilità di selezione stimata)
-		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.7);
+		trueProbSelectionDistribution = TrueProbSelectionGenerator.generateNewProbDistribution(frameMap, 0.3);
 		frameMap.setTrueProbSelectionDistribution(trueProbSelectionDistribution);
 
-		//Calcolo reliability stimata (p(i)*f_vera(i) perché non ho le f_stimate(i) e non voglio fare un ciclo di test)
+		//Calcolo reliability critica stimata (p(i)*f_critica_vera(i) perché non ho le f_stimate(i) e non voglio fare un ciclo di test)
 		failProb = 0.0;
 		for(int i = 0; i<NFrames; i++){
-			failProb += probSelectionDistribution.get(i)*trueProbFailureDistribution.get(i);
+			failProb += probSelectionDistribution.get(i)*trueProbCriticalFailureDistribution.get(i);
 		}	
-		reliability = 1d - failProb;
+		reliabilityForCriticalFailures = 1d - failProb;
 
-		//Calcolo reliability vera
-		trueReliability = testingStrategy.getTrueReliability();
+		//Calcolo reliability critica vera
+		trueReliabilityForCriticalFailures = testingStrategy.getTrueReliabilityForCriticalFailures();
 
-		System.out.println("TRUE RELIABILITY: " + numberFormatter.format(trueReliability));
-		System.out.println("ESTIMATED RELIABILITY: " + numberFormatter.format(reliability));
-		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliability-trueReliability)));
+		System.out.println("TRUE RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+		System.out.println("ESTIMATED RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(reliabilityForCriticalFailures));
+		System.out.println("RELIABILITY OFFSET: " + numberFormatter.format(Math.abs(reliabilityForCriticalFailures-trueReliabilityForCriticalFailures)));
 
 		return frameMap;
 	}
@@ -210,7 +217,7 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		FrameMap frameMap = generateFramesForSecondStrategy(appFactory, frameMapFilePath);
+		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, frameMapFilePath);
 		
 		frameMap.writeToCSVFile(frameMapFilePath);
 	}
