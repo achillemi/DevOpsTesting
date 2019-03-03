@@ -217,9 +217,40 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, frameMapFilePath);
+		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimento_02032019_080016/frameMaps/frameMap_cycle7.csv";
 		
-		frameMap.writeToCSVFile(frameMapFilePath);
+//		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, path);
+		
+		FrameMap frameMap = appFactory.makeFrameMap(path);
+		
+		int NFrames = frameMap.size();
+		
+		ArrayList<Double> estimatedProbSelection = frameMap.getProbSelectionDistribution();
+		ArrayList<Double> trueProbSelection = frameMap.getTrueProbSelectionDistribution();
+		ArrayList<Double> trueProbCriticalFailure = frameMap.getTrueProbCriticalFailureDistribution();
+		
+		//Calcolo reliability critica stimata (p_stimata(i)*f_critica_vera(i))
+		Double failProb = 0.0;
+		for(int i = 0; i<NFrames; i++){
+			failProb += estimatedProbSelection.get(i)*trueProbCriticalFailure.get(i);
+		}	
+		Double reliabilityForCriticalFailures = 1d - failProb;
+		
+		//Calcolo reliability critica vera (p_vera(i)*f_critica_vera(i))
+		failProb = 0.0;
+		for(int i = 0; i<NFrames; i++){
+			failProb += trueProbSelection.get(i)*trueProbCriticalFailure.get(i);
+		}	
+		Double trueReliabilityForCriticalFailures = 1d - failProb;
+		
+		Locale currentLocale = Locale.ITALY;
+		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
+		numberFormatter.setMinimumFractionDigits(16);
+		
+		System.out.println("ESTIMATED RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(reliabilityForCriticalFailures));
+		System.out.println("TRUE RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+		
+//		frameMap.writeToCSVFile(frameMapFilePath);
 	}
 
 }
