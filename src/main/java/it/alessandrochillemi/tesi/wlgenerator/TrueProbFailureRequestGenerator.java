@@ -107,10 +107,12 @@ public class TrueProbFailureRequestGenerator {
 
 				int responseCode = 0;
 				String responseMessage = "";
+				long responseTime = 0;
 				//Se la richiesta è andata a buon fine, salvo i risultati e chiudo la risposta
 				if(response != null){
 					responseCode = response.code();
 					responseMessage = response.message();
+					responseTime = response.receivedResponseAtMillis() - response.sentRequestAtMillis();
 					response.close();  
 				}
 				//Se non è andata a buon fine, la considero un fallimento dell'applicazione e lascio vuoto il messaggio di risposta
@@ -120,7 +122,7 @@ public class TrueProbFailureRequestGenerator {
 				}
 
 				//Salvo la risposta nella ResponseLogList
-				ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(i, 10), responseCode, responseMessage, apiRequest.getParamList());
+				ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(i, 10), responseCode, responseMessage, responseTime, apiRequest.getParamList());
 
 				responseLogList.add(responseLog);
 			}

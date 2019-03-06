@@ -13,7 +13,7 @@ public abstract class ApplicationFactory {
 	
 	//ResponseLog factory methods
 	public abstract ResponseLog makeResponseLog();
-	public abstract ResponseLog makeResponseLog(String frameID, Integer responseCode, String responseMessage, ArrayList<Param> paramList);
+	public abstract ResponseLog makeResponseLog(String frameID, Integer responseCode, String responseMessage, long responseTime, ArrayList<Param> paramList);
 	public abstract ResponseLog makeResponseLog(CSVRecord record);
 	
 	//ResponseLogList factory methods

@@ -35,8 +35,8 @@ public class DiscourseFactory extends ApplicationFactory {
 	}
 
 	@Override
-	public ResponseLog makeResponseLog(String frameID, Integer responseCode, String responseMessage, ArrayList<Param> paramList) {
-		return new ResponseLog(new DiscourseSpecifics(),frameID,responseCode,responseMessage,paramList);
+	public ResponseLog makeResponseLog(String frameID, Integer responseCode, String responseMessage, long responseTime, ArrayList<Param> paramList) {
+		return new ResponseLog(new DiscourseSpecifics(),frameID,responseCode,responseMessage,responseTime,paramList);
 	}
 
 	@Override
