@@ -18,6 +18,7 @@ public class ResponseLog implements Serializable{
 	private String frameID;									//ID del Frame a cui si riferisce questa risposta
 	private Integer responseCode;							//Codice di risposta della richiesta HTTP
 	private String responseMessage;							//Messaggio di risposta della richiesta HTTP
+	private long responseTime;								//Tempo di risposta in ms (istante appena dopo la ricezione - istante appena prima dell'invio)
 	private ArrayList<Param> paramList;						//Lista di parametri usati nella richiesta
 
 	private static final long serialVersionUID = 7679179561832569179L;
@@ -27,11 +28,12 @@ public class ResponseLog implements Serializable{
 		this.paramList = new ArrayList<Param>();
 	}
 
-	public ResponseLog(ApplicationSpecifics applicationSpecifics, String frameID, Integer responseCode, String responseMessage, /*String responseBody,*/ ArrayList<Param> paramList) {
+	public ResponseLog(ApplicationSpecifics applicationSpecifics, String frameID, Integer responseCode, String responseMessage, long responseTime, ArrayList<Param> paramList) {
 		this.applicationSpecifics = applicationSpecifics;
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
+		this.responseTime = responseTime;
 		this.paramList = paramList;
 	}
 
@@ -52,20 +54,33 @@ public class ResponseLog implements Serializable{
 	public String getFrameID() {
 		return frameID;
 	}
+	
 	public void setFrameID(String frameID) {
 		this.frameID = frameID;
 	}
+	
 	public Integer getResponseCode() {
 		return responseCode;
 	}
+	
 	public void setResponseCode(Integer responseCode) {
 		this.responseCode = responseCode;
 	}
+	
 	public String getResponseMessage() {
 		return responseMessage;
 	}
+	
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
+	}
+
+	public long getResponseTime() {
+		return responseTime;
+	}
+
+	public void setResponseTime(long responseTime) {
+		this.responseTime = responseTime;
 	}
 
 	public ArrayList<Param> getParamList() {
@@ -87,6 +102,7 @@ public class ResponseLog implements Serializable{
 		System.out.println("FRAME ID: " + frameID);
 		System.out.println("RESPONSE CODE: " + responseCode);
 		System.out.println("RESPONSE MESSAGE: " + responseMessage);
+		System.out.println("RESPONSE TIME: " + responseTime);
 		System.out.println("PARAMETERS: ");
 		for(int i=0; i<paramList.size(); i++){
 			System.out.print("\nPARAMETER " + (i+1) + ":");
@@ -98,10 +114,11 @@ public class ResponseLog implements Serializable{
 	 *	perché i campi del CSV vanno letti usando l'EquivalenceClass e il TypeParam appropriati.
 	 */ 
 	public void readFromCSVRow(CSVRecord record){
-		//Read Frame ID, Response Code and Response Message
+		//Read Frame ID, Response Code, Response Message and Response Time
 		String frameID = record.get("FRAME_ID");
 		int responseCode = Integer.parseInt(record.get("RESPONSE_CODE"));
 		String responseMessage = record.get("RESPONSE_MESSAGE");
+		long responseTime = Long.parseLong(record.get("RESPONSE_TIME"));
 
 		//Create a list of Params from the values of the row
 		ArrayList<Param> paramList = new ArrayList<Param>();
@@ -136,14 +153,16 @@ public class ResponseLog implements Serializable{
 		this.frameID = frameID;
 		this.responseCode = responseCode;
 		this.responseMessage = responseMessage;
+		this.responseTime = responseTime;
 		this.paramList = paramList;
 	}
 
-	//	Scrive i campi del ResponseLog su una riga di un file CSV
+	//Scrive i campi del ResponseLog su una riga di un file CSV
 	public void writeToCSVRow(CSVPrinter csvPrinter){
 		String frameID = getFrameID();
 		int responseCode = getResponseCode();
 		String responseMessage = getResponseMessage();
+		long responseTime = getResponseTime();
 
 		ArrayList<String> paramKeys = new ArrayList<String>();
 		ArrayList<String> paramTypes = new ArrayList<String>();
@@ -180,7 +199,7 @@ public class ResponseLog implements Serializable{
 		}
 
 		try {
-			csvPrinter.printRecord(frameID, responseCode,responseMessage,
+			csvPrinter.printRecord(frameID, responseCode,responseMessage,responseTime,
 					paramKeys.get(0), paramTypes.get(0), paramClasses.get(0), paramPositions.get(0), paramResourceTypes.get(0), paramIsRequireds.get(0), paramValidValues.get(0),
 					paramKeys.get(1), paramTypes.get(1), paramClasses.get(1), paramPositions.get(1), paramResourceTypes.get(1), paramIsRequireds.get(1), paramValidValues.get(1),
 					paramKeys.get(2), paramTypes.get(2), paramClasses.get(2), paramPositions.get(2), paramResourceTypes.get(2), paramIsRequireds.get(2), paramValidValues.get(2),
