@@ -1,6 +1,5 @@
 package it.alessandrochillemi.tesi;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,40 +22,44 @@ import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 public class ExperimentStarter {
 	
 	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
+	public static String EXPERIMENT_DIRECTORY_PATH;
 	
 	//Numero di cicli di test da effettuare
-	public static int NCYCLES = 5;
+	public static int NCYCLES;
 	
 	//Numero di test da eseguire a ogni ciclo
-	public static int NTESTS = 1000;
+	public static int NTESTS;
 	
 	//Numero di richieste da inviare a ogni ciclo
-	public static int NREQUESTS = 5000;
+	public static int NREQUESTS;
 	
 	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
 	public static Double LEARNING_RATE = 0.5;
 
 	private static String frameMapFilePath;
-	private static String experimentResponsesPath;
+	private static String newFrameMapDirectoryString;
+	private static String testResponseDirectoryString;
+	private static String userResponseDirectoryString;
+	
 	private static String baseURL;
 	private static String apiUsername;
 	private static String apiKey;
 
-	private static void loadEnvironment(String[] args){
+	private static int loadEnvironment(String[] args){
 		
 		//Carico i parametri inseriti dall'utente
 		NCYCLES = Integer.valueOf(args[0]);
 		NTESTS = Integer.valueOf(args[1]);
 		NREQUESTS = Integer.valueOf(args[2]);
 		LEARNING_RATE = Double.valueOf(args[3]);
-		ENVIRONMENT_FILE_PATH = args[4];
+		EXPERIMENT_DIRECTORY_PATH = args[4];
 		
 		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
+		String environmentFilePath = Paths.get(EXPERIMENT_DIRECTORY_PATH,"env.properties").toString();
 		Properties environment = new Properties();
 		InputStream is = null;
 		try {
-			is = new FileInputStream(ENVIRONMENT_FILE_PATH);
+			is = new FileInputStream(environmentFilePath);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -67,11 +70,39 @@ public class ExperimentStarter {
 		}
 
 		//Leggo le variabili d'ambiente
-		frameMapFilePath = environment.getProperty("frame_map_file_path");
-		experimentResponsesPath = environment.getProperty("experiment_responses_path");
 		baseURL = environment.getProperty("base_url");
 		apiUsername = environment.getProperty("api_username");
 		apiKey = environment.getProperty("api_key");
+		
+		//Ricavo il path per la Frame Map; se non esiste, chiudo il programma
+		frameMapFilePath = Paths.get(EXPERIMENT_DIRECTORY_PATH,"frames.csv").toString();
+		if(!Files.exists(Paths.get(frameMapFilePath))){
+			System.out.println("\nFrame Map non trovata!");
+			return -1;
+		}
+		
+		//Ricavo il path per la directory nella quale salvare le nuove frame map; se non esiste, chiudo il programma
+		newFrameMapDirectoryString = Paths.get(EXPERIMENT_DIRECTORY_PATH, "frameMaps").toString();
+		if(!Files.exists(Paths.get(newFrameMapDirectoryString))){
+			System.out.println("\nDirectory \"frameMaps\" non trovata!");
+			return -1;
+		}
+		
+		//Ricavo il path per la directory nella quale salvare le risposte ai test; se non esiste, chiudo il programma
+		testResponseDirectoryString = Paths.get(EXPERIMENT_DIRECTORY_PATH, "test_responses").toString();
+		if(!Files.exists(Paths.get(testResponseDirectoryString))){
+			System.out.println("\nDirectory \"test_responses\" non trovata!");
+			return -1;
+		}
+		
+		//Ricavo il path per la directory nella quale salvare le risposte alle richieste; se non esiste, chiudo il programma
+		userResponseDirectoryString = Paths.get(EXPERIMENT_DIRECTORY_PATH, "user_responses").toString();
+		if(!Files.exists(Paths.get(userResponseDirectoryString))){
+			System.out.println("\nDirectory \"user_responses\" non trovata!");
+			return -1;
+		}
+		
+		return 0;
 	}
 
 	public static void main(String[] args) {
@@ -82,20 +113,18 @@ public class ExperimentStarter {
 		}
 		
 		//Carico le variabili d'ambiente
-		loadEnvironment(args);
+		if(loadEnvironment(args)>=0){
+			System.out.println("\nParametri caricati!");
+		}
+		else{
+			return;
+		}
 		
 		//Creo una ApplicationFactory per l'applicazione desiderata
 		ApplicationFactory applicationFactory = new DiscourseFactory();
-			
-		FrameMap frameMap = null;
-		//Carico la frame map; se il file non esiste, esco dal programma
-		if(Files.exists(Paths.get(frameMapFilePath))){
-			frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
-		}
-		else{
-			System.out.println("\nFrame Map non trovata!");
-			return;
-		}
+		
+		//Carico la frame map
+		FrameMap frameMap = applicationFactory.makeFrameMap(frameMapFilePath);
 		
 		//Scelgo la strategia di testing
 		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
@@ -106,23 +135,11 @@ public class ExperimentStarter {
 		//Creo un workload generator
 		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);
 		
-		//Creo la directory e le sottodirectory nelle quali salvo le risposte
-		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
-		String responseDirectoryString = Paths.get(experimentResponsesPath,new String("esperimento_" + timestamp)).toString();
-		File responseDirectory = new File(responseDirectoryString);
-		responseDirectory.mkdirs();
-
-		String newFrameMapDirectoryString = Paths.get(responseDirectoryString, "frameMaps").toString();
-		File newFrameMapDirectory = new File(newFrameMapDirectoryString);
-		newFrameMapDirectory.mkdirs();
-		
-		String testResponseDirectoryString = Paths.get(responseDirectoryString, "test_responses").toString();
-		File testResponseDirectory = new File(testResponseDirectoryString);
-		testResponseDirectory.mkdirs();
-		
-		String userResponseDirectoryString = Paths.get(responseDirectoryString, "user_responses").toString();
-		File userResponseDirectory = new File(userResponseDirectoryString);
-		userResponseDirectory.mkdirs();	
+//		//Creo la directory e le sottodirectory nelle quali salvo le risposte
+//		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
+//		String responseDirectoryString = Paths.get(experimentResponsesPath,new String("esperimento_" + timestamp)).toString();
+//		File responseDirectory = new File(responseDirectoryString);
+//		responseDirectory.mkdirs();
 		
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
@@ -134,11 +151,14 @@ public class ExperimentStarter {
 		//Creo un monitor
 		Monitor monitor = new Monitor();
 		
+		//Creo un timestamp per identificare univocamente i file che salverò
+		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
+		
 		for(int i = 0; i<NCYCLES; i++){
 			System.out.println("\nCiclo " + (i+1) + " avviato");
 			
 			//Salvo la frameMap relativa a questo ciclo
-			String newFrameMapFileName = "frameMap_cycle"+(i+1)+".csv";
+			String newFrameMapFileName = "frameMap_cycle"+(i+1)+"_"+timestamp+".csv";
 			String newFrameMapFilePath = Paths.get(newFrameMapDirectoryString, newFrameMapFileName).toString();
 			frameMap.writeToCSVFile(newFrameMapFilePath);
 			
@@ -146,7 +166,7 @@ public class ExperimentStarter {
 			ResponseLogList testResponseLogList = testGenerator.generateTests(baseURL, apiUsername, apiKey, frameMap, NTESTS, applicationFactory);
 		
 			//Salvo le risposte ai test su un file
-			String testResponseLogListFileName = "test_response_log_list_cycle"+(i+1)+".csv";
+			String testResponseLogListFileName = "test_response_log_list_cycle"+(i+1)+"_"+timestamp+".csv";
 			String testResponseLogListFilePath = Paths.get(testResponseDirectoryString, testResponseLogListFileName).toString();
 			testResponseLogList.writeToCSVFile(testResponseLogListFilePath);			
 			System.out.println("\nTest eseguiti");
@@ -157,13 +177,13 @@ public class ExperimentStarter {
 			System.out.println("\nReliability calcolata");
 			
 			//Aggiorno il file contenente le reliability calcolate finora
-			reliabilityEstimator.appendToFile(Paths.get(responseDirectoryString,"reliability.csv").toString());
+			reliabilityEstimator.appendToFile(Paths.get(EXPERIMENT_DIRECTORY_PATH,"reliability.csv").toString());
 			
 			//Eseguo NREQUESTS richieste selezionando i frame dalla frame map e ottengo le risposte
 			ResponseLogList userResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, NREQUESTS, applicationFactory);
 			
 			//Salvo le risposte alle richieste su un file
-			String userResponseLogListFileName = "user_response_log_list_cycle"+(i+1)+".csv";
+			String userResponseLogListFileName = "user_response_log_list_cycle"+(i+1)+"_"+timestamp+".csv";
 			String userResponseLogListFilePath = Paths.get(userResponseDirectoryString, userResponseLogListFileName).toString();
 			userResponseLogList.writeToCSVFile(userResponseLogListFilePath);			
 			System.out.println("\nRichieste eseguite");
@@ -182,6 +202,9 @@ public class ExperimentStarter {
 			frameMap.setProbSelectionDistribution(newProbSelectionDistribution);
 			frameMap.setProbFailureDistribution(newProbFailureDistribution);
 			frameMap.setProbCriticalFailureDistribution(newProbCriticalFailureDistribution);
+			
+			//Salvo la Frame Map con le nuove distribuzioni
+			frameMap.writeToCSVFile(frameMapFilePath);
 		}
 		
 		System.out.println("\nTesting terminato!");
