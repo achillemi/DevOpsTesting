@@ -1,6 +1,5 @@
-package it.alessandrochillemi.tesi.wlgenerator;
+package it.alessandrochillemi.tesi;
 
-import it.alessandrochillemi.tesi.APIRequest;
 import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.Frame;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;

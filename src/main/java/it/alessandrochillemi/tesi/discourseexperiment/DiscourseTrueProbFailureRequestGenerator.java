@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi.wlgenerator;
+package it.alessandrochillemi.tesi.discourseexperiment;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,26 +20,28 @@ import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 import okhttp3.Response;
 
 //Genera la distribuzione di probabilità di fallimento vera eseguendo N richieste per ogni frame e registrando la proporzione di esse che falliscono
-public class TrueProbFailureRequestGenerator {
+public class DiscourseTrueProbFailureRequestGenerator {
 
 	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static String ENVIRONMENT_FILE_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/environment.properties";
+	public static String EXPERIMENT_DIRECTORY_PATH = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/";
 
 	//Numero di richieste da eseguire per ogni frame
 	public static int NREQUESTS = 5;
 
 	private static String frameMapFilePath;
+	
 	private static String baseURL;
 	private static String apiUsername;
 	private static String apiKey;
 
-	private static void loadEnvironment(){
+	private static int loadEnvironment(){
 
 		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
+		String environmentFilePath = Paths.get(EXPERIMENT_DIRECTORY_PATH,"env.properties").toString();
 		Properties environment = new Properties();
 		InputStream is = null;
 		try {
-			is = new FileInputStream(ENVIRONMENT_FILE_PATH);
+			is = new FileInputStream(environmentFilePath);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -50,10 +52,18 @@ public class TrueProbFailureRequestGenerator {
 		}
 
 		//Leggo le variabili d'ambiente
-		frameMapFilePath = environment.getProperty("frame_map_file_path");
 		baseURL = environment.getProperty("base_url");
 		apiUsername = environment.getProperty("api_username");
 		apiKey = environment.getProperty("api_key");
+		
+		//Ricavo il path per la Frame Map; se non esiste, chiudo il programma
+		frameMapFilePath = Paths.get(EXPERIMENT_DIRECTORY_PATH,"frames.csv").toString();
+		if(!Files.exists(Paths.get(frameMapFilePath))){
+			System.out.println("\nFrame Map non trovata!");
+			return -1;
+		}
+		
+		return 0;
 	}
 
 	public static void main(String[] args) {

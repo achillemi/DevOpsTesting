@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.discourseexperiment;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -10,7 +10,7 @@ import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 
 //Questa classe carica i valori di p_vera e f_vera da una FrameMap a un'altra; può essere usata per caricare i parametri di una nuova versione
 //dell'applicazione in una FrameMap esistente
-public class ApplicationVersionChanger {
+public class DiscourseVersionChanger {
 
 	public static void main(String[] args) {
 		if(args.length != 2){

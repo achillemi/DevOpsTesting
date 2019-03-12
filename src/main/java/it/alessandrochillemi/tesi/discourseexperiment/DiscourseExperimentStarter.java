@@ -1,4 +1,4 @@
-package it.alessandrochillemi.tesi;
+package it.alessandrochillemi.tesi.discourseexperiment;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -6,35 +6,39 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import it.alessandrochillemi.tesi.Monitor;
+import it.alessandrochillemi.tesi.ReliabilityEstimator;
+import it.alessandrochillemi.tesi.TestGenerator;
+import it.alessandrochillemi.tesi.WorkloadGenerator;
 import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
 import it.alessandrochillemi.tesi.frameutils.ResponseLogList;
 import it.alessandrochillemi.tesi.frameutils.discourse.DiscourseFactory;
 import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
-import it.alessandrochillemi.tesi.wlgenerator.WorkloadGenerator;
 
-public class ExperimentStarter {
+public class DiscourseExperimentStarter {
 	
-	//Percorso nel quale si trova il file con le variabili di ambiente
-	public static String EXPERIMENT_DIRECTORY_PATH;
-	
-	//Numero di cicli di test da effettuare
+	//Numero di cicli di test da effettuare (parametro obbligatorio definito dall'utente)
 	public static int NCYCLES;
 	
-	//Numero di test da eseguire a ogni ciclo
+	//Numero di test da eseguire a ogni ciclo (parametro obbligatorio definito dall'utente)
 	public static int NTESTS;
 	
-	//Numero di richieste da inviare a ogni ciclo
+	//Numero di richieste da inviare a ogni ciclo (parametro obbligatorio definito dall'utente)
 	public static int NREQUESTS;
 	
-	//Learning rate per l'aggiornamento delle distribuzioni di probabilità
+	//Learning rate per l'aggiornamento delle distribuzioni di probabilità (parametro obbligatorio definito dall'utente)
 	public static Double LEARNING_RATE = 0.5;
+	
+	//Percorso nel quale si trova il file con le variabili di ambiente (parametro obbligatorio definito dall'utente)
+	public static String EXPERIMENT_DIRECTORY_PATH;
+	
+	//Versione dell'applicazione che si sta testando (parametro opzionale definito dall'utente)
+	public static String VERSION = "vUNSPECIFIED";
 
 	private static String frameMapFilePath;
 	private static String newFrameMapDirectoryString;
@@ -53,6 +57,9 @@ public class ExperimentStarter {
 		NREQUESTS = Integer.valueOf(args[2]);
 		LEARNING_RATE = Double.valueOf(args[3]);
 		EXPERIMENT_DIRECTORY_PATH = args[4];
+		if(args[5] != null){
+			VERSION = args[5];
+		}
 		
 		//Carico le variabili d'ambiente (path della lista di testframe, api_key, api_username, ecc.)
 		String environmentFilePath = Paths.get(EXPERIMENT_DIRECTORY_PATH,"env.properties").toString();
@@ -151,14 +158,11 @@ public class ExperimentStarter {
 		//Creo un monitor
 		Monitor monitor = new Monitor();
 		
-		//Creo un timestamp per identificare univocamente i file che salverò
-		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
-		
 		for(int i = 0; i<NCYCLES; i++){
 			System.out.println("\nCiclo " + (i+1) + " avviato");
 			
 			//Salvo la frameMap relativa a questo ciclo
-			String newFrameMapFileName = "frameMap_cycle"+(i+1)+"_"+timestamp+".csv";
+			String newFrameMapFileName = "frameMap_cycle"+(i+1)+"_"+VERSION+".csv";
 			String newFrameMapFilePath = Paths.get(newFrameMapDirectoryString, newFrameMapFileName).toString();
 			frameMap.writeToCSVFile(newFrameMapFilePath);
 			
@@ -166,7 +170,7 @@ public class ExperimentStarter {
 			ResponseLogList testResponseLogList = testGenerator.generateTests(baseURL, apiUsername, apiKey, frameMap, NTESTS, applicationFactory);
 		
 			//Salvo le risposte ai test su un file
-			String testResponseLogListFileName = "test_response_log_list_cycle"+(i+1)+"_"+timestamp+".csv";
+			String testResponseLogListFileName = "test_response_log_list_cycle"+(i+1)+"_"+VERSION+".csv";
 			String testResponseLogListFilePath = Paths.get(testResponseDirectoryString, testResponseLogListFileName).toString();
 			testResponseLogList.writeToCSVFile(testResponseLogListFilePath);			
 			System.out.println("\nTest eseguiti");
@@ -183,7 +187,7 @@ public class ExperimentStarter {
 			ResponseLogList userResponseLogList = workloadGenerator.generateRequests(baseURL, apiUsername, apiKey, frameMap, NREQUESTS, applicationFactory);
 			
 			//Salvo le risposte alle richieste su un file
-			String userResponseLogListFileName = "user_response_log_list_cycle"+(i+1)+"_"+timestamp+".csv";
+			String userResponseLogListFileName = "user_response_log_list_cycle"+(i+1)+"_"+VERSION+".csv";
 			String userResponseLogListFilePath = Paths.get(userResponseDirectoryString, userResponseLogListFileName).toString();
 			userResponseLogList.writeToCSVFile(userResponseLogListFilePath);			
 			System.out.println("\nRichieste eseguite");

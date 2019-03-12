@@ -21,7 +21,7 @@ import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import it.alessandrochillemi.tesi.utils.DoubleUtils;
-import it.alessandrochillemi.tesi.wlgenerator.TrueProbSelectionGenerator;
+import it.alessandrochillemi.tesi.utils.TrueProbSelectionGenerator;
 
 @SuppressWarnings("unused")
 public class Test {
@@ -66,6 +66,8 @@ public class Test {
 		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
 		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
 		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		
+		//Carico la distribuzione di probabilità di fallimento per il calcolo della reliability vera
 		ArrayList<Double> trueProbCriticalFailureDistribution = frameMap.getTrueProbCriticalFailureDistribution();
 
 		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
@@ -81,17 +83,17 @@ public class Test {
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
 		numberFormatter.setMinimumFractionDigits(16);
 
-//		//Generazione probabilità di selezione iniziale stimata (casuale)
-//		for(int i = 0; i<probSelectionDistribution.size(); i++){
-//			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
-//		}
-//		DoubleUtils.normalize(probSelectionDistribution);
-		
-		//Generazione probabilità di selezione iniziale stimata (uniforme)
-		Double uniformValue = 1.0/(new Double(NFrames));
+		//Generazione probabilità di selezione iniziale stimata (casuale)
 		for(int i = 0; i<probSelectionDistribution.size(); i++){
-			probSelectionDistribution.set(i, uniformValue);
+			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
 		}
+		DoubleUtils.normalize(probSelectionDistribution);
+		
+//		//Generazione probabilità di selezione iniziale stimata (uniforme)
+//		Double uniformValue = 1.0/(new Double(NFrames));
+//		for(int i = 0; i<probSelectionDistribution.size(); i++){
+//			probSelectionDistribution.set(i, uniformValue);
+//		}
 		
 		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
@@ -217,7 +219,7 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/discourse_frames_second_strategy.csv";
+		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/frames.csv";
 		
 //		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, path);
 		
