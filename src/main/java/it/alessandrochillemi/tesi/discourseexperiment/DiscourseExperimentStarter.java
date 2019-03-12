@@ -114,7 +114,7 @@ public class DiscourseExperimentStarter {
 
 	public static void main(String[] args) {
 		
-		if(args.length != 5){
+		if(args.length < 5){
 			System.err.println("\nInserire tutti i parametri!");
 			return;
 		}
