@@ -142,12 +142,6 @@ public class DiscourseExperimentStarter {
 		//Creo un workload generator
 		WorkloadGenerator workloadGenerator = new WorkloadGenerator(testingStrategy);
 		
-//		//Creo la directory e le sottodirectory nelle quali salvo le risposte
-//		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
-//		String responseDirectoryString = Paths.get(experimentResponsesPath,new String("esperimento_" + timestamp)).toString();
-//		File responseDirectory = new File(responseDirectoryString);
-//		responseDirectory.mkdirs();
-		
 		//Creo uno stimatore della reliability
 		ReliabilityEstimator reliabilityEstimator = new ReliabilityEstimator(testingStrategy);
 		

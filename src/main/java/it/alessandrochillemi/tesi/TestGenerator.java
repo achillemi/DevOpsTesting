@@ -31,13 +31,13 @@ public class TestGenerator{
     	testingStrategy.computeNewProbSelectionDistribution(true);
     	
     	for(int i = 0; i<NTests; i++){
-    		System.out.println("\nTest " + (i+1) + "...");
+//    		System.out.println("\nTest " + (i+1) + "...");
     		
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     		int selectedFrame = testingStrategy.selectFrame(true);
 
     		//Leggo il frame con l'indice scelto
-    		System.out.println("Frame selezionato: " + selectedFrame);
+//    		System.out.println("Frame selezionato: " + selectedFrame);
     		Frame frame = frameMap.readByKey(selectedFrame);
 
     		//Genero i valori dei parametri applicando le precondizioni
@@ -74,6 +74,10 @@ public class TestGenerator{
     		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, responseTime, apiRequest.getParamList());
 
     		responseLogList.add(responseLog);
+    		
+    		if((i+1)%1000 == 0){
+    			System.out.println((i+1) + " test eseguiti!");
+    		}
     	}
     	
     	return responseLogList;

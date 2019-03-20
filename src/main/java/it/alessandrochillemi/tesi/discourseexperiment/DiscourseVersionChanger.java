@@ -38,13 +38,11 @@ public class DiscourseVersionChanger {
 		//Carico la Frame Map corrente
 		FrameMap currentFrameMap = applicationFactory.makeFrameMap(currentFrameMapFilePath);
 		
-		//Carico le distribuzioni di probabilità e di fallimento vere della nuova versione
-		ArrayList<Double> newTrueProbSelectionDistribution = newVersionFrameMap.getTrueProbSelectionDistribution();
+		//Carico le distribuzioni di fallimento vere della nuova versione
 		ArrayList<Double> newTrueProbFailureDistribution = newVersionFrameMap.getTrueProbFailureDistribution();
 		ArrayList<Double> newTrueProbCriticalFailureDistribution = newVersionFrameMap.getTrueProbCriticalFailureDistribution();
 		
-		//Imposto le distribuzioni di probabilità e di fallimento vere della versione corrente pari a quelle della nuova versione
-		currentFrameMap.setTrueProbSelectionDistribution(newTrueProbSelectionDistribution);
+		//Imposto le distribuzioni di fallimento vere della versione corrente pari a quelle della nuova versione
 		currentFrameMap.setTrueProbFailureDistribution(newTrueProbFailureDistribution);
 		currentFrameMap.setTrueProbCriticalFailureDistribution(newTrueProbCriticalFailureDistribution);
 		
