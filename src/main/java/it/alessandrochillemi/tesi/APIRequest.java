@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +103,9 @@ public class APIRequest{
 		ArrayList<Param> pathParamList = new ArrayList<Param>();
 		ArrayList<Param> queryParamList = new ArrayList<Param>();
 		ArrayList<Param> bodyParamList = new ArrayList<Param>();
+		
+		//Imposto il logging della libreria OkHTTP solo per eventi con elevato grado di severità
+		Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.SEVERE);
 		
 		//Suddivido tutti i parametri in body, path e query parameters
 		for(Param param : paramList){
