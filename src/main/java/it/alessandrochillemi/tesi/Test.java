@@ -21,7 +21,7 @@ import it.alessandrochillemi.tesi.testingstrategies.FirstTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.SecondTestingStrategy;
 import it.alessandrochillemi.tesi.testingstrategies.TestingStrategy;
 import it.alessandrochillemi.tesi.utils.DoubleUtils;
-import it.alessandrochillemi.tesi.wlgenerator.TrueProbSelectionGenerator;
+import it.alessandrochillemi.tesi.utils.TrueProbSelectionGenerator;
 
 @SuppressWarnings("unused")
 public class Test {
@@ -66,6 +66,8 @@ public class Test {
 		ArrayList<Double> probFailureDistribution = frameMap.getProbFailureDistribution();
 		ArrayList<Double> probCriticalFailureDistribution = frameMap.getProbCriticalFailureDistribution();
 		ArrayList<Double> trueProbSelectionDistribution = frameMap.getTrueProbSelectionDistribution();
+		
+		//Carico la distribuzione di probabilità di fallimento per il calcolo della reliability vera
 		ArrayList<Double> trueProbCriticalFailureDistribution = frameMap.getTrueProbCriticalFailureDistribution();
 
 		TestingStrategy testingStrategy = new FirstTestingStrategy(frameMap);
@@ -81,17 +83,17 @@ public class Test {
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
 		numberFormatter.setMinimumFractionDigits(16);
 
-//		//Generazione probabilità di selezione iniziale stimata (casuale)
-//		for(int i = 0; i<probSelectionDistribution.size(); i++){
-//			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
-//		}
-//		DoubleUtils.normalize(probSelectionDistribution);
-		
-		//Generazione probabilità di selezione iniziale stimata (uniforme)
-		Double uniformValue = 1.0/(new Double(NFrames));
+		//Generazione probabilità di selezione iniziale stimata (casuale)
 		for(int i = 0; i<probSelectionDistribution.size(); i++){
-			probSelectionDistribution.set(i, uniformValue);
+			probSelectionDistribution.set(i, RandomUtils.nextDouble(0,1.0));
 		}
+		DoubleUtils.normalize(probSelectionDistribution);
+		
+//		//Generazione probabilità di selezione iniziale stimata (uniforme)
+//		Double uniformValue = 1.0/(new Double(NFrames));
+//		for(int i = 0; i<probSelectionDistribution.size(); i++){
+//			probSelectionDistribution.set(i, uniformValue);
+//		}
 		
 		frameMap.setProbSelectionDistribution(probSelectionDistribution);
 
@@ -217,7 +219,7 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimento_02032019_080016/frameMaps/frameMap_cycle7.csv";
+		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/frames.csv";
 		
 //		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, path);
 		
@@ -225,21 +227,29 @@ public class Test {
 		
 		int NFrames = frameMap.size();
 		
-		ArrayList<Double> estimatedProbSelection = frameMap.getProbSelectionDistribution();
 		ArrayList<Double> trueProbSelection = frameMap.getTrueProbSelectionDistribution();
+		ArrayList<Double> trueProbFailure = frameMap.getTrueProbFailureDistribution();
 		ArrayList<Double> trueProbCriticalFailure = frameMap.getTrueProbCriticalFailureDistribution();
 		
-		//Calcolo reliability critica stimata (p_stimata(i)*f_critica_vera(i))
+		//Calcolo reliability vera (p_vera(i)*f_vera(i)) e conteggio f==1
 		Double failProb = 0.0;
+		int fCount = 0;
 		for(int i = 0; i<NFrames; i++){
-			failProb += estimatedProbSelection.get(i)*trueProbCriticalFailure.get(i);
+			failProb += trueProbSelection.get(i)*trueProbFailure.get(i);
+			if(trueProbFailure.get(i).equals(new Double(1))){
+				fCount++;
+			}
 		}	
-		Double reliabilityForCriticalFailures = 1d - failProb;
+		Double trueReliability = 1d - failProb;
 		
 		//Calcolo reliability critica vera (p_vera(i)*f_critica_vera(i))
 		failProb = 0.0;
+		int fCriticalCount = 0;
 		for(int i = 0; i<NFrames; i++){
 			failProb += trueProbSelection.get(i)*trueProbCriticalFailure.get(i);
+			if(trueProbCriticalFailure.get(i).equals(new Double(1))){
+				fCriticalCount++;
+			}
 		}	
 		Double trueReliabilityForCriticalFailures = 1d - failProb;
 		
@@ -247,8 +257,10 @@ public class Test {
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
 		numberFormatter.setMinimumFractionDigits(16);
 		
-		System.out.println("ESTIMATED RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(reliabilityForCriticalFailures));
-		System.out.println("TRUE RELIABILITY FOR CRITICAL FAILURES: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+		System.out.println("|F_CRITICA_VERA == 1|: " + fCriticalCount);
+		System.out.println("RELIABILITY CRITICA VERA: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+		System.out.println("|F_VERA == 1|: " + fCount);
+		System.out.println("RELIABILITY VERA: " + numberFormatter.format(trueReliability));
 		
 //		frameMap.writeToCSVFile(frameMapFilePath);
 	}

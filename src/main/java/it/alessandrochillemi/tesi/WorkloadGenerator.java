@@ -1,6 +1,5 @@
-package it.alessandrochillemi.tesi.wlgenerator;
+package it.alessandrochillemi.tesi;
 
-import it.alessandrochillemi.tesi.APIRequest;
 import it.alessandrochillemi.tesi.frameutils.ApplicationFactory;
 import it.alessandrochillemi.tesi.frameutils.Frame;
 import it.alessandrochillemi.tesi.frameutils.FrameMap;
@@ -32,11 +31,11 @@ public class WorkloadGenerator {
     	testingStrategy.computeNewProbSelectionDistribution(false);
     	
     	for(int i = 0; i<NRequests; i++){
-    		System.out.println("\nRichiesta " + (i+1) + "...");
+//    		System.out.println("\nRichiesta " + (i+1) + "...");
 
     		//Scelgo un frame secondo l'algoritmo selezionato (pattern Strategy)
     		int selectedFrame = testingStrategy.selectFrame(false);	
-    		System.out.println("Frame selezionato: " + selectedFrame);
+//    		System.out.println("Frame selezionato: " + selectedFrame);
         	Frame frame = frameMap.readByKey(selectedFrame);
 
         	//Genero i valori dei parametri applicando le precondizioni
@@ -73,6 +72,10 @@ public class WorkloadGenerator {
     		ResponseLog responseLog = applicationFactory.makeResponseLog(Integer.toString(selectedFrame, 10), responseCode, responseMessage, responseTime, apiRequest.getParamList());
 
     		responseLogList.add(responseLog);
+    		
+    		if((i+1)%1000 == 0){
+    			System.out.println((i+1) + " richieste eseguite!");
+    		}
     	}
     	
 		return responseLogList;
