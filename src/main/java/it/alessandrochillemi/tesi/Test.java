@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -219,48 +221,121 @@ public class Test {
 
 		ApplicationFactory appFactory = new DiscourseFactory();
 		
-		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/frames.csv";
+		//Metto i tag delle versioni in una lista
+		List<String> versionsList = Arrays.asList("2.1.6", "2.1.7", "2.1.8", "2.2.0", "2.2.1");
+		
+		
+		ArrayList<Integer> nFailuresOT = new ArrayList<Integer>();
+		ArrayList<Integer> nFailuresWOT = new ArrayList<Integer>();
+		
+		System.out.println("\n+++++ TUTTI I FALLIMENTI +++++");
+		
+		for(int i = 0; i<versionsList.size(); i++){
+			nFailuresOT = new ArrayList<Integer>();
+			nFailuresWOT = new ArrayList<Integer>();
+			
+			for(int j = 1; j<=20; j++){
+				String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimenti_discourse/experiment1_repetition"+j+"/test_responses/test_response_log_list_cycle1_v"+versionsList.get(i)+".csv";
+				ResponseLogList responseLogList = appFactory.makeResponseLogList(path);
+				nFailuresOT.add(responseLogList.getTotalNumberOfFailures());
+			}
+			
+			for(int j = 1; j<=20; j++){
+				String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimenti_discourse/experiment3_repetition"+j+"/test_responses/test_response_log_list_cycle1_v"+versionsList.get(i)+".csv";
+				ResponseLogList responseLogList = appFactory.makeResponseLogList(path);
+				nFailuresWOT.add(responseLogList.getTotalNumberOfFailures());
+			}
+			System.out.println("\n\n ----- Versione " + versionsList.get(i) + " ------:");
+			
+			System.out.println("\nOT: ");
+			for(Integer nFailures : nFailuresOT){
+				System.out.print(nFailures + " ");
+			}
+			
+			System.out.println("\nWOT: ");
+			for(Integer nFailures : nFailuresWOT){
+				System.out.print(nFailures + " ");
+			}
+			
+		}
+		
+		ArrayList<Integer> nCriticalFailuresOT = new ArrayList<Integer>();
+		ArrayList<Integer> nCriticalFailuresWOT = new ArrayList<Integer>();
+		
+		System.out.println("\n+++++ FALLIMENTI CRITICI +++++");
+		
+		for(int i = 0; i<versionsList.size(); i++){
+			nCriticalFailuresOT = new ArrayList<Integer>();
+			nCriticalFailuresWOT = new ArrayList<Integer>();
+			
+			for(int j = 1; j<=20; j++){
+				String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimenti_discourse/experiment1_repetition"+j+"/test_responses/test_response_log_list_cycle1_v"+versionsList.get(i)+".csv";
+				ResponseLogList responseLogList = appFactory.makeResponseLogList(path);
+				nCriticalFailuresOT.add(responseLogList.getTotalNumberOfCriticalFailures());
+			}
+			
+			for(int j = 1; j<=20; j++){
+				String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimenti_discourse/experiment2_repetition"+j+"/test_responses/test_response_log_list_cycle1_v"+versionsList.get(i)+".csv";
+				ResponseLogList responseLogList = appFactory.makeResponseLogList(path);
+				nCriticalFailuresWOT.add(responseLogList.getTotalNumberOfCriticalFailures());
+			}
+			System.out.println("\n\n ----- Versione " + versionsList.get(i) + " ------:");
+			
+			System.out.println("\nOT: ");
+			for(Integer nCriticalFailures : nCriticalFailuresOT){
+				System.out.print(nCriticalFailures + " ");
+			}
+			
+			System.out.println("\nWOT: ");
+			for(Integer nCriticalFailures : nCriticalFailuresWOT){
+				System.out.print(nCriticalFailures + " ");
+			}
+			
+		}
+		
+//		String path = "/Users/alessandrochillemi/Desktop/Universita/Magistrale/Tesi/esperimenti_discourse/experiment1_repetition1/test_responses/test_response_log_list_cycle1_v2.2.1.csv";
+
 		
 //		FrameMap frameMap = generateFramesForFirstStrategy(appFactory, path);
 		
-		FrameMap frameMap = appFactory.makeFrameMap(path);
+//		FrameMap frameMap = appFactory.makeFrameMap(path);
 		
-		int NFrames = frameMap.size();
-		
-		ArrayList<Double> trueProbSelection = frameMap.getTrueProbSelectionDistribution();
-		ArrayList<Double> trueProbFailure = frameMap.getTrueProbFailureDistribution();
-		ArrayList<Double> trueProbCriticalFailure = frameMap.getTrueProbCriticalFailureDistribution();
-		
-		//Calcolo reliability vera (p_vera(i)*f_vera(i)) e conteggio f==1
-		Double failProb = 0.0;
-		int fCount = 0;
-		for(int i = 0; i<NFrames; i++){
-			failProb += trueProbSelection.get(i)*trueProbFailure.get(i);
-			if(trueProbFailure.get(i).equals(new Double(1))){
-				fCount++;
-			}
-		}	
-		Double trueReliability = 1d - failProb;
-		
-		//Calcolo reliability critica vera (p_vera(i)*f_critica_vera(i))
-		failProb = 0.0;
-		int fCriticalCount = 0;
-		for(int i = 0; i<NFrames; i++){
-			failProb += trueProbSelection.get(i)*trueProbCriticalFailure.get(i);
-			if(trueProbCriticalFailure.get(i).equals(new Double(1))){
-				fCriticalCount++;
-			}
-		}	
-		Double trueReliabilityForCriticalFailures = 1d - failProb;
-		
-		Locale currentLocale = Locale.ITALY;
-		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
-		numberFormatter.setMinimumFractionDigits(16);
-		
-		System.out.println("|F_CRITICA_VERA == 1|: " + fCriticalCount);
-		System.out.println("RELIABILITY CRITICA VERA: " + numberFormatter.format(trueReliabilityForCriticalFailures));
-		System.out.println("|F_VERA == 1|: " + fCount);
-		System.out.println("RELIABILITY VERA: " + numberFormatter.format(trueReliability));
+//		int NFrames = frameMap.size();
+//		
+//		ArrayList<Double> trueProbSelection = frameMap.getTrueProbSelectionDistribution();
+//		ArrayList<Double> trueProbFailure = frameMap.getTrueProbFailureDistribution();
+//		ArrayList<Double> trueProbCriticalFailure = frameMap.getTrueProbCriticalFailureDistribution();
+//		
+//		//Calcolo reliability vera (p_vera(i)*f_vera(i)) e conteggio f==1
+//		Double failProb = 0.0;
+//		int fCount = 0;
+//		for(int i = 0; i<NFrames; i++){
+//			failProb += trueProbSelection.get(i)*trueProbFailure.get(i);
+//			if(trueProbFailure.get(i).equals(new Double(1))){
+//				fCount++;
+//			}
+//		}	
+//		Double trueReliability = 1d - failProb;
+//		
+//		//Calcolo reliability critica vera (p_vera(i)*f_critica_vera(i))
+//		failProb = 0.0;
+//		int fCriticalCount = 0;
+//		for(int i = 0; i<NFrames; i++){
+//			failProb += trueProbSelection.get(i)*trueProbCriticalFailure.get(i);
+//			if(trueProbCriticalFailure.get(i).equals(new Double(1))){
+//				fCriticalCount++;
+//			}
+//		}	
+//		Double trueReliabilityForCriticalFailures = 1d - failProb;
+//		
+//		Locale currentLocale = Locale.ITALY;
+//		NumberFormat numberFormatter = NumberFormat.getNumberInstance(currentLocale);
+//		numberFormatter.setMinimumFractionDigits(16);
+//		
+//		System.out.println("|F_CRITICA_VERA == 1|: " + fCriticalCount);
+//		System.out.println("RELIABILITY CRITICA VERA: " + numberFormatter.format(trueReliabilityForCriticalFailures));
+//		System.out.println("|F_VERA == 1|: " + fCount);
+//		System.out.println("RELIABILITY VERA: " + numberFormatter.format(trueReliability));
 		
 //		frameMap.writeToCSVFile(frameMapFilePath);
 	}
